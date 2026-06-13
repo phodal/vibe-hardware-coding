@@ -85,6 +85,10 @@ case "$ACTION" in
         smoke)
           exec "$PROJECT_DIR/scripts/cloud-ai-terminal-smoke.sh"
           ;;
+        pipeline)
+          cd "$PROJECT_DIR"
+          exec make cloud-ai-pipeline-smoke
+          ;;
         relay)
           exec python3 "$PROJECT_DIR/scripts/cloud-ai-relay.py" "${EXTRA_ARGS[@]:1}"
           ;;

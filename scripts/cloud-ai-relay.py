@@ -97,14 +97,23 @@ def http_response(endpoint: str, question: str, timeout: float) -> str:
     return str(text)
 
 
+def send_and_wait(serial: SerialPort, command: str, needle: str, timeout: float) -> str:
+    print(f"> {command}", flush=True)
+    serial.write_line(command)
+    return serial.wait_for(needle, timeout)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Host relay for the cloud_ai_terminal sketch.")
     parser.add_argument("--port", required=True)
     parser.add_argument("--baud", type=int, default=115200)
     parser.add_argument("--mode", choices=["mock", "http"], default="mock")
     parser.add_argument("--endpoint", help="HTTP endpoint for mode=http. Expects JSON with text/response/answer.")
+    parser.add_argument("--pipeline", action="store_true", help="Drive the non-audio ASR -> LLM -> TTS serial pipeline.")
     parser.add_argument("--question", default="hello")
+    parser.add_argument("--transcript", default="hello from local asr")
     parser.add_argument("--response", default="AI OK")
+    parser.add_argument("--tts", default="tts frame ready")
     parser.add_argument("--expect", default="AI_DISPLAYED")
     parser.add_argument("--timeout", type=float, default=15.0)
     args = parser.parse_args()
@@ -115,22 +124,36 @@ def main() -> int:
     serial = SerialPort(args.port, args.baud)
     try:
         serial.wait_for("CLOUD_AI_READY", args.timeout)
-        print("> PING", flush=True)
-        serial.write_line("PING")
-        serial.wait_for("PONG", 5)
+        send_and_wait(serial, "PING", "PONG", 5)
 
-        print(f"> ASK:{args.question}", flush=True)
-        serial.write_line(f"ASK:{args.question}")
-        serial.wait_for("ASK_RX", 5)
-
-        answer = http_response(args.endpoint, args.question, args.timeout) if args.mode == "http" else args.response
-        print(f"> AI:{answer}", flush=True)
-        serial.write_line(f"AI:{answer}")
-        serial.wait_for(args.expect, 5)
+        if args.pipeline:
+            transcript = args.transcript or args.question
+            answer = http_response(args.endpoint, transcript, args.timeout) if args.mode == "http" else args.response
+            send_and_wait(serial, "STATUS:LISTEN", "STATUS_RX", 5)
+            send_and_wait(serial, f"ASR:{transcript}", "ASR_RX", 5)
+            send_and_wait(serial, "STATUS:THINK", "STATUS_RX", 5)
+            send_and_wait(serial, f"LLM:{answer}", "LLM_DISPLAYED", 5)
+            send_and_wait(serial, "STATUS:SPEAK", "STATUS_RX", 5)
+            send_and_wait(serial, f"TTS:{args.tts}", "PIPELINE_DONE", 5)
+        else:
+            send_and_wait(serial, f"ASK:{args.question}", "ASK_RX", 5)
+            answer = http_response(args.endpoint, args.question, args.timeout) if args.mode == "http" else args.response
+            send_and_wait(serial, f"AI:{answer}", args.expect, 5)
     finally:
         serial.close()
 
-    print(json.dumps({"status": "ok", "mode": args.mode, "response": args.response}, ensure_ascii=True))
+    print(
+        json.dumps(
+            {
+                "status": "ok",
+                "mode": args.mode,
+                "pipeline": args.pipeline,
+                "response": args.response,
+                "tts": args.tts,
+            },
+            ensure_ascii=True,
+        )
+    )
     return 0
 
 

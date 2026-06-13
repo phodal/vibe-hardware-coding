@@ -61,8 +61,9 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
 9. For the self-developed cloud AI terminal:
    - Run `make cloud-ai-build` to compile the board-side display/serial terminal.
    - Run `make cloud-ai-smoke` to upload it and verify the host serial relay reaches `AI_DISPLAYED`.
+   - Run `make cloud-ai-pipeline-smoke` to upload it and verify the silent ASR -> LLM -> TTS serial pipeline reaches `PIPELINE_DONE`.
    - Run `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make cloud-ai-smoke` when the camera is positioned for OCR; serial verifies `AI OK`, while OCR should at least see stable `OK`.
-   - Treat this as the control-plane slice; ES7210 microphone input and ES8311 speaker output still need dedicated audio stream validation.
+   - Treat this as the control-plane slice; pipeline smoke does not use microphone or speaker hardware. ES7210 microphone input and ES8311 speaker output still need dedicated audio stream validation.
 
 10. For microphone/audio-front-end validation:
    - Run `make audio-vad-build` to compile the ES7210 microphone probe.
@@ -147,6 +148,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - `verify`/`doctor` is intentionally compile-only; it does not upload firmware or run camera OCR.
    - Run explicit hardware smokes when the user wants board validation:
      `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh cloud-ai <project-dir> smoke`
+     `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh cloud-ai <project-dir> pipeline`
      `AUDIO_VAD_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh audio-vad <project-dir> smoke`
      `SPEAKER_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh speaker-output <project-dir> smoke`
      `SENSOR_STATUS_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh sensor-status <project-dir> smoke`
@@ -200,6 +202,7 @@ make xiaozhi-inspect
 make xiaozhi-source-check
 make cloud-ai-build
 make cloud-ai-smoke
+make cloud-ai-pipeline-smoke
 make audio-vad-build
 make audio-vad-smoke
 make speaker-output-build

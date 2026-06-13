@@ -18,15 +18,27 @@ if [[ -z "${ARDUINO_PORT_PINNED:-}" ]]; then
   export ARDUINO_PORT
 fi
 
-python3 "$ROOT_DIR/scripts/cloud-ai-relay.py" \
-  --port "$ARDUINO_PORT" \
-  --baud "${MONITOR_BAUD:-115200}" \
-  --mode "${CLOUD_AI_RELAY_MODE:-mock}" \
-  ${CLOUD_AI_RELAY_ENDPOINT:+--endpoint "$CLOUD_AI_RELAY_ENDPOINT"} \
-  --question "${CLOUD_AI_QUESTION:-hello from codex}" \
-  --response "${CLOUD_AI_RESPONSE:-AI OK}" \
-  --expect "${CLOUD_AI_EXPECT_SERIAL:-AI_DISPLAYED}" \
+RELAY_ARGS=(
+  --port "$ARDUINO_PORT"
+  --baud "${MONITOR_BAUD:-115200}"
+  --mode "${CLOUD_AI_RELAY_MODE:-mock}"
+  --question "${CLOUD_AI_QUESTION:-hello from codex}"
+  --transcript "${CLOUD_AI_TRANSCRIPT:-hello from local asr}"
+  --response "${CLOUD_AI_RESPONSE:-AI OK}"
+  --tts "${CLOUD_AI_TTS:-tts frame ready}"
+  --expect "${CLOUD_AI_EXPECT_SERIAL:-AI_DISPLAYED}"
   --timeout "${CLOUD_AI_TIMEOUT:-15}"
+)
+
+if [[ -n "${CLOUD_AI_RELAY_ENDPOINT:-}" ]]; then
+  RELAY_ARGS+=(--endpoint "$CLOUD_AI_RELAY_ENDPOINT")
+fi
+
+if [[ "${CLOUD_AI_PIPELINE:-0}" == "1" ]]; then
+  RELAY_ARGS+=(--pipeline)
+fi
+
+python3 "$ROOT_DIR/scripts/cloud-ai-relay.py" "${RELAY_ARGS[@]}"
 
 if [[ "${CLOUD_AI_VISUAL_SMOKE:-0}" == "1" ]]; then
   OCR_EXPECTED="${CLOUD_AI_OCR_EXPECTED:-OK}" "$ROOT_DIR/scripts/camera-ocr.sh"

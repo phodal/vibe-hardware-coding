@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 DEMO ?= 01-helloworld
 
-.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-aligner camera-diagnose official-demos official-build official-upload official-smoke official-build-all xiaozhi-latest xiaozhi-download xiaozhi-inspect xiaozhi-flash xiaozhi-source-clone xiaozhi-source-check cloud-ai-build cloud-ai-upload cloud-ai-smoke cloud-ai-relay audio-vad-build audio-vad-smoke speaker-output-build speaker-output-smoke sensor-status-build sensor-status-smoke power-lifecycle-build power-lifecycle-smoke touch-status-build touch-status-smoke interaction-dashboard-build interaction-dashboard-smoke desk-widget-build desk-widget-smoke iot-panel-build iot-panel-smoke tinyml-imu-build tinyml-imu-smoke esp-claw-agent-build esp-claw-agent-smoke offline-voice-build offline-voice-smoke lvgl-visual-agent-build lvgl-visual-agent-smoke install-hooks board-list clean
+.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-aligner camera-diagnose official-demos official-build official-upload official-smoke official-build-all xiaozhi-latest xiaozhi-download xiaozhi-inspect xiaozhi-flash xiaozhi-source-clone xiaozhi-source-check cloud-ai-build cloud-ai-upload cloud-ai-smoke cloud-ai-pipeline-smoke cloud-ai-relay audio-vad-build audio-vad-smoke speaker-output-build speaker-output-smoke sensor-status-build sensor-status-smoke power-lifecycle-build power-lifecycle-smoke touch-status-build touch-status-smoke interaction-dashboard-build interaction-dashboard-smoke desk-widget-build desk-widget-smoke iot-panel-build iot-panel-smoke tinyml-imu-build tinyml-imu-smoke esp-claw-agent-build esp-claw-agent-smoke offline-voice-build offline-voice-smoke lvgl-visual-agent-build lvgl-visual-agent-smoke install-hooks board-list clean
 
 setup:
 	./scripts/setup.sh
@@ -71,6 +71,9 @@ cloud-ai-upload:
 
 cloud-ai-smoke:
 	./scripts/cloud-ai-terminal-smoke.sh
+
+cloud-ai-pipeline-smoke:
+	CLOUD_AI_PIPELINE=1 CLOUD_AI_EXPECT_SERIAL=PIPELINE_DONE ./scripts/cloud-ai-terminal-smoke.sh
 
 cloud-ai-relay:
 	python3 ./scripts/cloud-ai-relay.py --port $(ARDUINO_PORT)

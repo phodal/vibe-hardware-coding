@@ -15,7 +15,11 @@ Arduino_CO5300 *gfx = new Arduino_CO5300(
 
 String inputLine;
 uint32_t frame = 0;
+uint32_t pipelineCount = 0;
 bool displayReady = false;
+String lastTranscript = "";
+String lastResponse = "";
+String lastTts = "";
 
 void centerText(const String &text, int16_t y, uint8_t size, uint16_t color) {
   int16_t x1;
@@ -62,6 +66,12 @@ void drawFrame(const String &status, const String &response) {
   gfx->print("Serial relay ready");
 }
 
+void emitDisplayAck(const char *prefix, const String &value) {
+  Serial.print(prefix);
+  Serial.println(fitLine(value, 64));
+  Serial.flush();
+}
+
 void processLine(String line) {
   line.trim();
   if (line.length() == 0) {
@@ -76,18 +86,50 @@ void processLine(String line) {
 
   if (line.startsWith("ASK:")) {
     String question = line.substring(4);
+    lastTranscript = question;
     drawFrame("THINK", "...");
-    Serial.print("ASK_RX:");
-    Serial.println(fitLine(question, 64));
-    Serial.flush();
+    emitDisplayAck("ASK_RX:", question);
+    return;
+  }
+
+  if (line.startsWith("ASR:")) {
+    String transcript = line.substring(4);
+    lastTranscript = transcript;
+    drawFrame("ASR", transcript);
+    emitDisplayAck("ASR_RX:", transcript);
     return;
   }
 
   if (line.startsWith("AI:")) {
     String response = line.substring(3);
+    lastResponse = response;
     drawFrame("DONE", response);
-    Serial.print("AI_DISPLAYED:");
-    Serial.println(fitLine(response, 64));
+    emitDisplayAck("AI_DISPLAYED:", response);
+    return;
+  }
+
+  if (line.startsWith("LLM:")) {
+    String response = line.substring(4);
+    lastResponse = response;
+    drawFrame("LLM", response);
+    emitDisplayAck("LLM_DISPLAYED:", response);
+    return;
+  }
+
+  if (line.startsWith("TTS:")) {
+    String tts = line.substring(4);
+    lastTts = tts;
+    pipelineCount++;
+    drawFrame("TTS", lastResponse.length() > 0 ? lastResponse : tts);
+    emitDisplayAck("TTS_READY:", tts);
+    Serial.print("PIPELINE_DONE count=");
+    Serial.print(pipelineCount);
+    Serial.print(" transcript=");
+    Serial.print(fitLine(lastTranscript, 24));
+    Serial.print(" response=");
+    Serial.print(fitLine(lastResponse, 24));
+    Serial.print(" tts=");
+    Serial.println(fitLine(lastTts, 24));
     Serial.flush();
     return;
   }
