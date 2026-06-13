@@ -10,6 +10,7 @@ Recoding changes to the AGENTS.md file for better organization and clarity.
 - Keep destructive actions explicit. Firmware replacement commands should require a visible confirmation variable or `--yes`.
 - Stage vendor sketches instead of editing vendor sources when Arduino CLI requires folder and `.ino` names to match.
 - Treat audible audio smokes as disruptive physical tests. Do not run speaker or microphone stimulus tests late at night unless the user explicitly asks for them.
+- Prefer silent PMU/IMU/display validation when working late; serial metrics plus camera OCR can still produce strong evidence without using audio devices.
 
 ## Current Challenges
 
@@ -20,6 +21,7 @@ Recoding changes to the AGENTS.md file for better organization and clarity.
 - `pyserial` is not installed in the current Python, so host relay tools should use stdlib `termios` or document their dependency explicitly.
 - Python `audioop` is not available in the current Python, so WAV analysis should use explicit PCM byte parsing or a documented dependency.
 - ESP-IDF is not currently sourced in this shell, so XiaoZhi source builds can only be checked up to board configuration until `idf.py` is available.
+- PMU validation should not require a nonzero battery voltage because the battery connector may be unused; gate on system voltage and use battery voltage as supporting evidence.
 
 ## Cloud AI Terminal Direction
 
@@ -28,6 +30,7 @@ Recoding changes to the AGENTS.md file for better organization and clarity.
 - VAD is stricter than raw microphone capture. Treat RMS/peak threshold increases as the microphone data-flow gate, and use `AUDIO_VAD_REQUIRE_SPEECH=1` only when the host speaker is physically close enough.
 - On the current desk setup, macOS `say` produced a clear ES7210 signal delta but did not trigger ESP-SR VAD; this is acceptable for the microphone data-flow gate but not for a wake-word or speech-command gate.
 - ES8311 playback now has a board-generated tone probe and a host microphone gate. Treat the current gate as physical output evidence, not as proof of TTS quality or frequency accuracy.
+- AXP2101 + QMI8658 now have a silent sensor-status probe. A stationary board should report accelerometer magnitude near 1 g; use the wider default range only as a smoke gate.
 
 ## Feature Push README Hook
 

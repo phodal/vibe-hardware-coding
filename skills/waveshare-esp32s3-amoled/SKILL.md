@@ -75,14 +75,21 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Use `SPEAKER_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make speaker-output-smoke` when camera OCR should verify the screen reaches `OK`.
    - Do not run audible speaker or microphone smoke tests late at night unless the user explicitly asks for them.
 
-12. For Skill automation wiring:
-   - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `audio_vad_probe`, and `speaker_output_probe`.
+12. For PMU/IMU sensor validation:
+   - Run `make sensor-status-build` to compile the AXP2101 + QMI8658 status probe.
+   - Run `make sensor-status-smoke` to upload it and validate silent serial metrics from the PMU and IMU.
+   - Use `SENSOR_STATUS_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make sensor-status-smoke` when camera OCR should verify the screen reaches `OK`.
+   - This path is safe for late-night validation because it does not play audio or use the host microphone.
+
+13. For Skill automation wiring:
+   - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `audio_vad_probe`, `speaker_output_probe`, and `sensor_status_probe`.
    - `verify`/`doctor` is intentionally compile-only; it does not upload firmware or run camera OCR.
    - Run explicit hardware smokes when the user wants board validation:
      `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh cloud-ai <project-dir> smoke`
      `AUDIO_VAD_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh audio-vad <project-dir> smoke`
+     `SPEAKER_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh speaker-output <project-dir> smoke`
      and
-     `SPEAKER_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh speaker-output <project-dir> smoke`.
+     `SENSOR_STATUS_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh sensor-status <project-dir> smoke`.
 
 ## Known 1.75C FQBN
 
@@ -126,6 +133,8 @@ make audio-vad-build
 make audio-vad-smoke
 make speaker-output-build
 make speaker-output-smoke
+make sensor-status-build
+make sensor-status-smoke
 /Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh verify /path/to/project
 ```
 
