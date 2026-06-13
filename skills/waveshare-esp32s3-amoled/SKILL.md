@@ -52,7 +52,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `make official-coverage` for a read-only audit of build artifacts, source presence, quiet audio marker readiness, and existing physical smoke logs across every official demo.
    - Run `SMOKE_SECONDS=8 make official-smoke DEMO=01-helloworld` to upload the official display baseline and verify runtime serial output.
    - Official smoke uses `scripts/serial-capture.py` to open capture before RTS reset; keep this path for one-shot setup logs.
-   - Treat `03-power-axp2101` as Wi-Fi-environment gated unless valid Station credentials let the vendor sketch reach `Setup done`.
+   - `03-power-axp2101` uses a staged-only `OFFICIAL_POWER_WIFI_TIMEOUT_MS` patch in automation so invalid vendor Station credentials do not block AP, PMU, and LVGL initialization; treat the resulting `Setup done` as PMU/LVGL evidence, not Station Wi-Fi proof.
    - The project runner stages vendor examples under `.arduino-build/official-sketches/<id>` because several official `.ino` filenames do not match their parent folder names, which `arduino-cli` requires.
 
 8. For feature coverage auditing:

@@ -45,9 +45,9 @@ scripts/official-demo.sh path 01-helloworld
 - `make official-smoke DEMO=<id>` uploads to the connected board and captures serial output under `.logs/`.
 - Official smoke capture uses `scripts/serial-capture.py` by default so the log is open before pulsing RTS reset; this is required for demos that print expected serial text only during `setup()`.
 - Vendor example folders are staged into `.arduino-build/official-sketches/<id>` before compilation because several official `.ino` filenames do not match their parent folder names, which `arduino-cli` requires.
-- Visual proof for display-oriented demos can be layered with `make camera-aligner` and `make visual-smoke`, but vendor demos are intentionally kept unmodified in this lane.
+- Visual proof for display-oriented demos can be layered with `make camera-aligner` and `make visual-smoke`. Vendor source directories are not modified; automation-only changes are applied only to staged copies under `.arduino-build/official-sketches/<id>`.
 - Audio demos need real audio stimulus or audible output checks in addition to serial matching.
-- `03-power-axp2101` currently blocks before `Setup done` when the vendor Station Wi-Fi credentials are not valid, so its compile evidence is present but its default physical smoke remains missing.
+- `03-power-axp2101` uses a staged-only `OFFICIAL_POWER_WIFI_TIMEOUT_MS` patch during automation. It still attempts the vendor Station Wi-Fi connection, but it continues to AP, PMU, and LVGL initialization after the timeout so the power demo can be physically smoked without local vendor credentials. This proves PMU/LVGL startup, not Station Wi-Fi success.
 
 ## Verified Locally
 
@@ -55,7 +55,7 @@ scripts/official-demo.sh path 01-helloworld
 - `make official-build DEMO=01-helloworld`: passed on the current Arduino CLI setup.
 - `make official-build-all`: passed for all 7 Arduino examples on the current Arduino CLI setup.
 - `make official-audio-preflight`: passed for `06-es7210-audio-in` and `07-es8311-audio-out`, with `official_audio_preflight_summary demos=2 failed=0 destructive=0 audio=0`.
-- `make official-coverage`: passed read-only audit with `official_coverage_summary demos=7 built=7 physical_smoke=4 missing_physical=3 audio_demos=2 audio_quiet_ready=2 destructive=0 audio=0`.
+- `make official-coverage`: passed read-only audit with `official_coverage_summary demos=7 built=7 physical_smoke=5 missing_physical=2 audio_demos=2 audio_quiet_ready=2 destructive=0 audio=0`.
 - `/Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh official-demo /Users/phodal/hardware/arduino coverage`: passed the same read-only audit through the global Skill helper.
 - `SMOKE_SECONDS=8 make official-smoke DEMO=01-helloworld`: uploaded to `/dev/cu.usbmodem83101` and matched serial text `loop`.
 - Latest smoke log: `.logs/official-01-helloworld-20260613-222514.log`.
@@ -65,7 +65,9 @@ scripts/official-demo.sh path 01-helloworld
 - Latest `04` smoke log: `.logs/official-04-imu-qmi8658-20260614-064847.log`.
 - `SKIP_BUILD=1 SMOKE_SECONDS=10 make official-smoke DEMO=05-lvgl-widgets`: uploaded to `/dev/cu.usbmodem83101` and matched serial text `Setup done`; the log includes `Model :CST9217`.
 - Latest `05` smoke log: `.logs/official-05-lvgl-widgets-20260614-064920.log`.
-- `SKIP_BUILD=1 SMOKE_SECONDS=10 make official-smoke DEMO=03-power-axp2101`: uploaded to `/dev/cu.usbmodem83101` but did not reach `Setup done` because the vendor sketch waited in Station Wi-Fi connection; latest failed log `.logs/official-03-power-axp2101-20260614-064803.log`.
+- `SKIP_BUILD=1 SMOKE_SECONDS=16 OFFICIAL_POWER_WIFI_TIMEOUT_MS=5000 make official-smoke DEMO=03-power-axp2101`: uploaded to `/dev/cu.usbmodem83101`, printed `OFFICIAL_POWER_WIFI_TIMEOUT continuing PMU/LVGL smoke`, started AP mode, initialized LVGL, and matched serial text `Setup done`.
+- Latest `03` smoke log: `.logs/official-03-power-axp2101-20260614-072414.log`.
+- Earlier unpatched `03` smoke failed at Station Wi-Fi connection before `Setup done`; failed log `.logs/official-03-power-axp2101-20260614-064803.log`.
 - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target official-demos --allow-conditional --per-target-timeout 420 --max-failures 1"`: built, uploaded, and passed the default `01-helloworld` official display/serial baseline on `/dev/cu.usbmodem83101`.
 - Latest suite summary: `.logs/hardware-smoke-suite/20260614-050454/summary.json`.
 - Latest suite target log: `.logs/hardware-smoke-suite/20260614-050454/official-demos.log`.

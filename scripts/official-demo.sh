@@ -23,6 +23,46 @@ Usage:
 EOF
 }
 
+patch_power_wifi_timeout() {
+  local ino_file="$1"
+  local timeout_ms="${OFFICIAL_POWER_WIFI_TIMEOUT_MS:-5000}"
+
+  python3 - "$ino_file" "$timeout_ms" <<'PY'
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+timeout_ms = int(sys.argv[2])
+text = path.read_text()
+old = """  WiFi.begin(ssid_sta, password_sta);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\\nStation模式连接成功！");
+  Serial.print("Station模式IP地址: ");
+  Serial.println(WiFi.localIP());
+"""
+new = f"""  WiFi.begin(ssid_sta, password_sta);
+  uint32_t wifi_start_ms = millis();
+  while (WiFi.status() != WL_CONNECTED && (millis() - wifi_start_ms) < {timeout_ms}UL) {{
+    delay(500);
+    Serial.print(".");
+  }}
+  if (WiFi.status() == WL_CONNECTED) {{
+    Serial.println("\\nStation模式连接成功！");
+    Serial.print("Station模式IP地址: ");
+    Serial.println(WiFi.localIP());
+  }} else {{
+    Serial.println("\\nOFFICIAL_POWER_WIFI_TIMEOUT continuing PMU/LVGL smoke");
+  }}
+"""
+if old not in text:
+    raise SystemExit(f"Expected Wi-Fi wait block not found in {path}")
+path.write_text(text.replace(old, new))
+PY
+}
+
 read_demo() {
   local wanted="$1"
   awk -F '\t' -v wanted="$wanted" '
@@ -85,6 +125,10 @@ configure_demo() {
   main_ino="$stage_dir/$(basename "$stage_dir").ino"
   if [[ "$ino_file" != "$main_ino" ]]; then
     mv "$ino_file" "$main_ino"
+  fi
+
+  if [[ "$id" == "03-power-axp2101" ]]; then
+    patch_power_wifi_timeout "$main_ino"
   fi
 }
 
