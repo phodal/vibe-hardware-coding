@@ -39,6 +39,7 @@ Recoding changes to the AGENTS.md file for better organization and clarity.
 - The interaction dashboard also has first-pass P1 behavior for IMU gestures and power management. Default automation uses serial-simulated gestures and power commands for determinism; real physical shake evidence should be reported separately as `DASH_GESTURE source=imu`.
 - The desk widget is the first P1 desktop-widget slice. It is intentionally serial-driven before direct Wi-Fi integrations, so CI/GitHub/calendar/LLM relays can be validated without credentials or audio devices.
 - The IoT control panel is the first P1 Home Assistant/MQTT/HTTP slice. Keep it serial-driven until the UI/state model is stable, then bridge real network events through the same protocol before moving logic fully onto Wi-Fi firmware.
+- The TinyML IMU classifier is a P2 model-automation scaffold. Keep deterministic serial `SAMPLE:` vectors as the Skill-facing acceptance path even after replacing the embedded rule classifier with ESP-DL or a trained model.
 
 ## Feature Push README Hook
 

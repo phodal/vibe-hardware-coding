@@ -27,6 +27,7 @@ case "$ACTION" in
       make interaction-dashboard-build
       make desk-widget-build
       make iot-panel-build
+      make tinyml-imu-build
       exit 0
     fi
     ;;
@@ -219,6 +220,25 @@ case "$ACTION" in
       esac
     fi
     ;;
+  tinyml-imu)
+    if [[ -x "$PROJECT_DIR/scripts/tinyml-imu-smoke.sh" ]]; then
+      if [[ "${#EXTRA_ARGS[@]}" -eq 0 ]]; then
+        exec "$PROJECT_DIR/scripts/tinyml-imu-smoke.sh"
+      fi
+      case "${EXTRA_ARGS[0]}" in
+        build)
+          cd "$PROJECT_DIR"
+          exec make tinyml-imu-build
+          ;;
+        smoke)
+          exec "$PROJECT_DIR/scripts/tinyml-imu-smoke.sh"
+          ;;
+        check)
+          exec python3 "$PROJECT_DIR/scripts/tinyml-imu-check.py" "${EXTRA_ARGS[@]:1}"
+          ;;
+      esac
+    fi
+    ;;
 esac
 
 CORE_VERSION="${ARDUINO_CORE_VERSION:-3.3.5}"
@@ -366,8 +386,12 @@ case "$ACTION" in
     echo "No project IoT panel runner found. Use a project that provides scripts/iot-panel-smoke.sh." >&2
     exit 2
     ;;
+  tinyml-imu)
+    echo "No project TinyML IMU runner found. Use a project that provides scripts/tinyml-imu-smoke.sh." >&2
+    exit 2
+    ;;
   *)
-    echo "Usage: $0 {setup|build|upload|monitor|smoke|verify|doctor|visual-smoke|camera-aligner|official-demos|official-demo|xiaozhi|cloud-ai|audio-vad|speaker-output|sensor-status|touch-status|interaction-dashboard|desk-widget|iot-panel} [project-dir] [action-args...]" >&2
+    echo "Usage: $0 {setup|build|upload|monitor|smoke|verify|doctor|visual-smoke|camera-aligner|official-demos|official-demo|xiaozhi|cloud-ai|audio-vad|speaker-output|sensor-status|touch-status|interaction-dashboard|desk-widget|iot-panel|tinyml-imu} [project-dir] [action-args...]" >&2
     exit 2
     ;;
 esac

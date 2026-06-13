@@ -107,8 +107,15 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Use `IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make iot-panel-smoke` when camera OCR should verify the screen reaches `OK`.
    - This path is safe for late-night validation because it does not play audio or use the host microphone.
 
-17. For Skill automation wiring:
-   - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `audio_vad_probe`, `speaker_output_probe`, `sensor_status_probe`, `touch_status_probe`, `interaction_dashboard`, `desk_widget`, and `iot_control_panel`.
+17. For TinyML / IMU classifier validation:
+   - Run `make tinyml-imu-build` to compile the QMI8658 TinyML classifier scaffold.
+   - Run `make tinyml-imu-smoke` to upload it, disable live IMU mode, inject deterministic serial feature vectors, and verify `REST`, `TILT_LEFT`, `TILT_RIGHT`, and `SHAKE` labels.
+   - Use `TINYML_IMU_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make tinyml-imu-smoke` when camera OCR should verify the screen reaches `OK`.
+   - Treat this as a TinyML automation harness. The current embedded classifier is intentionally simple and should be replaced by ESP-DL or a trained model later without removing the deterministic serial sample gate.
+   - This path is safe for late-night validation because it does not play audio or use the host microphone.
+
+18. For Skill automation wiring:
+   - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `audio_vad_probe`, `speaker_output_probe`, `sensor_status_probe`, `touch_status_probe`, `interaction_dashboard`, `desk_widget`, `iot_control_panel`, and `tinyml_imu_classifier`.
    - `verify`/`doctor` is intentionally compile-only; it does not upload firmware or run camera OCR.
    - Run explicit hardware smokes when the user wants board validation:
      `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh cloud-ai <project-dir> smoke`
@@ -118,8 +125,9 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
      `TOUCH_STATUS_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh touch-status <project-dir> smoke`
      `INTERACTION_DASHBOARD_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh interaction-dashboard <project-dir> smoke`
      `DESK_WIDGET_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh desk-widget <project-dir> smoke`
+     `IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh iot-panel <project-dir> smoke`
      and
-     `IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh iot-panel <project-dir> smoke`.
+     `TINYML_IMU_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh tinyml-imu <project-dir> smoke`.
 
 ## Known 1.75C FQBN
 
@@ -174,6 +182,8 @@ make desk-widget-build
 make desk-widget-smoke
 make iot-panel-build
 make iot-panel-smoke
+make tinyml-imu-build
+make tinyml-imu-smoke
 /Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh verify /path/to/project
 ```
 

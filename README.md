@@ -119,6 +119,8 @@ make desk-widget-build
 make desk-widget-smoke
 make iot-panel-build
 make iot-panel-smoke
+make tinyml-imu-build
+make tinyml-imu-smoke
 ```
 
 `make cloud-ai-smoke` uploads the self-developed `cloud_ai_terminal` sketch, runs the host serial relay in mock mode, and verifies the board displays an AI response. The first slice validates the display and host/cloud protocol shape; audio capture and speaker playback are tracked in `docs/p0-cloud-ai-terminal.md`.
@@ -136,3 +138,5 @@ make iot-panel-smoke
 `make desk-widget-smoke` uploads the serial-driven desk widget and validates CI/GitHub/alert/timer/AI-summary pages without network credentials or audio devices. Use `DESK_WIDGET_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make desk-widget-smoke` when camera OCR should also verify the screen reaches `OK`; details are in `docs/p1-desk-widget.md`.
 
 `make iot-panel-smoke` uploads the serial-driven IoT control panel and validates device state changes, MQTT-style inbound updates, HTTP-style outbound actions, and scene changes without Wi-Fi credentials. Use `IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make iot-panel-smoke` when camera OCR should also verify the screen reaches `OK`; details are in `docs/p1-iot-control-panel.md`.
+
+`make tinyml-imu-smoke` uploads the TinyML IMU classifier scaffold, disables live mode, injects deterministic accelerometer/gyroscope feature vectors over serial, and verifies `REST`, `TILT_LEFT`, `TILT_RIGHT`, and `SHAKE` labels. This is the model automation harness before replacing the embedded rule classifier with ESP-DL or a trained model; details are in `docs/p2-tinyml-imu-classifier.md`.
