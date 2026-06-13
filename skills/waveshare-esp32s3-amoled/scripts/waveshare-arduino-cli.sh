@@ -28,6 +28,7 @@ case "$ACTION" in
       make desk-widget-build
       make iot-panel-build
       make tinyml-imu-build
+      make esp-claw-agent-build
       exit 0
     fi
     ;;
@@ -239,6 +240,25 @@ case "$ACTION" in
       esac
     fi
     ;;
+  esp-claw-agent)
+    if [[ -x "$PROJECT_DIR/scripts/esp-claw-agent-smoke.sh" ]]; then
+      if [[ "${#EXTRA_ARGS[@]}" -eq 0 ]]; then
+        exec "$PROJECT_DIR/scripts/esp-claw-agent-smoke.sh"
+      fi
+      case "${EXTRA_ARGS[0]}" in
+        build)
+          cd "$PROJECT_DIR"
+          exec make esp-claw-agent-build
+          ;;
+        smoke)
+          exec "$PROJECT_DIR/scripts/esp-claw-agent-smoke.sh"
+          ;;
+        check)
+          exec python3 "$PROJECT_DIR/scripts/esp-claw-agent-check.py" "${EXTRA_ARGS[@]:1}"
+          ;;
+      esac
+    fi
+    ;;
 esac
 
 CORE_VERSION="${ARDUINO_CORE_VERSION:-3.3.5}"
@@ -390,8 +410,12 @@ case "$ACTION" in
     echo "No project TinyML IMU runner found. Use a project that provides scripts/tinyml-imu-smoke.sh." >&2
     exit 2
     ;;
+  esp-claw-agent)
+    echo "No project ESP-Claw agent runner found. Use a project that provides scripts/esp-claw-agent-smoke.sh." >&2
+    exit 2
+    ;;
   *)
-    echo "Usage: $0 {setup|build|upload|monitor|smoke|verify|doctor|visual-smoke|camera-aligner|official-demos|official-demo|xiaozhi|cloud-ai|audio-vad|speaker-output|sensor-status|touch-status|interaction-dashboard|desk-widget|iot-panel|tinyml-imu} [project-dir] [action-args...]" >&2
+    echo "Usage: $0 {setup|build|upload|monitor|smoke|verify|doctor|visual-smoke|camera-aligner|official-demos|official-demo|xiaozhi|cloud-ai|audio-vad|speaker-output|sensor-status|touch-status|interaction-dashboard|desk-widget|iot-panel|tinyml-imu|esp-claw-agent} [project-dir] [action-args...]" >&2
     exit 2
     ;;
 esac
