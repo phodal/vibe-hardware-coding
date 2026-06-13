@@ -33,4 +33,13 @@
 | **10. ESP-Claw / OpenClaw** |       设备 Agent、MCP、IM 聊天控制、Lua 规则 |  P2 | ESP-Claw 文档描述了“感知→推理→决策→执行”的边缘 AI 框架，并支持 ESP32-S3；要求至少 8MB Flash + 8MB PSRAM。([[Waveshare Docs](https://docs.waveshare.net/ESPClaw?utm_source=chatgpt.com)][5]) |
 | **11. TinyML / ESP-DL**     |                  传感器分类、姿态识别、小模型推理 |  P2 | 适合小模型，不适合本地跑完整 LLM。ESP-DL 提供神经网络推理、图像处理、数学运算 API。([[ESP Component Registry](https://components.espressif.com/components/espressif/esp-dl?utm_source=chatgpt.com)][6])                     |
 | **12. 音频前端实验**              |              AEC、NS、VAD、双麦波束/降噪评估 |  P2 | ESP-SR AFE 支持 AEC、噪声抑制、VAD、WakeNet 等。([[Espressif Systems](https://docs.espressif.com/projects/esp-sr/en/latest/esp32s3/audio_front_end/README.html?utm_source=chatgpt.com)][7])                                      |
+
+
+## 验证
+
+你应该验证每个功能，比如通过摄像头等
+
+## 迭代
+
+你应该尽可能开发一些额外的工具，来确保所有的硬件功能都能被你验证。
 ```
