@@ -24,6 +24,7 @@ case "$ACTION" in
       make speaker-output-build
       make sensor-status-build
       make touch-status-build
+      make interaction-dashboard-build
       exit 0
     fi
     ;;
@@ -155,6 +156,25 @@ case "$ACTION" in
           ;;
         check)
           exec python3 "$PROJECT_DIR/scripts/touch-status-check.py" "${EXTRA_ARGS[@]:1}"
+          ;;
+      esac
+    fi
+    ;;
+  interaction-dashboard)
+    if [[ -x "$PROJECT_DIR/scripts/interaction-dashboard-smoke.sh" ]]; then
+      if [[ "${#EXTRA_ARGS[@]}" -eq 0 ]]; then
+        exec "$PROJECT_DIR/scripts/interaction-dashboard-smoke.sh"
+      fi
+      case "${EXTRA_ARGS[0]}" in
+        build)
+          cd "$PROJECT_DIR"
+          exec make interaction-dashboard-build
+          ;;
+        smoke)
+          exec "$PROJECT_DIR/scripts/interaction-dashboard-smoke.sh"
+          ;;
+        check)
+          exec python3 "$PROJECT_DIR/scripts/interaction-dashboard-check.py" "${EXTRA_ARGS[@]:1}"
           ;;
       esac
     fi
@@ -294,8 +314,12 @@ case "$ACTION" in
     echo "No project touch status runner found. Use a project that provides scripts/touch-status-smoke.sh." >&2
     exit 2
     ;;
+  interaction-dashboard)
+    echo "No project interaction dashboard runner found. Use a project that provides scripts/interaction-dashboard-smoke.sh." >&2
+    exit 2
+    ;;
   *)
-    echo "Usage: $0 {setup|build|upload|monitor|smoke|verify|doctor|visual-smoke|camera-aligner|official-demos|official-demo|xiaozhi|cloud-ai|audio-vad|speaker-output|sensor-status|touch-status} [project-dir] [action-args...]" >&2
+    echo "Usage: $0 {setup|build|upload|monitor|smoke|verify|doctor|visual-smoke|camera-aligner|official-demos|official-demo|xiaozhi|cloud-ai|audio-vad|speaker-output|sensor-status|touch-status|interaction-dashboard} [project-dir] [action-args...]" >&2
     exit 2
     ;;
 esac

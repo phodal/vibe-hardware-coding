@@ -18,6 +18,7 @@ Recoding changes to the AGENTS.md file for better organization and clarity.
 - `arduino-cli monitor` can open but capture no bytes on the local USB Serial/JTAG port; raw `stty` plus `cat` is the reliable serial path.
 - Camera OCR is sensitive to orientation, focus, glare, and pixel font shape. Use `make camera-aligner` and keep validation text large and simple.
 - Vision OCR can misread `AI OK` as `HI OK`; use serial to verify the full payload and OCR a stable subset such as `OK`.
+- Camera capture has a `CAMERA_CAPTURE_TIMEOUT` guard. If ffmpeg times out before saving a frame, treat it as host camera availability/ownership first, not as board display failure.
 - `pyserial` is not installed in the current Python, so host relay tools should use stdlib `termios` or document their dependency explicitly.
 - Python `audioop` is not available in the current Python, so WAV analysis should use explicit PCM byte parsing or a documented dependency.
 - ESP-IDF is not currently sourced in this shell, so XiaoZhi source builds can only be checked up to board configuration until `idf.py` is available.
@@ -33,6 +34,7 @@ Recoding changes to the AGENTS.md file for better organization and clarity.
 - ES8311 playback now has a board-generated tone probe and a host microphone gate. Treat the current gate as physical output evidence, not as proof of TTS quality or frequency accuracy.
 - AXP2101 + QMI8658 now have a silent sensor-status probe. A stationary board should report accelerometer magnitude near 1 g; use the wider default range only as a smoke gate.
 - CST9217 touch now has a silent controller-online probe. Do not claim end-to-end touch UX without either the official LVGL widgets pass or a `TOUCH_REQUIRE_EVENT=1` manual tap pass.
+- The interaction dashboard is the preferred combined non-audio app smoke. It verifies display, touch-controller presence, PMU, and IMU through serial page switching plus optional OCR, without requiring a human tap or using any audio device.
 
 ## Feature Push README Hook
 

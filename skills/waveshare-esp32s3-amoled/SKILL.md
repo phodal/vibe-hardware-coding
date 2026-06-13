@@ -41,6 +41,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - If OCR framing or orientation is uncertain, run `make camera-aligner` first. Copy the generated `CAMERA_CROP='...' OCR_ROTATE=...` environment values.
    - If the board appears upside down in the camera, prefer `DISPLAY_ROTATION=2 make visual-smoke` so the sketch renders upright text for OCR.
    - Run `CAMERA_CROP='...' OCR_ROTATE=... DISPLAY_ROTATION=... make visual-smoke` to capture one camera frame with `ffmpeg` and OCR it with macOS Vision.
+   - Camera capture is bounded by `CAMERA_CAPTURE_TIMEOUT`; if it times out before saving a frame, debug macOS camera availability or another app owning the camera before changing board firmware.
    - Pass only if OCR sees `OK`; use the saved raw/processed images to debug focus, glare, rotation, or garbled output.
 
 7. For official demo bring-up:
@@ -87,16 +88,23 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Use `TOUCH_REQUIRE_EVENT=1 make touch-status-smoke` only when a human can touch the screen during the smoke window.
    - Use `TOUCH_STATUS_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make touch-status-smoke` when camera OCR should verify the screen reaches `OK`.
 
-14. For Skill automation wiring:
-   - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `audio_vad_probe`, `speaker_output_probe`, `sensor_status_probe`, and `touch_status_probe`.
+14. For combined non-audio app validation:
+   - Run `make interaction-dashboard-build` to compile the combined display, touch-controller, PMU, and IMU dashboard.
+   - Run `make interaction-dashboard-smoke` to upload it and drive page changes over serial without requiring a human tap.
+   - Use `INTERACTION_DASHBOARD_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make interaction-dashboard-smoke` when camera OCR should verify the final dashboard page reaches `OK`.
+   - This path is safe for late-night validation because it does not play audio or use the host microphone.
+
+15. For Skill automation wiring:
+   - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `audio_vad_probe`, `speaker_output_probe`, `sensor_status_probe`, `touch_status_probe`, and `interaction_dashboard`.
    - `verify`/`doctor` is intentionally compile-only; it does not upload firmware or run camera OCR.
    - Run explicit hardware smokes when the user wants board validation:
      `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh cloud-ai <project-dir> smoke`
      `AUDIO_VAD_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh audio-vad <project-dir> smoke`
      `SPEAKER_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh speaker-output <project-dir> smoke`
      `SENSOR_STATUS_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh sensor-status <project-dir> smoke`
+     `TOUCH_STATUS_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh touch-status <project-dir> smoke`
      and
-     `TOUCH_STATUS_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh touch-status <project-dir> smoke`.
+     `INTERACTION_DASHBOARD_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh interaction-dashboard <project-dir> smoke`.
 
 ## Known 1.75C FQBN
 
@@ -144,6 +152,8 @@ make sensor-status-build
 make sensor-status-smoke
 make touch-status-build
 make touch-status-smoke
+make interaction-dashboard-build
+make interaction-dashboard-smoke
 /Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh verify /path/to/project
 ```
 

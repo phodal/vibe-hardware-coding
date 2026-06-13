@@ -24,6 +24,7 @@ OCR_ROTATE="${OCR_ROTATE:-0}"
 OCR_EXPECTED="${OCR_EXPECTED:-OK}"
 OCR_LANG="${OCR_LANG:-eng}"
 OCR_ENGINE="${OCR_ENGINE:-vision}"
+CAMERA_CAPTURE_TIMEOUT="${CAMERA_CAPTURE_TIMEOUT:-15}"
 
 mkdir -p "$LOG_DIR"
 STAMP="$(date +%Y%m%d-%H%M%S)"
@@ -33,7 +34,7 @@ OCR_TEXT_FILE="$LOG_DIR/camera-ocr-$STAMP.txt"
 
 echo "Capturing camera device $CAMERA_DEVICE at $CAMERA_SIZE ($CAMERA_PIXEL_FORMAT) -> $RAW_IMAGE"
 
-ffmpeg \
+if ! perl -e 'alarm shift; exec @ARGV' "$CAMERA_CAPTURE_TIMEOUT" ffmpeg \
   -hide_banner \
   -loglevel error \
   -f avfoundation \
@@ -42,7 +43,15 @@ ffmpeg \
   -video_size "$CAMERA_SIZE" \
   -i "$CAMERA_DEVICE:none" \
   -frames:v 1 \
-  -y "$RAW_IMAGE"
+  -y "$RAW_IMAGE"; then
+  echo "Camera capture failed or timed out after ${CAMERA_CAPTURE_TIMEOUT}s." >&2
+  exit 124
+fi
+
+if [[ ! -s "$RAW_IMAGE" ]]; then
+  echo "Camera capture did not produce an image: $RAW_IMAGE" >&2
+  exit 1
+fi
 
 case "$OCR_ROTATE" in
   0)

@@ -1,0 +1,36 @@
+# P1 Interaction Dashboard
+
+The `interaction_dashboard` sketch is the first combined non-audio app surface for the Waveshare ESP32-S3-Touch-AMOLED-1.75C. It drives the AMOLED, CST9217 touch controller, AXP2101 PMU, and QMI8658 IMU in one firmware image.
+
+## What It Proves
+
+- The display can render a usable multi-page UI with large OCR-friendly status text.
+- The touch controller initializes and can switch pages with left/right taps.
+- The PMU reports system, VBUS, and battery voltage metrics.
+- The IMU reports accelerometer and gyroscope metrics.
+- Automation can validate the UI without manual tapping by sending serial commands.
+
+## Commands
+
+```bash
+make interaction-dashboard-build
+make interaction-dashboard-smoke
+INTERACTION_DASHBOARD_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make interaction-dashboard-smoke
+```
+
+The smoke script uploads the sketch, waits for `DASH_READY`, sends `PING`, then drives page changes with `PAGE:IMU`, `PAGE:PWR`, `PAGE:TOUCH`, and `PAGE:HOME`. It validates `DASH_STATUS` metrics after the page flow.
+
+If `INTERACTION_DASHBOARD_VISUAL_SMOKE=1` is set, the wrapper also runs `scripts/camera-ocr.sh`. Camera capture is bounded by `CAMERA_CAPTURE_TIMEOUT` and may fail independently when the selected macOS camera device is unavailable or held by another app. In that case, the serial page-flow evidence still proves the board-side dashboard and sensors are running; rerun OCR after fixing the camera device.
+
+## Serial Protocol
+
+- `PING` returns `PONG`.
+- `PAGE:HOME`, `PAGE:IMU`, `PAGE:PWR`, and `PAGE:TOUCH` switch dashboard pages.
+- `NEXT` and `PREV` cycle pages.
+- `DASH_READY display=1 pmu=1 imu=1 touch=1` indicates the combined hardware surface is online.
+- `DASH_STATUS ... system_mv=... amag=...` carries the PMU and IMU smoke metrics.
+- `DASH_TOUCH_EVENT ...` is emitted when the screen is tapped.
+
+## Notes
+
+This probe is safe for late-night validation: it does not play audio, use the host microphone, or require audible stimulus. The default smoke requires the touch controller to report online, but it does not require a human tap. Use the separate `touch-status-smoke` with `TOUCH_REQUIRE_EVENT=1` when supervised physical tap evidence is needed.
