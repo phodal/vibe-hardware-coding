@@ -38,6 +38,7 @@ Recoding changes to the AGENTS.md file for better organization and clarity.
 - The interaction dashboard is the preferred combined non-audio app smoke. It verifies display, touch-controller presence, PMU, and IMU through serial page switching plus optional OCR, without requiring a human tap or using any audio device.
 - The interaction dashboard also has first-pass P1 behavior for IMU gestures and power management. Default automation uses serial-simulated gestures and power commands for determinism; real physical shake evidence should be reported separately as `DASH_GESTURE source=imu`.
 - The desk widget is the first P1 desktop-widget slice. It is intentionally serial-driven before direct Wi-Fi integrations, so CI/GitHub/calendar/LLM relays can be validated without credentials or audio devices.
+- The IoT control panel is the first P1 Home Assistant/MQTT/HTTP slice. Keep it serial-driven until the UI/state model is stable, then bridge real network events through the same protocol before moving logic fully onto Wi-Fi firmware.
 
 ## Feature Push README Hook
 

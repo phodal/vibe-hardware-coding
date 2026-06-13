@@ -117,6 +117,8 @@ make interaction-dashboard-build
 make interaction-dashboard-smoke
 make desk-widget-build
 make desk-widget-smoke
+make iot-panel-build
+make iot-panel-smoke
 ```
 
 `make cloud-ai-smoke` uploads the self-developed `cloud_ai_terminal` sketch, runs the host serial relay in mock mode, and verifies the board displays an AI response. The first slice validates the display and host/cloud protocol shape; audio capture and speaker playback are tracked in `docs/p0-cloud-ai-terminal.md`.
@@ -132,3 +134,5 @@ make desk-widget-smoke
 `make interaction-dashboard-smoke` uploads the combined non-audio dashboard and drives it with serial commands across HOME, IMU, PWR, and TOUCH pages. It validates display control flow, CST9217 controller presence, AXP2101 PMU metrics, QMI8658 IMU metrics, serial-simulated gesture handling, brightness, standby, and wake transitions in one sketch. Use `INTERACTION_DASHBOARD_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make interaction-dashboard-smoke` when camera OCR should also verify the screen reaches `OK`; details are in `docs/p1-interaction-dashboard.md`.
 
 `make desk-widget-smoke` uploads the serial-driven desk widget and validates CI/GitHub/alert/timer/AI-summary pages without network credentials or audio devices. Use `DESK_WIDGET_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make desk-widget-smoke` when camera OCR should also verify the screen reaches `OK`; details are in `docs/p1-desk-widget.md`.
+
+`make iot-panel-smoke` uploads the serial-driven IoT control panel and validates device state changes, MQTT-style inbound updates, HTTP-style outbound actions, and scene changes without Wi-Fi credentials. Use `IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make iot-panel-smoke` when camera OCR should also verify the screen reaches `OK`; details are in `docs/p1-iot-control-panel.md`.

@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 DEMO ?= 01-helloworld
 
-.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-aligner camera-diagnose official-demos official-build official-upload official-smoke official-build-all xiaozhi-latest xiaozhi-download xiaozhi-inspect xiaozhi-flash xiaozhi-source-clone xiaozhi-source-check cloud-ai-build cloud-ai-upload cloud-ai-smoke cloud-ai-relay audio-vad-build audio-vad-smoke speaker-output-build speaker-output-smoke sensor-status-build sensor-status-smoke touch-status-build touch-status-smoke interaction-dashboard-build interaction-dashboard-smoke desk-widget-build desk-widget-smoke install-hooks board-list clean
+.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-aligner camera-diagnose official-demos official-build official-upload official-smoke official-build-all xiaozhi-latest xiaozhi-download xiaozhi-inspect xiaozhi-flash xiaozhi-source-clone xiaozhi-source-check cloud-ai-build cloud-ai-upload cloud-ai-smoke cloud-ai-relay audio-vad-build audio-vad-smoke speaker-output-build speaker-output-smoke sensor-status-build sensor-status-smoke touch-status-build touch-status-smoke interaction-dashboard-build interaction-dashboard-smoke desk-widget-build desk-widget-smoke iot-panel-build iot-panel-smoke install-hooks board-list clean
 
 setup:
 	./scripts/setup.sh
@@ -110,6 +110,12 @@ desk-widget-build:
 
 desk-widget-smoke:
 	./scripts/desk-widget-smoke.sh
+
+iot-panel-build:
+	SKETCH=sketches/iot_control_panel BUILD_PATH=.arduino-build/iot_control_panel ./scripts/build.sh
+
+iot-panel-smoke:
+	./scripts/iot-panel-smoke.sh
 
 install-hooks:
 	git config core.hooksPath .githooks
