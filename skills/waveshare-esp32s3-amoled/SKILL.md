@@ -56,6 +56,8 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `make feature-matrix-doc` after changing `config/feature-matrix.tsv` to regenerate `docs/hardware-verification-matrix.md`.
    - Run `make hardware-evidence-audit` to identify lanes with missing `Verified Locally` sections or missing smoke-suite evidence.
    - Run `make hardware-evidence-doc` to regenerate `docs/hardware-evidence-audit.md`.
+   - Run `make goal-completion-audit` for the stricter requirement-level completion gate; use `python3 scripts/goal-completion-audit.py --strict` only when a non-zero result should fail CI or handoff.
+   - Run `make goal-completion-doc` to regenerate `docs/goal-completion-audit.md`.
    - Run `make hardware-smoke-list` to inspect the default serialized non-audio smoke selection.
    - Run `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target <id>"` for a narrow serialized hardware lane; the default suite skips audio, conditional, and external lanes.
    - Run `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target xiaozhi-ai --allow-external"` for the non-destructive XiaoZhi firmware archive check; it does not flash firmware or use audio hardware.
@@ -230,6 +232,8 @@ make feature-matrix-check
 make feature-matrix-doc
 make hardware-evidence-audit
 make hardware-evidence-doc
+make goal-completion-audit
+make goal-completion-doc
 make hardware-smoke-list
 make hardware-smoke-suite
 make visual-smoke

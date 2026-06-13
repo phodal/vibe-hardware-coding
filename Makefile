@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 DEMO ?= 01-helloworld
 
-.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-aligner camera-diagnose feature-matrix-check feature-matrix-doc hardware-evidence-audit hardware-evidence-doc hardware-smoke-list hardware-smoke-suite official-demos official-build official-upload official-smoke official-build-all xiaozhi-latest xiaozhi-download xiaozhi-inspect xiaozhi-flash xiaozhi-source-clone xiaozhi-source-check cloud-ai-build cloud-ai-upload cloud-ai-smoke cloud-ai-pipeline-smoke cloud-ai-cache-smoke cloud-ai-relay audio-vad-build audio-vad-preflight audio-vad-smoke speaker-output-build speaker-output-smoke sensor-status-build sensor-status-smoke power-lifecycle-build power-lifecycle-smoke wifi-connectivity-build wifi-connectivity-smoke touch-status-build touch-status-smoke interaction-dashboard-build interaction-dashboard-smoke imu-interaction-build imu-interaction-smoke desk-widget-build desk-widget-smoke desk-widget-relay-smoke iot-panel-build iot-panel-smoke iot-panel-relay-smoke tinyml-imu-build tinyml-imu-smoke esp-claw-agent-build esp-claw-agent-smoke offline-voice-build offline-voice-smoke lvgl-visual-agent-build lvgl-visual-agent-smoke install-hooks board-list clean
+.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-aligner camera-diagnose feature-matrix-check feature-matrix-doc hardware-evidence-audit hardware-evidence-doc goal-completion-audit goal-completion-doc hardware-smoke-list hardware-smoke-suite official-demos official-build official-upload official-smoke official-build-all xiaozhi-latest xiaozhi-download xiaozhi-inspect xiaozhi-flash xiaozhi-source-clone xiaozhi-source-check cloud-ai-build cloud-ai-upload cloud-ai-smoke cloud-ai-pipeline-smoke cloud-ai-cache-smoke cloud-ai-relay audio-vad-build audio-vad-preflight audio-vad-smoke speaker-output-build speaker-output-smoke sensor-status-build sensor-status-smoke power-lifecycle-build power-lifecycle-smoke wifi-connectivity-build wifi-connectivity-smoke touch-status-build touch-status-smoke interaction-dashboard-build interaction-dashboard-smoke imu-interaction-build imu-interaction-smoke desk-widget-build desk-widget-smoke desk-widget-relay-smoke iot-panel-build iot-panel-smoke iot-panel-relay-smoke tinyml-imu-build tinyml-imu-smoke esp-claw-agent-build esp-claw-agent-smoke offline-voice-build offline-voice-smoke lvgl-visual-agent-build lvgl-visual-agent-smoke install-hooks board-list clean
 
 setup:
 	./scripts/setup.sh
@@ -41,6 +41,12 @@ hardware-evidence-audit:
 
 hardware-evidence-doc:
 	python3 ./scripts/hardware-evidence-audit.py --markdown > docs/hardware-evidence-audit.md
+
+goal-completion-audit:
+	python3 ./scripts/goal-completion-audit.py
+
+goal-completion-doc:
+	python3 ./scripts/goal-completion-audit.py --markdown > docs/goal-completion-audit.md
 
 hardware-smoke-list:
 	python3 ./scripts/hardware-smoke-suite.py --list
