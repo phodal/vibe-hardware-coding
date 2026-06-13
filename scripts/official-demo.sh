@@ -230,6 +230,21 @@ capture_serial() {
   log_file="$LOG_DIR/official-$OFFICIAL_DEMO_ID-$(date +%Y%m%d-%H%M%S).log"
   echo "Capturing serial output from $ARDUINO_PORT for ${SMOKE_SECONDS:-8}s -> $log_file"
 
+  if [[ "${OFFICIAL_SERIAL_CAPTURE_PY:-1}" == "1" ]]; then
+    local capture_args=()
+    if [[ "${OFFICIAL_CAPTURE_PULSE_RESET:-1}" == "1" ]]; then
+      capture_args+=(--pulse-rts)
+    fi
+    python3 "$ROOT_DIR/scripts/serial-capture.py" \
+      --port "$ARDUINO_PORT" \
+      --baud "${MONITOR_BAUD:-115200}" \
+      --seconds "${SMOKE_SECONDS:-8}" \
+      --log "$log_file" \
+      --expect "$expected" \
+      "${capture_args[@]}"
+    return
+  fi
+
   set +e
   if [[ "${ARDUINO_CLI_MONITOR:-0}" == "1" ]]; then
     arduino-cli monitor \
