@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: setup build upload monitor smoke visual-smoke camera-ocr board-list clean
+.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-aligner board-list clean
 
 setup:
 	./scripts/setup.sh
@@ -22,6 +22,9 @@ visual-smoke:
 
 camera-ocr:
 	./scripts/camera-ocr.sh
+
+camera-aligner:
+	swift run CameraAligner
 
 board-list:
 	arduino-cli board list

@@ -23,6 +23,7 @@ make upload
 make monitor
 make smoke
 make visual-smoke
+make camera-aligner
 ```
 
 Override defaults with environment variables or `.env`:
@@ -46,3 +47,10 @@ OCR_ENGINE=vision
 ```
 
 Point the camera at the AMOLED before running the command. If macOS asks for camera permission, allow the terminal/Codex process and rerun.
+
+`make camera-aligner` opens a SwiftPM macOS camera tuning tool. Use it to:
+
+- preview the selected camera live
+- adjust the OCR crop rectangle with sliders
+- see Vision OCR results update live
+- copy the generated `CAMERA_CROP` value for `make visual-smoke`
