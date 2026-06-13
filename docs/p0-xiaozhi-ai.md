@@ -72,3 +72,6 @@ Flashing XiaoZhi replaces the Arduino demo currently on the board. To return to 
 - `make xiaozhi-source-check` confirmed the source tree contains `CONFIG_BOARD_TYPE_WAVESHARE_ESP32_S3_TOUCH_AMOLED_1_75C`.
 - `scripts/xiaozhi.sh idf-build` currently fails early because `idf.py` is not available in this shell; source compilation is gated on installing/sourcing ESP-IDF.
 - Flashing was not run during this documentation update.
+- `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target xiaozhi-ai --allow-external --per-target-timeout 180 --max-failures 1"`: ran the non-destructive `xiaozhi-inspect` suite target without flashing firmware or using audio hardware.
+- Latest suite summary: `.logs/hardware-smoke-suite/20260614-051043/summary.json`.
+- Latest suite target log: `.logs/hardware-smoke-suite/20260614-051043/xiaozhi-ai.log`.

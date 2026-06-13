@@ -7,7 +7,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 | ID | Priority | Matrix status | Audio mode | Doc evidence | Latest suite | Posture | Next gap |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | official-demos | P0 | verified | conditional | 10 item(s) | passed `.logs/hardware-smoke-suite/20260614-050454/summary.json` | suite-passed | No immediate evidence gap. |
-| xiaozhi-ai | P0 | required_external | audio | 8 item(s) | missing | external-gated | Needs external firmware/source environment evidence. |
+| xiaozhi-ai | P0 | required_external | audio | 11 item(s) | passed `.logs/hardware-smoke-suite/20260614-051043/summary.json` | external-gated | Needs external firmware/source environment evidence. |
 | cloud-ai-terminal | P0 | partial | non_audio_control | 15 item(s) | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
 | offline-voice | P1 | partial | non_audio_control | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
 | lvgl-visual-agent | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
@@ -39,7 +39,8 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 ## xiaozhi-ai
 
 - Doc: `docs/p0-xiaozhi-ai.md`
-- Latest suite summary: missing
+- Latest suite summary: `.logs/hardware-smoke-suite/20260614-051043/summary.json`
+- Latest suite status: `passed`
 - Verified Locally:
   - `make xiaozhi-latest` on 2026-06-13 detected release `v2.2.6`.
   - Matched asset: `v2.2.6_waveshare-esp32-s3-touch-amoled-1.75c.zip`.
@@ -49,6 +50,9 @@ This report audits evidence surfaces only. It does not prove completion by itsel
   - `make xiaozhi-source-check` confirmed the source tree contains `CONFIG_BOARD_TYPE_WAVESHARE_ESP32_S3_TOUCH_AMOLED_1_75C`.
   - `scripts/xiaozhi.sh idf-build` currently fails early because `idf.py` is not available in this shell; source compilation is gated on installing/sourcing ESP-IDF.
   - Flashing was not run during this documentation update.
+  - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target xiaozhi-ai --allow-external --per-target-timeout 180 --max-failures 1"`: ran the non-destructive `xiaozhi-inspect` suite target without flashing firmware or using audio hardware.
+  - Latest suite summary: `.logs/hardware-smoke-suite/20260614-051043/summary.json`.
+  - Latest suite target log: `.logs/hardware-smoke-suite/20260614-051043/xiaozhi-ai.log`.
 
 ## cloud-ai-terminal
 

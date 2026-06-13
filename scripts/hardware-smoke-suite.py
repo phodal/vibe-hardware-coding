@@ -15,6 +15,7 @@ MATRIX_PATH = ROOT / "config" / "feature-matrix.tsv"
 DEFAULT_LOG_ROOT = ROOT / ".logs" / "hardware-smoke-suite"
 DEFAULT_SAFE_AUDIO_MODES = {"none", "non_audio_control"}
 DEFAULT_SAFE_STATUSES = {"verified", "partial"}
+PHYSICAL_AUDIO_SMOKE_TARGETS = {"audio-vad-smoke", "speaker-output-smoke"}
 VISUAL_ENV_KEYS = {
     "CLOUD_AI_VISUAL_SMOKE",
     "SENSOR_STATUS_VISUAL_SMOKE",
@@ -53,6 +54,10 @@ def target_matches(row: dict[str, str], requested: set[str]) -> bool:
     return not requested or row["id"] in requested or row["smoke_target"] in requested
 
 
+def smoke_uses_physical_audio(row: dict[str, str]) -> bool:
+    return row["smoke_target"] in PHYSICAL_AUDIO_SMOKE_TARGETS
+
+
 def skip_reason(row: dict[str, str], args: argparse.Namespace, requested: set[str]) -> str:
     if not target_matches(row, requested):
         return "not-requested"
@@ -60,7 +65,7 @@ def skip_reason(row: dict[str, str], args: argparse.Namespace, requested: set[st
         return "external-required"
     if row["status"] == "required_quiet_window" and not args.allow_audio:
         return "quiet-window-required"
-    if row["audio_mode"] == "audio" and not args.allow_audio:
+    if row["audio_mode"] == "audio" and smoke_uses_physical_audio(row) and not args.allow_audio:
         return "audio-disabled"
     if row["audio_mode"] == "conditional" and not args.allow_conditional:
         return "conditional-disabled"
