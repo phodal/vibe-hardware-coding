@@ -59,7 +59,7 @@ Recoding changes to the AGENTS.md file for better organization and clarity.
 - The Wi-Fi connectivity probe is the network hardware gate for Cloud AI, desktop widget, and IoT work. Prefer it before debugging HTTP/MQTT application logic, and avoid logging nearby SSID names unless the user explicitly needs that evidence.
 - The offline voice-control harness is a P1 non-audio gate for WakeNet/MultiNet behavior. Preserve the serial `WAKE:` and `CMD:` simulation path when adding real ESP-SR audio so late-night validation can still prove the command state machine without microphone or speaker use.
 - The TinyML IMU classifier now has a checked-in nearest-centroid model in `config/tinyml-imu-model.json`. Run `make tinyml-imu-model-check` before board smoke, and keep deterministic serial `SAMPLE:` vectors as the Skill-facing acceptance path even after replacing the embedded model with ESP-DL or a larger trained model.
-- The ESP-Claw/OpenClaw agent harness is a P2 compatibility scaffold, not the official ESP-Claw firmware. Preserve the serial `RULE:ADD` plus `EVENT` gate so Skill automation can prove sense/reason/decide/act behavior without IM credentials, Wi-Fi, camera, or audio.
+- The ESP-Claw/OpenClaw agent harness is a P2 compatibility path, not the official ESP-Claw firmware. Preserve the serial `LUA:LOAD`, `RULE:ADD`, `MCP:REGISTER`, `MCP:CALL`, `MEM:PUT`, `MEM:GET`, and `EVENT` gates so Skill automation can prove sense/reason/decide/act behavior without IM credentials, Wi-Fi, camera, or audio.
 
 ## Feature Push README Hook
 

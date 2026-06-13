@@ -22,7 +22,8 @@ READY_RE = re.compile(r"CLAW_(?:READY|PARTIAL) display=(?P<display>[01]) touch=(
 STATE_RE = re.compile(
     r"CLAW_STATE .*page=(?P<page>\S+) display=(?P<display>[01]) touch=(?P<touch>[01]) "
     r"rules=(?P<rules>\d+) events=(?P<events>\d+) actions=(?P<actions>\d+) "
-    r"mcp=(?P<mcp>\d+) chats=(?P<chats>\d+) memory=(?P<memory>\d+) "
+    r"mcp=(?P<mcp>\d+) tools=(?P<tools>\d+) chats=(?P<chats>\d+) "
+    r"memory=(?P<memory>\d+) lua=(?P<lua>\d+) "
     r"decision=(?P<decision>\S+) action=(?P<action>\S+)"
 )
 PAGE_RE = re.compile(r"CLAW_PAGE page=(?P<page>\S+) source=(?P<source>\S+)")
@@ -149,7 +150,8 @@ def main() -> int:
             serial.wait_for(
                 lambda line: line.startswith("CLAW_CAPS")
                 and "loop=sense,reason,decide,act" in line
-                and "mcp=server,client" in line,
+                and "mcp=server,client" in line
+                and "lua=load" in line,
                 5,
                 "CLAW_CAPS",
             )
@@ -159,10 +161,14 @@ def main() -> int:
             ("PAGE:RULES", "CLAW_PAGE", "page=RULES"),
             ("RULE:ADD:desk_shake:IMU_SHAKE:TOOL:light.toggle", "CLAW_RULE_ADDED", "name=desk_shake"),
             ("EVENT:IMU_SHAKE:strong", "CLAW_ACT", "action=TOOL:light.toggle"),
+            ("LUA:LOAD:door_guard:DOOR_OPEN:TOOL:display.message", "CLAW_LUA_LOADED", "name=door_guard"),
+            ("EVENT:DOOR_OPEN:front", "CLAW_ACT", "action=TOOL:display.message"),
+            ("MCP:REGISTER:display.message:text", "CLAW_MCP_REGISTER", "tool=display.message"),
             ("MCP:CALL:display.message:hello-agent", "CLAW_MCP_CALL", "tool=display.message"),
             ("CHAT:when battery low dim display", "CLAW_RULE_ADDED", "name=chat_battery"),
             ("EVENT:BATTERY_LOW:18", "CLAW_ACT", "action=TOOL:display.dim"),
             ("MEM:PUT:goal:edge-agent", "CLAW_MEMORY_PUT", "tag=goal"),
+            ("MEM:GET:goal", "CLAW_MEMORY_GET", "hit=1"),
             ("PAGE:MCP", "CLAW_PAGE", "page=MCP"),
             ("PAGE:MEMORY", "CLAW_PAGE", "page=MEMORY"),
             ("PAGE:HOME", "CLAW_PAGE", "page=HOME"),
@@ -198,18 +204,22 @@ def main() -> int:
     latest = states[-1]
     pages = parse_pages(collected)
 
-    if int(latest["rules"]) < 4:
-        raise SystemExit(f"Expected at least 4 rules, saw {latest['rules']}")
-    if int(latest["events"]) < 3:
-        raise SystemExit(f"Expected at least 3 events, saw {latest['events']}")
-    if int(latest["actions"]) < 4:
-        raise SystemExit(f"Expected at least 4 actions, saw {latest['actions']}")
+    if int(latest["rules"]) < 5:
+        raise SystemExit(f"Expected at least 5 rules, saw {latest['rules']}")
+    if int(latest["events"]) < 4:
+        raise SystemExit(f"Expected at least 4 events, saw {latest['events']}")
+    if int(latest["actions"]) < 5:
+        raise SystemExit(f"Expected at least 5 actions, saw {latest['actions']}")
     if int(latest["mcp"]) < 1:
         raise SystemExit("Expected at least one MCP call.")
+    if int(latest["tools"]) < 1:
+        raise SystemExit("Expected at least one MCP tool registration.")
     if int(latest["chats"]) < 1:
         raise SystemExit("Expected at least one IM chat command.")
     if int(latest["memory"]) < 1:
         raise SystemExit("Expected at least one memory item.")
+    if int(latest["lua"]) < 1:
+        raise SystemExit("Expected at least one Lua-style rule load.")
     if "LLM:REQUEST" not in str(latest["action"]):
         raise SystemExit(f"Expected latest fallback action to be LLM:REQUEST, saw {latest['action']}")
     if not {"RULES", "MCP", "MEMORY", "HOME"}.issubset(set(pages)):
@@ -219,7 +229,8 @@ def main() -> int:
         "esp_claw_agent_summary "
         f"states={len(states)} page_flow={','.join(pages)} rules={latest['rules']} "
         f"events={latest['events']} actions={latest['actions']} mcp={latest['mcp']} "
-        f"chats={latest['chats']} memory={latest['memory']} latest_action={latest['action']}"
+        f"tools={latest['tools']} chats={latest['chats']} memory={latest['memory']} "
+        f"lua={latest['lua']} latest_action={latest['action']}"
     )
     return 0
 

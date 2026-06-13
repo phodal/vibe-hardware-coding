@@ -15,7 +15,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 | power-lifecycle | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
 | desk-widget | P1 | verified | none | 17 item(s) | passed `.logs/hardware-smoke-suite/20260614-052802/summary.json` | suite-passed | No immediate evidence gap. |
 | iot-panel | P1 | verified | none | 6 item(s) | passed `.logs/hardware-smoke-suite/20260614-053656/summary.json` | suite-passed | No immediate evidence gap. |
-| esp-claw-agent | P2 | partial | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-044424/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
+| esp-claw-agent | P2 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-055205/summary.json` | suite-passed | No immediate evidence gap. |
 | tinyml-imu | P2 | verified | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-054530/summary.json` | suite-passed | No immediate evidence gap. |
 | audio-front-end | P2 | required_quiet_window | audio | 10 item(s) | missing | quiet-window-gated | Needs an explicit quiet-window audio run. |
 
@@ -165,14 +165,13 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 ## esp-claw-agent
 
 - Doc: `docs/p2-esp-claw-agent.md`
-- Latest suite summary: `.logs/hardware-smoke-suite/20260614-044424/summary.json`
+- Latest suite summary: `.logs/hardware-smoke-suite/20260614-055205/summary.json`
 - Latest suite status: `passed`
 - Verified Locally:
-  - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--targets esp-claw-agent,tinyml-imu --per-target-timeout 420 --max-failures 1"`: built, uploaded, and passed `esp-claw-agent-smoke` on `/dev/cu.usbmodem83101`.
-  - Latest suite summary: `.logs/hardware-smoke-suite/20260614-044424/summary.json`.
-  - Latest target log: `.logs/hardware-smoke-suite/20260614-044424/esp-claw-agent.log`.
-  - Observed build size: `437991 bytes` program storage and `23872 bytes` dynamic memory.
-  - Observed summary: `esp_claw_agent_summary states=3 page_flow=RULES,MCP,MEMORY,HOME rules=4 events=3 actions=4 mcp=1 chats=1 memory=1 latest_action=LLM:REQUEST`.
+  - `make esp-claw-agent-build`: passed with `439399 bytes` program storage and `24264 bytes` dynamic memory.
+  - `SKIP_BUILD=1 make esp-claw-agent-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated Lua-style rule loading, MCP tool registration/call, IM chat rule creation, memory put/get, and `LLM:REQUEST` fallback.
+  - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target esp-claw-agent --skip-build --per-target-timeout 240 --max-failures 1"`: passed with summary `.logs/hardware-smoke-suite/20260614-055205/summary.json`.
+  - Observed summary: `esp_claw_agent_summary states=3 page_flow=RULES,MCP,MEMORY,HOME rules=5 events=4 actions=5 mcp=1 tools=1 chats=1 memory=1 lua=1 latest_action=LLM:REQUEST`.
 
 ## tinyml-imu
 

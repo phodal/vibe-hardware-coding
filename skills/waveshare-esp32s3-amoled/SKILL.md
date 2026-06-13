@@ -168,9 +168,9 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
 
 24. For ESP-Claw / OpenClaw agent harness validation:
    - Run `make esp-claw-agent-build` to compile the Arduino compatibility harness for the ESP-Claw/OpenClaw direction.
-   - Run `make esp-claw-agent-smoke` to upload it and validate local rule add, event sensing, rule decision, MCP-style tool invocation, IM chat input, tagged memory, and LLM fallback routing over serial.
+   - Run `make esp-claw-agent-smoke` to upload it and validate local rule add, Lua-style rule loading, event sensing, rule decision, MCP-style tool registration/invocation, IM chat input, tagged memory put/get, and LLM fallback routing over serial.
    - Use `ESP_CLAW_AGENT_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make esp-claw-agent-smoke` when camera OCR should verify the screen reaches `OK`.
-   - Treat this as a deterministic control-plane harness, not the official ESP-Claw firmware image. It exists so automation can prove the agent loop before IM credentials, Wi-Fi, and full ESP-Claw source builds are introduced.
+   - Treat this as a deterministic compatibility harness, not the official ESP-Claw firmware image. It exists so automation can prove the agent loop before IM credentials, Wi-Fi, and full ESP-Claw source builds are introduced.
    - This path is safe for late-night validation because it does not play audio or use the host microphone.
 
 25. For Skill automation wiring:

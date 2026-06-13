@@ -31,11 +31,18 @@ struct Rule {
   bool enabled;
 };
 
+struct MemoryItem {
+  char tag[16];
+  char text[48];
+};
+
 constexpr uint8_t MAX_RULES = 6;
+constexpr uint8_t MAX_MEMORY = 6;
 Rule rules[MAX_RULES] = {
   {"wrist_wake", "WRIST_RAISE", "TOOL:status.next", true},
   {"battery_dim", "BATTERY_LOW", "TOOL:display.dim", true},
 };
+MemoryItem memories[MAX_MEMORY];
 
 bool displayReady = false;
 bool touchReady = false;
@@ -44,8 +51,10 @@ uint32_t commandCount = 0;
 uint32_t eventCount = 0;
 uint32_t actionCount = 0;
 uint32_t mcpCallCount = 0;
+uint32_t mcpToolCount = 0;
 uint32_t chatCount = 0;
 uint32_t memoryCount = 0;
+uint32_t luaRuleCount = 0;
 uint32_t ruleCount = 2;
 AgentPage currentPage = PAGE_HOME;
 String serialBuffer;
@@ -196,7 +205,7 @@ void setPage(AgentPage page, const char *source) {
 }
 
 void emitCaps() {
-  Serial.println("CLAW_CAPS loop=sense,reason,decide,act im=chat rules=lua_subset mcp=server,client memory=jsonl_tags tools=status.next,display.dim,light.toggle,display.message");
+  Serial.println("CLAW_CAPS loop=sense,reason,decide,act im=chat rules=lua_subset lua=load mcp=server,client memory=jsonl_tags,get tools=status.next,display.dim,light.toggle,display.message");
   Serial.flush();
 }
 
@@ -217,10 +226,14 @@ void emitState() {
   Serial.print(actionCount);
   Serial.print(" mcp=");
   Serial.print(mcpCallCount);
+  Serial.print(" tools=");
+  Serial.print(mcpToolCount);
   Serial.print(" chats=");
   Serial.print(chatCount);
   Serial.print(" memory=");
   Serial.print(memoryCount);
+  Serial.print(" lua=");
+  Serial.print(luaRuleCount);
   Serial.print(" decision=");
   Serial.print(lastDecision);
   Serial.print(" action=");
@@ -318,6 +331,42 @@ bool addRule(const String &payload) {
   return true;
 }
 
+bool loadLuaRule(const String &payload) {
+  bool added = addRule(payload);
+  if (!added) {
+    return false;
+  }
+  luaRuleCount++;
+  Serial.print("CLAW_LUA_LOADED name=");
+  Serial.print(rules[ruleCount - 1].name);
+  Serial.print(" event=");
+  Serial.print(rules[ruleCount - 1].event);
+  Serial.print(" action=");
+  Serial.print(rules[ruleCount - 1].action);
+  Serial.print(" count=");
+  Serial.println(luaRuleCount);
+  Serial.flush();
+  return true;
+}
+
+void registerMcpTool(const String &payload) {
+  int split = payload.indexOf(':');
+  String tool = split >= 0 ? payload.substring(0, split) : payload;
+  String schema = split >= 0 ? payload.substring(split + 1) : "-";
+  tool.trim();
+  schema.trim();
+  mcpToolCount++;
+  Serial.print("CLAW_MCP_REGISTER tool=");
+  Serial.print(tool);
+  Serial.print(" schema=");
+  Serial.print(schema.length() ? schema : "-");
+  Serial.print(" count=");
+  Serial.println(mcpToolCount);
+  Serial.flush();
+  strlcpy(lastDecision, "mcp_tool_registered", sizeof(lastDecision));
+  setPage(PAGE_MCP, "mcp");
+}
+
 void processMcpCall(const String &payload) {
   int split = payload.indexOf(':');
   String tool = split >= 0 ? payload.substring(0, split) : payload;
@@ -360,6 +409,10 @@ void putMemory(const String &payload) {
   String text = payload.substring(split + 1);
   tag.trim();
   text.trim();
+  if (memoryCount < MAX_MEMORY) {
+    copyString(memories[memoryCount].tag, sizeof(memories[memoryCount].tag), tag);
+    copyString(memories[memoryCount].text, sizeof(memories[memoryCount].text), text);
+  }
   memoryCount++;
   String item = tag + "=" + text;
   copyString(lastMemory, sizeof(lastMemory), item);
@@ -371,6 +424,27 @@ void putMemory(const String &payload) {
   Serial.println(memoryCount);
   Serial.flush();
   drawPage();
+}
+
+void getMemory(const String &tagPayload) {
+  String tag = tagPayload;
+  tag.trim();
+  int found = -1;
+  uint32_t limit = min(memoryCount, static_cast<uint32_t>(MAX_MEMORY));
+  for (uint32_t i = 0; i < limit; i++) {
+    if (tag == memories[i].tag) {
+      found = static_cast<int>(i);
+      break;
+    }
+  }
+  Serial.print("CLAW_MEMORY_GET tag=");
+  Serial.print(tag);
+  Serial.print(" hit=");
+  Serial.print(found >= 0 ? 1 : 0);
+  Serial.print(" text=");
+  Serial.println(found >= 0 ? memories[found].text : "-");
+  Serial.flush();
+  setPage(PAGE_MEMORY, "memory");
 }
 
 void handleCommand(String command) {
@@ -411,6 +485,10 @@ void handleCommand(String command) {
     addRule(command.substring(9));
     return;
   }
+  if (upper.startsWith("LUA:LOAD:")) {
+    loadLuaRule(command.substring(9));
+    return;
+  }
   if (upper.startsWith("EVENT:")) {
     String payload = command.substring(6);
     int split = payload.indexOf(':');
@@ -426,12 +504,20 @@ void handleCommand(String command) {
     processMcpCall(command.substring(9));
     return;
   }
+  if (upper.startsWith("MCP:REGISTER:")) {
+    registerMcpTool(command.substring(13));
+    return;
+  }
   if (upper.startsWith("CHAT:")) {
     processChat(command.substring(5));
     return;
   }
   if (upper.startsWith("MEM:PUT:")) {
     putMemory(command.substring(8));
+    return;
+  }
+  if (upper.startsWith("MEM:GET:")) {
+    getMemory(command.substring(8));
     return;
   }
 
