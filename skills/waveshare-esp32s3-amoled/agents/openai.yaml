@@ -1,0 +1,5 @@
+interface:
+  display_name: "Waveshare ESP32-S3 AMOLED"
+  short_description: "Arduino CLI workflow for Waveshare ESP32-S3 AMOLED"
+  default_prompt: "Use $waveshare-esp32s3-amoled to build and upload a display sketch to my Waveshare ESP32-S3 Touch AMOLED board."
+
