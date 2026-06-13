@@ -19,11 +19,16 @@ LOG_FILE="$LOG_DIR/smoke-$(date +%Y%m%d-%H%M%S).log"
 echo "Capturing serial output from $ARDUINO_PORT for ${SMOKE_SECONDS}s -> $LOG_FILE"
 
 set +e
-arduino-cli monitor \
-  --port "$ARDUINO_PORT" \
-  --fqbn "$ARDUINO_FQBN" \
-  --config baudrate="${MONITOR_BAUD:-115200}",dtr=on,rts=off \
-  --timestamp >"$LOG_FILE" 2>&1 &
+if [[ "${ARDUINO_CLI_MONITOR:-0}" == "1" ]]; then
+  arduino-cli monitor \
+    --port "$ARDUINO_PORT" \
+    --fqbn "$ARDUINO_FQBN" \
+    --config baudrate="${MONITOR_BAUD:-115200}",dtr=on,rts=off \
+    --timestamp >"$LOG_FILE" 2>&1 &
+else
+  stty -f "$ARDUINO_PORT" "${MONITOR_BAUD:-115200}" cs8 -cstopb -parenb -ixon -ixoff -echo
+  cat "$ARDUINO_PORT" >"$LOG_FILE" 2>&1 &
+fi
 MONITOR_PID=$!
 sleep "$SMOKE_SECONDS"
 kill "$MONITOR_PID" >/dev/null 2>&1

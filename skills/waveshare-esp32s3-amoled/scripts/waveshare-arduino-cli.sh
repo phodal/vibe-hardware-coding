@@ -89,12 +89,19 @@ case "$ACTION" in
       echo "No /dev/cu.usbmodem* port detected; set ARDUINO_PORT." >&2
       exit 1
     fi
-    arduino-cli monitor --port "$PORT" --fqbn "$FQBN" --config baudrate="${MONITOR_BAUD:-115200}",dtr=on,rts=off --timestamp
+    if [[ "${ARDUINO_CLI_MONITOR:-0}" == "1" ]]; then
+      arduino-cli monitor --port "$PORT" --fqbn "$FQBN" --config baudrate="${MONITOR_BAUD:-115200}",dtr=on,rts=off --timestamp
+    else
+      stty -f "$PORT" "${MONITOR_BAUD:-115200}" cs8 -cstopb -parenb -ixon -ixoff -echo
+      exec cat "$PORT"
+    fi
     ;;
   smoke)
     upload_sketch
     sleep 2
-    arduino-cli monitor --port "${ARDUINO_PORT:-$(detect_port || printf '%s' "$PORT")}" --fqbn "$FQBN" --config baudrate="${MONITOR_BAUD:-115200}",dtr=on,rts=off --timestamp
+    PORT="${ARDUINO_PORT:-$(detect_port || printf '%s' "$PORT")}"
+    stty -f "$PORT" "${MONITOR_BAUD:-115200}" cs8 -cstopb -parenb -ixon -ixoff -echo
+    exec cat "$PORT"
     ;;
   *)
     echo "Usage: $0 {setup|build|upload|monitor|smoke} [project-dir]" >&2

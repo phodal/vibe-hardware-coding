@@ -8,6 +8,7 @@ This workspace automates build, upload, and serial monitoring for the Waveshare 
 - `esp32:esp32` core 3.3.5
 - Port: `/dev/cu.usbmodem83101`
 - Sketch: `sketches/codex_hello_world`
+- Serial diagnostic sketch: `sketches/serial_probe`
 - Vendor examples/libraries: `/Users/phodal/Downloads/ESP32-S3-Touch-AMOLED-1.75C-main/examples/Arduino-v3.3.5`
 
 The installed ESP32 core does not currently expose a dedicated `ESP32-S3-Touch-AMOLED-1.75C` FQBN. The scripts use `esp32:esp32:esp32s3` with explicit board options and the Waveshare 1.75C `pin_config.h`.
@@ -29,5 +30,5 @@ ARDUINO_PORT=/dev/cu.usbmodem83101 make upload
 WAVESHARE_VENDOR_DIR=/path/to/ESP32-S3-Touch-AMOLED-1.75C-main make build
 ```
 
-`make smoke` builds with a dedicated build directory, uploads, then records a short serial monitor log under `.logs/`.
-The monitor uses `baudrate=115200,dtr=on,rts=off` so the ESP32-S3 sees a CDC connection without RTS holding the reset/boot path in a bad state.
+`make smoke` builds with a dedicated build directory, uploads, then records a short serial log under `.logs/`.
+On this macOS USB Serial/JTAG port, raw `stty` + `cat` captures data reliably; set `ARDUINO_CLI_MONITOR=1` to force `arduino-cli monitor`.
