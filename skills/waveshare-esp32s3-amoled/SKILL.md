@@ -139,7 +139,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
 
 20. For desktop AI widget validation:
    - Run `make desk-widget-build` to compile the serial-driven desktop widget.
-   - Run `make desk-widget-smoke` to upload it and validate CI/GitHub/alert/timer/AI-summary pages without network credentials.
+   - Run `make desk-widget-smoke` to upload it and validate CI/GitHub/alert/calendar/timer/AI-summary pages without network credentials.
    - Run `make desk-widget-relay-smoke` to validate the host event adapter that maps mock, JSON, or HTTP events into the widget serial protocol.
    - Use `DESK_WIDGET_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make desk-widget-smoke` when camera OCR should verify the screen reaches `OK`.
    - This path is safe for late-night validation because it does not play audio or use the host microphone.

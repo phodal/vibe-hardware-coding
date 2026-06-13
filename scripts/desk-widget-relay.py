@@ -25,6 +25,7 @@ BAUDS = {
 MOCK_EVENTS: dict[str, Any] = {
     "ci": {"state": "FAIL", "label": "build red"},
     "github": {"count": 7},
+    "calendar": {"count": 2, "next": "standup in 15"},
     "alerts": ["review needed"],
     "timer": {"minutes": 25, "start": True},
     "summary": "AI summary ready for standup",
@@ -133,6 +134,16 @@ def apply_events(serial: SerialPort, events: dict[str, Any]) -> None:
         for alert in alerts:
             send_and_wait(serial, f"WIDGET:ALERT:{str(alert)[:48]}", "WIDGET_PAGE page=STATUS")
 
+    calendar = events.get("calendar", {})
+    if isinstance(calendar, dict):
+        calendar_count = int(calendar.get("count", 0))
+        next_event = str(calendar.get("next", "")).strip()
+    else:
+        calendar_count = int(calendar or 0)
+        next_event = ""
+    calendar_command = f"WIDGET:CALENDAR:{calendar_count}:{next_event[:48]}" if next_event else f"WIDGET:CALENDAR:{calendar_count}"
+    send_and_wait(serial, calendar_command, "WIDGET_PAGE page=CALENDAR")
+
     timer = events.get("timer", {})
     if isinstance(timer, dict):
         minutes = int(timer.get("minutes", 25))
@@ -176,6 +187,7 @@ def main() -> int:
                 "mode": args.mode,
                 "ci": events.get("ci", {}),
                 "github": events.get("github", {}),
+                "calendar": events.get("calendar", {}),
                 "alert_count": len(events.get("alerts", [])) if isinstance(events.get("alerts", []), list) else 1,
             },
             ensure_ascii=True,

@@ -23,7 +23,7 @@ PAGE_RE = re.compile(r"WIDGET_PAGE page=(?P<page>\S+) source=(?P<source>\S+)")
 STATE_RE = re.compile(
     r"WIDGET_STATE .*page=(?P<page>\S+) display=(?P<display>[01]) touch=(?P<touch>[01]) "
     r"ci=(?P<ci>\S+) github=(?P<github>\d+) alerts=(?P<alerts>\d+) "
-    r"timer=(?P<timer>\d+) running=(?P<running>[01]) summary_len=(?P<summary_len>\d+)"
+    r"calendar=(?P<calendar>\d+) timer=(?P<timer>\d+) running=(?P<running>[01]) summary_len=(?P<summary_len>\d+)"
 )
 ALERT_RE = re.compile(r"WIDGET_ALERT count=(?P<count>\d+) text=(?P<text>.*)")
 
@@ -153,6 +153,7 @@ def main() -> int:
             ("WIDGET:ALERT:review needed", "STATUS"),
             ("TIMER:SET:25", "TIMER"),
             ("TIMER:START", "TIMER"),
+            ("WIDGET:CALENDAR:2:standup in 15", "CALENDAR"),
             ("WIDGET:SUMMARY:AI summary ready for standup", "SUMMARY"),
             ("PAGE:HOME", "HOME"),
         ]
@@ -186,16 +187,19 @@ def main() -> int:
         raise SystemExit(f"Expected github=7, saw {latest['github']}")
     if int(latest["alerts"]) < 1:
         raise SystemExit("Expected at least one WIDGET_ALERT.")
+    if int(latest["calendar"]) != 2:
+        raise SystemExit(f"Expected calendar=2, saw {latest['calendar']}")
     if int(latest["summary_len"]) <= 0:
         raise SystemExit("Summary text was not stored.")
-    if not {"STATUS", "TIMER", "SUMMARY", "HOME"}.issubset(set(pages)):
+    if not {"STATUS", "TIMER", "CALENDAR", "SUMMARY", "HOME"}.issubset(set(pages)):
         raise SystemExit(f"Missing expected page flow, saw {pages}")
 
     print(
         "desk_widget_summary "
         f"states={len(states)} page_flow={','.join(pages)} "
         f"ci={latest['ci']} github={latest['github']} alerts={latest['alerts']} "
-        f"timer={latest['timer']} running={latest['running']} summary_len={latest['summary_len']}"
+        f"calendar={latest['calendar']} timer={latest['timer']} "
+        f"running={latest['running']} summary_len={latest['summary_len']}"
     )
     return 0
 

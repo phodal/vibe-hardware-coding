@@ -13,7 +13,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 | lvgl-visual-agent | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
 | imu-interaction | P1 | verified | none | 9 item(s) | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | suite-passed | No immediate evidence gap. |
 | power-lifecycle | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
-| desk-widget | P1 | partial | none | 10 item(s) | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
+| desk-widget | P1 | verified | none | 17 item(s) | passed `.logs/hardware-smoke-suite/20260614-052802/summary.json` | suite-passed | No immediate evidence gap. |
 | iot-panel | P1 | partial | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-043837/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
 | esp-claw-agent | P2 | partial | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-044424/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
 | tinyml-imu | P2 | partial | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-044424/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
@@ -128,12 +128,12 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 ## desk-widget
 
 - Doc: `docs/p1-desk-widget.md`
-- Latest suite summary: `.logs/hardware-smoke-suite/20260614-045308/summary.json`
+- Latest suite summary: `.logs/hardware-smoke-suite/20260614-052802/summary.json`
 - Latest suite status: `passed`
 - Verified Locally:
   - `make desk-widget-build`: passed.
-  - `make desk-widget-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated direct serial commands for CI/GitHub/alert/timer/summary.
-  - `SKIP_BUILD=1 make desk-widget-relay-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated mock event relay for CI/GitHub/alert/timer/summary.
+  - `make desk-widget-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated direct serial commands for CI/GitHub/alert/calendar/timer/summary.
+  - `SKIP_BUILD=1 make desk-widget-relay-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated mock event relay for CI/GitHub/alert/calendar/timer/summary.
   - `SKIP_BUILD=1 skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh desk-widget /Users/phodal/hardware/arduino relay`: passed through the repo Skill helper.
   - `SKIP_BUILD=1 /Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh desk-widget /Users/phodal/hardware/arduino relay`: passed through the global Skill helper.
   - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--targets cloud-ai-terminal,imu-interaction,desk-widget --per-target-timeout 420 --max-failures 1"`: built, uploaded, and passed `desk-widget-relay-smoke` on `/dev/cu.usbmodem83101`.
@@ -141,6 +141,13 @@ This report audits evidence surfaces only. It does not prove completion by itsel
   - Latest target log: `.logs/hardware-smoke-suite/20260614-045308/desk-widget.log`.
   - Observed build size: `435187 bytes` program storage and `23240 bytes` dynamic memory.
   - Observed relay result: `{"status": "ok", "mode": "mock", "ci": {"state": "FAIL", "label": "build red"}, "github": {"count": 7}, "alert_count": 1}`.
+  - `SKIP_BUILD=1 make desk-widget-smoke`: uploaded to `/dev/cu.usbmodem83101` and passed direct serial flow including `WIDGET:CALENDAR:2:standup in 15`, `page=CALENDAR`, and `calendar=2`.
+  - `SKIP_BUILD=1 make desk-widget-relay-smoke`: uploaded to `/dev/cu.usbmodem83101` and passed mock relay flow with calendar payload `{"count": 2, "next": "standup in 15"}`.
+  - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target desk-widget --skip-build --per-target-timeout 240 --max-failures 1"`: uploaded and passed the standard suite target with CI/GitHub/alert/calendar/timer/summary relay coverage.
+  - Latest calendar suite summary: `.logs/hardware-smoke-suite/20260614-052802/summary.json`.
+  - Latest calendar suite target log: `.logs/hardware-smoke-suite/20260614-052802/desk-widget.log`.
+  - Latest build size: `435871 bytes` program storage and `23312 bytes` dynamic memory.
+  - Observed calendar relay result: `{"status": "ok", "mode": "mock", "ci": {"state": "FAIL", "label": "build red"}, "github": {"count": 7}, "calendar": {"count": 2, "next": "standup in 15"}, "alert_count": 1}`.
 
 ## iot-panel
 

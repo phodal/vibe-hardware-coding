@@ -20,6 +20,7 @@ enum WidgetPage {
   WIDGET_HOME = 0,
   WIDGET_STATUS,
   WIDGET_TIMER,
+  WIDGET_CALENDAR,
   WIDGET_SUMMARY,
 };
 
@@ -29,6 +30,7 @@ uint32_t frame = 0;
 uint32_t touchEvents = 0;
 uint32_t alertCount = 0;
 uint32_t githubCount = 0;
+uint32_t calendarCount = 0;
 uint32_t timerSeconds = 25 * 60;
 uint32_t lastTimerTickMs = 0;
 bool timerRunning = false;
@@ -40,6 +42,7 @@ char ciState[16] = "OK";
 char ciLabel[32] = "CI PASS";
 char summary[96] = "Ready for AI notes";
 char alertText[64] = "No alerts";
+char calendarText[64] = "No events";
 
 const char *pageName(WidgetPage page) {
   switch (page) {
@@ -49,6 +52,8 @@ const char *pageName(WidgetPage page) {
       return "STATUS";
     case WIDGET_TIMER:
       return "TIMER";
+    case WIDGET_CALENDAR:
+      return "CALENDAR";
     case WIDGET_SUMMARY:
       return "SUMMARY";
   }
@@ -66,6 +71,10 @@ bool parsePage(const String &name, WidgetPage &page) {
   }
   if (name == "TIMER" || name == "POMODORO") {
     page = WIDGET_TIMER;
+    return true;
+  }
+  if (name == "CALENDAR" || name == "SCHEDULE") {
+    page = WIDGET_CALENDAR;
     return true;
   }
   if (name == "SUMMARY" || name == "AI") {
@@ -166,6 +175,14 @@ void drawPage() {
       drawTimerValue();
       centerText(timerRunning ? "RUN" : "PAUSE", 270, 4, timerRunning ? RGB565_GREEN : RGB565_YELLOW);
       break;
+    case WIDGET_CALENDAR:
+      drawFrame(RGB565_MAGENTA);
+      centerText("CAL", 44, 6, RGB565_CYAN);
+      char countText[24];
+      snprintf(countText, sizeof(countText), "%lu EVENT", calendarCount);
+      centerText(countText, 132, 5, RGB565_WHITE);
+      drawWrapped(calendarText, 44, 270, 24, RGB565_YELLOW);
+      break;
     case WIDGET_SUMMARY:
       drawFrame(RGB565_CYAN);
       centerText("AI NOTE", 44, 5, RGB565_CYAN);
@@ -197,6 +214,8 @@ void emitState() {
   Serial.print(githubCount);
   Serial.print(" alerts=");
   Serial.print(alertCount);
+  Serial.print(" calendar=");
+  Serial.print(calendarCount);
   Serial.print(" timer=");
   Serial.print(timerSeconds);
   Serial.print(" running=");
@@ -229,7 +248,7 @@ void setCiState(const String &state, const String &label) {
     strlcpy(ciState, "OK", sizeof(ciState));
   }
 
-  if (label.length() > 0) {
+    if (label.length() > 0) {
     copyString(ciLabel, sizeof(ciLabel), label);
   } else if (strcmp(ciState, "FAIL") == 0) {
     strlcpy(ciLabel, "CI FAIL", sizeof(ciLabel));
@@ -240,6 +259,18 @@ void setCiState(const String &state, const String &label) {
   }
 
   setPage(WIDGET_STATUS, "serial");
+}
+
+void setCalendar(uint32_t count, const String &nextEvent) {
+  calendarCount = count;
+  if (nextEvent.length() > 0) {
+    copyString(calendarText, sizeof(calendarText), nextEvent);
+  } else if (calendarCount > 0) {
+    strlcpy(calendarText, "Upcoming event", sizeof(calendarText));
+  } else {
+    strlcpy(calendarText, "No events", sizeof(calendarText));
+  }
+  setPage(WIDGET_CALENDAR, "serial");
 }
 
 void updateTimer() {
@@ -325,7 +356,7 @@ void handleTouch() {
   Serial.print(" y=");
   Serial.println(touchY[0]);
   Serial.flush();
-  setPage(static_cast<WidgetPage>((currentPage + 1) % 4), "touch");
+  setPage(static_cast<WidgetPage>((currentPage + 1) % 5), "touch");
   delay(220);
 }
 
@@ -347,7 +378,7 @@ void handleCommand(String command) {
     return;
   }
   if (upper == "NEXT") {
-    setPage(static_cast<WidgetPage>((currentPage + 1) % 4), "serial");
+    setPage(static_cast<WidgetPage>((currentPage + 1) % 5), "serial");
     return;
   }
   if (upper.startsWith("PAGE:")) {
@@ -384,6 +415,18 @@ void handleCommand(String command) {
     Serial.println(alertText);
     Serial.flush();
     setPage(WIDGET_STATUS, "serial");
+    return;
+  }
+  if (upper.startsWith("WIDGET:CALENDAR:")) {
+    int nextIndex = command.indexOf(':', 16);
+    uint32_t count = 0;
+    if (nextIndex > 0) {
+      count = static_cast<uint32_t>(max(0L, command.substring(16, nextIndex).toInt()));
+      setCalendar(count, command.substring(nextIndex + 1));
+    } else {
+      count = static_cast<uint32_t>(max(0L, command.substring(16).toInt()));
+      setCalendar(count, "");
+    }
     return;
   }
   if (upper.startsWith("WIDGET:SUMMARY:")) {
