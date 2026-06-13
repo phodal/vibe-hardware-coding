@@ -8,7 +8,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | official-demos | P0 | verified | conditional | 10 item(s) | passed `.logs/hardware-smoke-suite/20260614-050454/summary.json` | suite-passed | No immediate evidence gap. |
 | xiaozhi-ai | P0 | required_external | audio | 11 item(s) | passed `.logs/hardware-smoke-suite/20260614-051043/summary.json` | external-gated | Needs external firmware/source environment evidence. |
-| cloud-ai-terminal | P0 | partial | non_audio_control | 15 item(s) | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
+| cloud-ai-terminal | P0 | verified | non_audio_control | 12 item(s) | passed `.logs/hardware-smoke-suite/20260614-060731/summary.json` | suite-passed | No immediate evidence gap. |
 | offline-voice | P1 | verified | non_audio_control | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-055754/summary.json` | suite-passed | No immediate evidence gap. |
 | lvgl-visual-agent | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
 | imu-interaction | P1 | verified | none | 9 item(s) | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | suite-passed | No immediate evidence gap. |
@@ -57,24 +57,21 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 ## cloud-ai-terminal
 
 - Doc: `docs/p0-cloud-ai-terminal.md`
-- Latest suite summary: `.logs/hardware-smoke-suite/20260614-045308/summary.json`
+- Latest suite summary: `.logs/hardware-smoke-suite/20260614-060731/summary.json`
 - Latest suite status: `passed`
 - Verified Locally:
-  - `make cloud-ai-build`: passed.
+  - `make cloud-ai-build`: passed with `432371 bytes` program storage and `23064 bytes` dynamic memory.
   - `make cloud-ai-smoke`: uploaded to `/dev/cu.usbmodem83101`, completed `PING`/`PONG`, `ASK_RX`, and `AI_DISPLAYED:AI OK`.
   - `SKIP_BUILD=1 make cloud-ai-pipeline-smoke`: uploaded to `/dev/cu.usbmodem83101`, completed `PING`/`PONG`, `STATUS_RX:LISTEN`, `ASR_RX`, `STATUS_RX:THINK`, `LLM_DISPLAYED`, `STATUS_RX:SPEAK`, `TTS_READY`, and `PIPELINE_DONE`.
-  - `SKIP_BUILD=1 make cloud-ai-cache-smoke`: uploaded to `/dev/cu.usbmodem83101`, completed `CACHE_CLEAR`, `CACHE_PUT`, `CACHE_VALUE`, `STATE?`, pipeline, cached `response`, cached `tts`, and final `CLOUD_AI_STATE status=TTS`.
+  - `SKIP_BUILD=1 make cloud-ai-cache-smoke`: uploaded to `/dev/cu.usbmodem83101`, completed `CACHE_CLEAR`, `SESSION_SET`, `CACHE_PUT`, `CACHE_VALUE`, `STATE?`, pipeline, `CLOUD_REQ`, cached `response`, cached `tts`, cached `cloud_req`, `CLOUD_ERROR`, `CLOUD_AI_METRICS cloud_errors=1`, and final `CLOUD_AI_STATE status=TTS`.
   - `SKIP_BUILD=1 skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh cloud-ai /Users/phodal/hardware/arduino pipeline`: passed the same non-audio pipeline through the repo Skill helper.
   - `SKIP_BUILD=1 /Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh cloud-ai /Users/phodal/hardware/arduino pipeline`: passed the same non-audio pipeline through the global Skill helper.
   - `SKIP_BUILD=1 skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh cloud-ai /Users/phodal/hardware/arduino cache`: passed the same cache gate through the repo Skill helper.
   - `SKIP_BUILD=1 /Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh cloud-ai /Users/phodal/hardware/arduino cache`: passed the same cache gate through the global Skill helper.
   - `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 CAMERA_DEVICE=0 CAMERA_SIZE=1280x720 OCR_ENGINE=vision CLOUD_AI_TIMEOUT=20 make cloud-ai-smoke`: passed serial relay and camera OCR.
   - Latest visual artifact: `.logs/camera-ocr-20260613-225433.jpg`.
-  - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--targets cloud-ai-terminal,imu-interaction,desk-widget --per-target-timeout 420 --max-failures 1"`: built, uploaded, and passed `cloud-ai-cache-smoke` on `/dev/cu.usbmodem83101`.
-  - Latest suite summary: `.logs/hardware-smoke-suite/20260614-045308/summary.json`.
-  - Latest target log: `.logs/hardware-smoke-suite/20260614-045308/cloud-ai-terminal.log`.
-  - Observed build size: `429415 bytes` program storage and `23008 bytes` dynamic memory.
-  - Observed relay result: `{"status": "ok", "mode": "mock", "pipeline": true, "cache": true, "response": "AI OK", "tts": "tts frame ready"}`.
+  - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target cloud-ai-terminal --skip-build --per-target-timeout 240 --max-failures 1"`: passed with summary `.logs/hardware-smoke-suite/20260614-060731/summary.json`.
+  - Observed relay result: `{"status": "ok", "mode": "mock", "pipeline": true, "cache": true, "response": "AI OK", "tts": "tts frame ready", "session": "codex-session", "request_id": "req-codex-1"}`.
 
 ## offline-voice
 

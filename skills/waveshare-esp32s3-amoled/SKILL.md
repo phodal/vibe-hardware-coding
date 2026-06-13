@@ -74,9 +74,9 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `make cloud-ai-build` to compile the board-side display/serial terminal.
    - Run `make cloud-ai-smoke` to upload it and verify the host serial relay reaches `AI_DISPLAYED`.
    - Run `make cloud-ai-pipeline-smoke` to upload it and verify the silent ASR -> LLM -> TTS serial pipeline reaches `PIPELINE_DONE`.
-   - Run `make cloud-ai-cache-smoke` to upload it and verify board-local NVS cache plus `STATE?` runtime status commands.
+   - Run `make cloud-ai-cache-smoke` to upload it and verify board-local NVS cache, session id, cloud request id, recoverable cloud error metrics, and `STATE?` runtime status commands.
    - Run `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make cloud-ai-smoke` when the camera is positioned for OCR; serial verifies `AI OK`, while OCR should at least see stable `OK`.
-   - Treat this as the control-plane slice; pipeline smoke does not use microphone or speaker hardware. ES7210 microphone input and ES8311 speaker output still need dedicated audio stream validation.
+   - Treat this as the verified non-audio cloud terminal control-plane slice; pipeline smoke does not use microphone or speaker hardware. ES7210 microphone input and ES8311 speaker output still need dedicated audio stream validation in an allowed audio window.
 
 11. For microphone/audio-front-end validation:
    - Run `make audio-vad-build` to compile the ES7210 microphone probe.

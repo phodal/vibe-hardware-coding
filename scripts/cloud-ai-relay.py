@@ -115,6 +115,9 @@ def main() -> int:
     parser.add_argument("--transcript", default="hello from local asr")
     parser.add_argument("--response", default="AI OK")
     parser.add_argument("--tts", default="tts frame ready")
+    parser.add_argument("--session", default="codex-session")
+    parser.add_argument("--request-id", default="req-codex-1")
+    parser.add_argument("--provider", default="mock-llm")
     parser.add_argument("--expect", default="AI_DISPLAYED")
     parser.add_argument("--timeout", type=float, default=15.0)
     args = parser.parse_args()
@@ -129,6 +132,7 @@ def main() -> int:
 
         if args.cache:
             send_and_wait(serial, "CACHE:CLEAR", "CACHE_CLEAR ok=1", 5)
+            send_and_wait(serial, f"SESSION:{args.session}", "SESSION_SET", 5)
             send_and_wait(serial, "CACHE:PUT:session=codex-cache", "CACHE_PUT ok=1 key=session", 5)
             send_and_wait(serial, "CACHE:GET:session", "CACHE_VALUE hit=1 key=session value=codex-cache", 5)
             send_and_wait(serial, "STATE?", "CLOUD_AI_STATE", 5)
@@ -139,19 +143,26 @@ def main() -> int:
             send_and_wait(serial, "STATUS:LISTEN", "STATUS_RX", 5)
             send_and_wait(serial, f"ASR:{transcript}", "ASR_RX", 5)
             send_and_wait(serial, "STATUS:THINK", "STATUS_RX", 5)
+            send_and_wait(serial, f"CLOUD:REQ:{args.request_id}:{args.provider}", "CLOUD_REQ", 5)
             send_and_wait(serial, f"LLM:{answer}", "LLM_DISPLAYED", 5)
             send_and_wait(serial, "STATUS:SPEAK", "STATUS_RX", 5)
             send_and_wait(serial, f"TTS:{args.tts}", "PIPELINE_DONE", 5)
             if args.cache:
                 send_and_wait(serial, "CACHE:GET:response", f"CACHE_VALUE hit=1 key=response value={answer}", 5)
                 send_and_wait(serial, "CACHE:GET:tts", f"CACHE_VALUE hit=1 key=tts value={args.tts}", 5)
+                send_and_wait(serial, "CACHE:GET:cloud_req", f"CACHE_VALUE hit=1 key=cloud_req value={args.request_id}", 5)
+                send_and_wait(serial, "CLOUD:ERR:429:rate_limited", "CLOUD_ERROR", 5)
+                send_and_wait(serial, "METRICS?", "cloud_errors=1", 5)
+                send_and_wait(serial, "STATUS:TTS", "STATUS_RX", 5)
                 send_and_wait(serial, "STATE?", "status=TTS", 5)
         else:
             send_and_wait(serial, f"ASK:{args.question}", "ASK_RX", 5)
             answer = http_response(args.endpoint, args.question, args.timeout) if args.mode == "http" else args.response
+            send_and_wait(serial, f"CLOUD:REQ:{args.request_id}:{args.provider}", "CLOUD_REQ", 5)
             send_and_wait(serial, f"AI:{answer}", args.expect, 5)
             if args.cache:
                 send_and_wait(serial, "CACHE:GET:response", f"CACHE_VALUE hit=1 key=response value={answer}", 5)
+                send_and_wait(serial, "METRICS?", "cloud_count=1", 5)
     finally:
         serial.close()
 
@@ -164,6 +175,8 @@ def main() -> int:
                 "cache": args.cache,
                 "response": args.response,
                 "tts": args.tts,
+                "session": args.session,
+                "request_id": args.request_id,
             },
             ensure_ascii=True,
         )

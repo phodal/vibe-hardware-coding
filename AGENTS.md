@@ -41,7 +41,7 @@ Recoding changes to the AGENTS.md file for better organization and clarity.
 
 - The first self-developed terminal slice uses serial relay control before direct audio streaming. This validates display rendering and host/cloud protocol shape without blocking on ASR/TTS integration.
 - The Cloud AI terminal now has a non-audio ASR -> LLM -> TTS pipeline gate. Preserve `ASR:`, `LLM:`, `TTS:`, and `PIPELINE_DONE` when adding real ES7210/ES8311 streams so late-night validation can still prove protocol behavior without audio devices.
-- The Cloud AI terminal also has a board-local NVS cache gate. Preserve `CACHE:*` and `STATE?` commands when adding network or audio paths so cache/state behavior remains testable without cloud credentials.
+- The Cloud AI terminal has a verified non-audio control-plane gate. Preserve `SESSION:`, `CLOUD:REQ`, `CLOUD:ERR`, `METRICS?`, `CACHE:*`, and `STATE?` commands when adding network or audio paths so session/cloud/cache/state behavior remains testable without cloud credentials or audio devices.
 - Move from mock/HTTP text responses to ES7210 microphone capture in small steps: first validate RMS/peak metrics, then require VAD speech, then stream audio for ASR.
 - VAD is stricter than raw microphone capture. Treat RMS/peak threshold increases as the microphone data-flow gate, and use `AUDIO_VAD_REQUIRE_SPEECH=1` only when the host speaker is physically close enough.
 - On the current desk setup, macOS `say` produced a clear ES7210 signal delta but did not trigger ESP-SR VAD; this is acceptable for the microphone data-flow gate but not for a wake-word or speech-command gate.

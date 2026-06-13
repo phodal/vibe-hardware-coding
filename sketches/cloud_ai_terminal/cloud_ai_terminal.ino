@@ -20,12 +20,17 @@ Preferences prefs;
 String inputLine;
 uint32_t frame = 0;
 uint32_t pipelineCount = 0;
+uint32_t cloudRequestCount = 0;
+uint32_t cloudErrorCount = 0;
 bool displayReady = false;
 bool cacheReady = false;
 String lastTranscript = "";
 String lastResponse = "";
 String lastTts = "";
 String lastStatus = "READY";
+String sessionId = "local";
+String lastCloudRequest = "-";
+String lastCloudError = "-";
 
 void centerText(const String &text, int16_t y, uint8_t size, uint16_t color) {
   int16_t x1;
@@ -131,7 +136,12 @@ void saveRuntimeState() {
   prefs.putString("transcript", lastTranscript);
   prefs.putString("response", lastResponse);
   prefs.putString("tts", lastTts);
+  prefs.putString("session", sessionId);
+  prefs.putString("cloud_req", lastCloudRequest);
+  prefs.putString("cloud_err", lastCloudError);
   prefs.putUInt("pipe_count", pipelineCount);
+  prefs.putUInt("cloud_count", cloudRequestCount);
+  prefs.putUInt("cloud_errors", cloudErrorCount);
 }
 
 void emitDisplayAck(const char *prefix, const String &value) {
@@ -149,12 +159,34 @@ void emitState() {
   Serial.print(fitLine(lastStatus, 18));
   Serial.print(" pipeline_count=");
   Serial.print(pipelineCount);
+  Serial.print(" cloud_count=");
+  Serial.print(cloudRequestCount);
+  Serial.print(" cloud_errors=");
+  Serial.print(cloudErrorCount);
+  Serial.print(" session=");
+  Serial.print(fitLine(sessionId, 18));
   Serial.print(" transcript=");
   Serial.print(fitLine(lastTranscript, 24));
   Serial.print(" response=");
   Serial.print(fitLine(lastResponse, 24));
   Serial.print(" tts=");
   Serial.println(fitLine(lastTts, 24));
+  Serial.flush();
+}
+
+void emitMetrics() {
+  Serial.print("CLOUD_AI_METRICS pipeline_count=");
+  Serial.print(pipelineCount);
+  Serial.print(" cloud_count=");
+  Serial.print(cloudRequestCount);
+  Serial.print(" cloud_errors=");
+  Serial.print(cloudErrorCount);
+  Serial.print(" session=");
+  Serial.print(fitLine(sessionId, 18));
+  Serial.print(" last_request=");
+  Serial.print(fitLine(lastCloudRequest, 24));
+  Serial.print(" last_error=");
+  Serial.println(fitLine(lastCloudError, 24));
   Serial.flush();
 }
 
@@ -181,11 +213,77 @@ void processLine(String line) {
     lastResponse = "";
     lastTts = "";
     lastStatus = "READY";
+    lastCloudRequest = "-";
+    lastCloudError = "-";
     pipelineCount = 0;
+    cloudRequestCount = 0;
+    cloudErrorCount = 0;
     Serial.print("CACHE_CLEAR ok=");
     Serial.println(ok ? 1 : 0);
     Serial.flush();
     drawFrame(lastStatus, "AI OK");
+    return;
+  }
+
+  if (line.startsWith("SESSION:")) {
+    sessionId = line.substring(8);
+    sessionId.trim();
+    if (sessionId.length() == 0) {
+      sessionId = "local";
+    }
+    saveRuntimeState();
+    Serial.print("SESSION_SET id=");
+    Serial.println(fitLine(sessionId, 32));
+    Serial.flush();
+    return;
+  }
+
+  if (line == "METRICS?") {
+    emitMetrics();
+    return;
+  }
+
+  if (line.startsWith("CLOUD:REQ:")) {
+    String payload = line.substring(10);
+    int separator = payload.indexOf(':');
+    String requestId = separator >= 0 ? payload.substring(0, separator) : payload;
+    String provider = separator >= 0 ? payload.substring(separator + 1) : "mock";
+    requestId.trim();
+    provider.trim();
+    cloudRequestCount++;
+    lastCloudRequest = requestId;
+    lastStatus = "CLOUD";
+    saveRuntimeState();
+    drawFrame("CLOUD", provider);
+    Serial.print("CLOUD_REQ id=");
+    Serial.print(fitLine(requestId, 24));
+    Serial.print(" provider=");
+    Serial.print(fitLine(provider, 24));
+    Serial.print(" count=");
+    Serial.println(cloudRequestCount);
+    Serial.flush();
+    return;
+  }
+
+  if (line.startsWith("CLOUD:ERR:")) {
+    String payload = line.substring(10);
+    int separator = payload.indexOf(':');
+    String code = separator >= 0 ? payload.substring(0, separator) : "ERR";
+    String message = separator >= 0 ? payload.substring(separator + 1) : payload;
+    code.trim();
+    message.trim();
+    cloudErrorCount++;
+    lastCloudError = code + ":" + message;
+    lastStatus = "ERROR";
+    saveRuntimeState();
+    drawFrame("ERROR", code);
+    Serial.print("CLOUD_ERROR code=");
+    Serial.print(fitLine(code, 16));
+    Serial.print(" message=");
+    Serial.print(fitLine(message, 48));
+    Serial.print(" count=");
+    Serial.println(cloudErrorCount);
+    Serial.flush();
     return;
   }
 
@@ -299,7 +397,12 @@ void setup() {
     lastTranscript = prefs.getString("transcript", "");
     lastResponse = prefs.getString("response", "");
     lastTts = prefs.getString("tts", "");
+    sessionId = prefs.getString("session", "local");
+    lastCloudRequest = prefs.getString("cloud_req", "-");
+    lastCloudError = prefs.getString("cloud_err", "-");
     pipelineCount = prefs.getUInt("pipe_count", 0);
+    cloudRequestCount = prefs.getUInt("cloud_count", 0);
+    cloudErrorCount = prefs.getUInt("cloud_errors", 0);
   }
 
   if (!gfx->begin()) {
