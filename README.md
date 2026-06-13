@@ -109,6 +109,7 @@ make cloud-ai-build
 make cloud-ai-smoke
 CLOUD_AI_PIPELINE=1 make cloud-ai-smoke
 make cloud-ai-pipeline-smoke
+make cloud-ai-cache-smoke
 CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make cloud-ai-smoke
 make audio-vad-build
 make audio-vad-smoke
@@ -140,7 +141,7 @@ make lvgl-visual-agent-build
 make lvgl-visual-agent-smoke
 ```
 
-`make cloud-ai-smoke` uploads the self-developed `cloud_ai_terminal` sketch, runs the host serial relay in mock mode, and verifies the board displays an AI response. `make cloud-ai-pipeline-smoke` drives the silent ASR -> LLM -> TTS serial pipeline and verifies `PIPELINE_DONE` without using the microphone or speaker. These slices validate the display and host/cloud protocol shape; real audio capture and speaker playback are tracked in `docs/p0-cloud-ai-terminal.md`.
+`make cloud-ai-smoke` uploads the self-developed `cloud_ai_terminal` sketch, runs the host serial relay in mock mode, and verifies the board displays an AI response. `make cloud-ai-pipeline-smoke` drives the silent ASR -> LLM -> TTS serial pipeline and verifies `PIPELINE_DONE` without using the microphone or speaker. `make cloud-ai-cache-smoke` additionally validates board-local NVS cache and runtime state commands. These slices validate the display and host/cloud protocol shape; real audio capture and speaker playback are tracked in `docs/p0-cloud-ai-terminal.md`.
 
 `make audio-vad-smoke` uploads the ES7210 microphone probe, plays a host-side `say` stimulus, and validates serial RMS/peak metrics from the board. This is the microphone capture gate before full ASR streaming; details are in `docs/p0-audio-vad-probe.md`.
 

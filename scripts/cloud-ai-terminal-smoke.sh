@@ -38,6 +38,10 @@ if [[ "${CLOUD_AI_PIPELINE:-0}" == "1" ]]; then
   RELAY_ARGS+=(--pipeline)
 fi
 
+if [[ "${CLOUD_AI_CACHE:-0}" == "1" ]]; then
+  RELAY_ARGS+=(--cache)
+fi
+
 python3 "$ROOT_DIR/scripts/cloud-ai-relay.py" "${RELAY_ARGS[@]}"
 
 if [[ "${CLOUD_AI_VISUAL_SMOKE:-0}" == "1" ]]; then

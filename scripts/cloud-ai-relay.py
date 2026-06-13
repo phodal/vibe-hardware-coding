@@ -110,6 +110,7 @@ def main() -> int:
     parser.add_argument("--mode", choices=["mock", "http"], default="mock")
     parser.add_argument("--endpoint", help="HTTP endpoint for mode=http. Expects JSON with text/response/answer.")
     parser.add_argument("--pipeline", action="store_true", help="Drive the non-audio ASR -> LLM -> TTS serial pipeline.")
+    parser.add_argument("--cache", action="store_true", help="Validate board-local cache and state commands.")
     parser.add_argument("--question", default="hello")
     parser.add_argument("--transcript", default="hello from local asr")
     parser.add_argument("--response", default="AI OK")
@@ -126,6 +127,12 @@ def main() -> int:
         serial.wait_for("CLOUD_AI_READY", args.timeout)
         send_and_wait(serial, "PING", "PONG", 5)
 
+        if args.cache:
+            send_and_wait(serial, "CACHE:CLEAR", "CACHE_CLEAR ok=1", 5)
+            send_and_wait(serial, "CACHE:PUT:session=codex-cache", "CACHE_PUT ok=1 key=session", 5)
+            send_and_wait(serial, "CACHE:GET:session", "CACHE_VALUE hit=1 key=session value=codex-cache", 5)
+            send_and_wait(serial, "STATE?", "CLOUD_AI_STATE", 5)
+
         if args.pipeline:
             transcript = args.transcript or args.question
             answer = http_response(args.endpoint, transcript, args.timeout) if args.mode == "http" else args.response
@@ -135,10 +142,16 @@ def main() -> int:
             send_and_wait(serial, f"LLM:{answer}", "LLM_DISPLAYED", 5)
             send_and_wait(serial, "STATUS:SPEAK", "STATUS_RX", 5)
             send_and_wait(serial, f"TTS:{args.tts}", "PIPELINE_DONE", 5)
+            if args.cache:
+                send_and_wait(serial, "CACHE:GET:response", f"CACHE_VALUE hit=1 key=response value={answer}", 5)
+                send_and_wait(serial, "CACHE:GET:tts", f"CACHE_VALUE hit=1 key=tts value={args.tts}", 5)
+                send_and_wait(serial, "STATE?", "status=TTS", 5)
         else:
             send_and_wait(serial, f"ASK:{args.question}", "ASK_RX", 5)
             answer = http_response(args.endpoint, args.question, args.timeout) if args.mode == "http" else args.response
             send_and_wait(serial, f"AI:{answer}", args.expect, 5)
+            if args.cache:
+                send_and_wait(serial, "CACHE:GET:response", f"CACHE_VALUE hit=1 key=response value={answer}", 5)
     finally:
         serial.close()
 
@@ -148,6 +161,7 @@ def main() -> int:
                 "status": "ok",
                 "mode": args.mode,
                 "pipeline": args.pipeline,
+                "cache": args.cache,
                 "response": args.response,
                 "tts": args.tts,
             },

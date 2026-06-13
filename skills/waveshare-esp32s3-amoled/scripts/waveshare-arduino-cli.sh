@@ -110,6 +110,10 @@ case "$ACTION" in
           cd "$PROJECT_DIR"
           exec make cloud-ai-pipeline-smoke
           ;;
+        cache)
+          cd "$PROJECT_DIR"
+          exec make cloud-ai-cache-smoke
+          ;;
         relay)
           exec python3 "$PROJECT_DIR/scripts/cloud-ai-relay.py" "${EXTRA_ARGS[@]:1}"
           ;;
