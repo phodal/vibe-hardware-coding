@@ -14,7 +14,11 @@ This workspace automates build, upload, and serial monitoring for the Waveshare 
 
 The installed ESP32 core does not currently expose a dedicated `ESP32-S3-Touch-AMOLED-1.75C` FQBN. The scripts use `esp32:esp32:esp32s3` with explicit board options and the Waveshare 1.75C `pin_config.h`.
 
-## Commands
+## Workflow Map
+
+Use the Arduino lane first when validating local toolchain, display, touch, PMU, IMU, and audio examples. Use the XiaoZhi lane only when you intend to replace the currently flashed Arduino sketch with the XiaoZhi firmware or inspect that firmware route.
+
+## Arduino Commands
 
 ```bash
 make setup
@@ -65,3 +69,18 @@ If the board appears upside down in the camera, prefer `DISPLAY_ROTATION=2 make 
 `make official-demos` lists the Waveshare official Arduino examples tracked in `config/official-demos.tsv`.
 Use `make official-build DEMO=<id>` for compile-only validation, and `make official-smoke DEMO=<id>` to upload a vendor demo and verify its expected serial output. Start with `DEMO=01-helloworld`, then move through PMU, IMU, LVGL, and audio demos.
 See `docs/p0-official-demos.md` for the current P0 bring-up matrix and local verification notes.
+
+## XiaoZhi AI Commands
+
+```bash
+make xiaozhi-latest
+make xiaozhi-download
+make xiaozhi-inspect
+CONFIRM=--yes make xiaozhi-flash
+make xiaozhi-source-clone
+make xiaozhi-source-check
+```
+
+`make xiaozhi-latest`, `make xiaozhi-download`, and `make xiaozhi-inspect` automate the prebuilt XiaoZhi AI firmware route for `waveshare-esp32-s3-touch-amoled-1.75c`. `CONFIRM=--yes make xiaozhi-flash` writes the downloaded merged binary to the board and is intentionally explicit because it replaces the Arduino sketch currently on the device.
+
+The source route uses `scripts/xiaozhi.sh idf-build`, `scripts/xiaozhi.sh idf-flash`, and `scripts/xiaozhi.sh idf-monitor` from an ESP-IDF shell where `idf.py` is available. See `docs/p0-xiaozhi-ai.md` for the current XiaoZhi acceptance notes.

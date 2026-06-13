@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 DEMO ?= 01-helloworld
 
-.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-aligner official-demos official-build official-upload official-smoke official-build-all board-list clean
+.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-aligner official-demos official-build official-upload official-smoke official-build-all xiaozhi-latest xiaozhi-download xiaozhi-inspect xiaozhi-flash xiaozhi-source-clone xiaozhi-source-check board-list clean
 
 setup:
 	./scripts/setup.sh
@@ -41,6 +41,24 @@ official-smoke:
 
 official-build-all:
 	./scripts/official-demo.sh build-all
+
+xiaozhi-latest:
+	./scripts/xiaozhi.sh latest
+
+xiaozhi-download:
+	./scripts/xiaozhi.sh download
+
+xiaozhi-inspect:
+	./scripts/xiaozhi.sh inspect
+
+xiaozhi-flash:
+	./scripts/xiaozhi.sh flash $(CONFIRM)
+
+xiaozhi-source-clone:
+	./scripts/xiaozhi.sh source-clone
+
+xiaozhi-source-check:
+	./scripts/xiaozhi.sh source-check
 
 board-list:
 	arduino-cli board list

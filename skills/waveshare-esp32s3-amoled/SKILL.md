@@ -49,6 +49,13 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `SMOKE_SECONDS=8 make official-smoke DEMO=01-helloworld` to upload the official display baseline and verify runtime serial output.
    - The project runner stages vendor examples under `.arduino-build/official-sketches/<id>` because several official `.ino` filenames do not match their parent folder names, which `arduino-cli` requires.
 
+8. For XiaoZhi AI bring-up:
+   - Run `make xiaozhi-latest` to locate the latest official `waveshare-esp32-s3-touch-amoled-1.75c` release asset.
+   - Run `make xiaozhi-inspect` before flashing; it should confirm the zip contains `merged-binary.bin`.
+   - Run `make xiaozhi-flash` only when the user is ready to replace the current Arduino demo with XiaoZhi firmware.
+   - For source builds, run `make xiaozhi-source-clone` then `make xiaozhi-source-check`; the local defaults select `CONFIG_BOARD_TYPE_WAVESHARE_ESP32_S3_TOUCH_AMOLED_1_75C=y`.
+   - If `idf.py` is missing, stop at source-check and tell the user to install/source ESP-IDF before `scripts/xiaozhi.sh idf-build`.
+
 ## Known 1.75C FQBN
 
 Use this FQBN unless a future Espressif core adds a real 1.75C board profile:
@@ -82,6 +89,9 @@ make visual-smoke
 make official-demos
 make official-build-all
 SMOKE_SECONDS=8 make official-smoke DEMO=01-helloworld
+make xiaozhi-latest
+make xiaozhi-inspect
+make xiaozhi-source-check
 ```
 
 ## References

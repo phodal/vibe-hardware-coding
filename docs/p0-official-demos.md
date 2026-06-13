@@ -16,7 +16,11 @@ make official-smoke DEMO=01-helloworld
 make official-build-all
 ```
 
-Use `scripts/official-demo.sh list` for the full manifest. Each row in `config/official-demos.tsv` records the demo id, functional category, vendor sketch directory, and expected serial text for smoke validation.
+Use `scripts/official-demo.sh list` for the full manifest. Each row in `config/official-demos.tsv` records the demo id, functional category, vendor sketch directory, and expected serial text for smoke validation. The `path` action prints the staged sketch directory used by `arduino-cli`:
+
+```bash
+scripts/official-demo.sh path 01-helloworld
+```
 
 ## P0 Coverage
 
@@ -33,13 +37,16 @@ Use `scripts/official-demo.sh list` for the full manifest. Each row in `config/o
 ## Notes
 
 - `make official-build DEMO=<id>` is non-destructive and compiles only.
+- `make official-build-all` compiles every manifest row serially and returns a non-zero exit code if any demo fails.
 - `make official-smoke DEMO=<id>` uploads to the connected board and captures serial output under `.logs/`.
 - Vendor example folders are staged into `.arduino-build/official-sketches/<id>` before compilation because several official `.ino` filenames do not match their parent folder names, which `arduino-cli` requires.
 - Visual proof for display-oriented demos can be layered with `make camera-aligner` and `make visual-smoke`, but vendor demos are intentionally kept unmodified in this lane.
+- Audio demos need real audio stimulus or audible output checks in addition to serial matching.
 
 ## Verified Locally
 
-- `make official-build DEMO=01-helloworld`: passed.
-- `make official-build-all`: passed for all 7 Arduino examples.
+- `make official-demos`: listed all 7 manifest rows.
+- `make official-build DEMO=01-helloworld`: passed on the current Arduino CLI setup.
+- `make official-build-all`: passed for all 7 Arduino examples on the current Arduino CLI setup.
 - `SMOKE_SECONDS=8 make official-smoke DEMO=01-helloworld`: uploaded to `/dev/cu.usbmodem83101` and matched serial text `loop`.
 - Latest smoke log: `.logs/official-01-helloworld-20260613-222514.log`.

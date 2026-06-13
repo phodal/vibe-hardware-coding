@@ -36,6 +36,14 @@ case "$ACTION" in
       exec "$PROJECT_DIR/scripts/official-demo.sh" "${EXTRA_ARGS[@]}"
     fi
     ;;
+  xiaozhi)
+    if [[ -x "$PROJECT_DIR/scripts/xiaozhi.sh" ]]; then
+      if [[ "${#EXTRA_ARGS[@]}" -eq 0 ]]; then
+        exec "$PROJECT_DIR/scripts/xiaozhi.sh" latest
+      fi
+      exec "$PROJECT_DIR/scripts/xiaozhi.sh" "${EXTRA_ARGS[@]}"
+    fi
+    ;;
 esac
 
 CORE_VERSION="${ARDUINO_CORE_VERSION:-3.3.5}"
@@ -140,8 +148,12 @@ case "$ACTION" in
     echo "No project official demo runner found. Use a project that provides scripts/official-demo.sh." >&2
     exit 2
     ;;
+  xiaozhi)
+    echo "No project XiaoZhi runner found. Use a project that provides scripts/xiaozhi.sh." >&2
+    exit 2
+    ;;
   *)
-    echo "Usage: $0 {setup|build|upload|monitor|smoke|visual-smoke|camera-aligner|official-demos|official-demo} [project-dir] [official-demo-args...]" >&2
+    echo "Usage: $0 {setup|build|upload|monitor|smoke|visual-smoke|camera-aligner|official-demos|official-demo|xiaozhi} [project-dir] [action-args...]" >&2
     exit 2
     ;;
 esac
