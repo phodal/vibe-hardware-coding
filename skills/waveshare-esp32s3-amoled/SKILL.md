@@ -159,10 +159,11 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - This path is safe for late-night validation because it does not play audio or use the host microphone.
 
 23. For TinyML / IMU classifier validation:
-   - Run `make tinyml-imu-build` to compile the QMI8658 TinyML classifier scaffold.
-   - Run `make tinyml-imu-smoke` to upload it, disable live IMU mode, inject deterministic serial feature vectors, and verify `REST`, `TILT_LEFT`, `TILT_RIGHT`, and `SHAKE` labels.
+   - Run `make tinyml-imu-model-check` to validate the checked-in nearest-centroid model metadata and validation set.
+   - Run `make tinyml-imu-build` to compile the QMI8658 TinyML classifier.
+   - Run `make tinyml-imu-smoke` to upload it, verify the board-reported model hash, disable live IMU mode, inject deterministic serial feature vectors, and verify `REST`, `TILT_LEFT`, `TILT_RIGHT`, `FACE_UP`, and `SHAKE` labels.
    - Use `TINYML_IMU_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make tinyml-imu-smoke` when camera OCR should verify the screen reaches `OK`.
-   - Treat this as a TinyML automation harness. The current embedded classifier is intentionally simple and should be replaced by ESP-DL or a trained model later without removing the deterministic serial sample gate.
+   - Treat this as a small TinyML automation model. The current embedded nearest-centroid classifier can be replaced by ESP-DL or a larger trained model later without removing the deterministic serial sample gate.
    - This path is safe for late-night validation because it does not play audio or use the host microphone.
 
 24. For ESP-Claw / OpenClaw agent harness validation:
@@ -274,6 +275,7 @@ make iot-panel-smoke
 make iot-panel-relay-smoke
 make offline-voice-build
 make offline-voice-smoke
+make tinyml-imu-model-check
 make tinyml-imu-build
 make tinyml-imu-smoke
 make esp-claw-agent-build

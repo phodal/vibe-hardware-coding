@@ -16,7 +16,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 | desk-widget | P1 | verified | none | 17 item(s) | passed `.logs/hardware-smoke-suite/20260614-052802/summary.json` | suite-passed | No immediate evidence gap. |
 | iot-panel | P1 | verified | none | 6 item(s) | passed `.logs/hardware-smoke-suite/20260614-053656/summary.json` | suite-passed | No immediate evidence gap. |
 | esp-claw-agent | P2 | partial | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-044424/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
-| tinyml-imu | P2 | partial | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-044424/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
+| tinyml-imu | P2 | verified | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-054530/summary.json` | suite-passed | No immediate evidence gap. |
 | audio-front-end | P2 | required_quiet_window | audio | 10 item(s) | missing | quiet-window-gated | Needs an explicit quiet-window audio run. |
 
 ## official-demos
@@ -177,14 +177,14 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 ## tinyml-imu
 
 - Doc: `docs/p2-tinyml-imu-classifier.md`
-- Latest suite summary: `.logs/hardware-smoke-suite/20260614-044424/summary.json`
+- Latest suite summary: `.logs/hardware-smoke-suite/20260614-054530/summary.json`
 - Latest suite status: `passed`
 - Verified Locally:
-  - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--targets esp-claw-agent,tinyml-imu --per-target-timeout 420 --max-failures 1"`: built, uploaded, and passed `tinyml-imu-smoke` on `/dev/cu.usbmodem83101`.
-  - Latest suite summary: `.logs/hardware-smoke-suite/20260614-044424/summary.json`.
-  - Latest target log: `.logs/hardware-smoke-suite/20260614-044424/tinyml-imu.log`.
-  - Observed build size: `438763 bytes` program storage and `23048 bytes` dynamic memory.
-  - Observed summary: `tinyml_imu_summary classifications=4 labels=REST,TILT_LEFT,TILT_RIGHT,SHAKE min_confidence=0.823`.
+  - `make tinyml-imu-model-check`: passed with `accuracy=1.000` over 10 validation samples and `min_confidence=0.689`.
+  - `make tinyml-imu-build`: passed with `439099 bytes` program storage and `23048 bytes` dynamic memory.
+  - `SKIP_BUILD=1 make tinyml-imu-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated `hash=tinyml-imu-centroid-v1`, `prototypes=5`, `validation_accuracy=1.000`, and labels `REST,TILT_LEFT,TILT_RIGHT,FACE_UP,SHAKE`.
+  - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target tinyml-imu --skip-build --per-target-timeout 240 --max-failures 1"`: passed with summary `.logs/hardware-smoke-suite/20260614-054530/summary.json`.
+  - Observed summary: `tinyml_imu_summary classifications=5 labels=REST,TILT_LEFT,TILT_RIGHT,FACE_UP,SHAKE model=tinyml-imu-centroid-v1 min_confidence=0.914`.
 
 ## audio-front-end
 

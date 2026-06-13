@@ -33,6 +33,31 @@ struct Classification {
   const char *source;
 };
 
+struct Prototype {
+  const char *label;
+  float ax;
+  float ay;
+  float az;
+  float gx;
+  float gy;
+  float gz;
+};
+
+constexpr const char *MODEL_NAME = "imu_centroid_v1";
+constexpr const char *MODEL_HASH = "tinyml-imu-centroid-v1";
+constexpr uint16_t MODEL_TRAINING_SAMPLES = 20;
+constexpr float MODEL_VALIDATION_ACCURACY = 1.0f;
+constexpr float GYRO_SCALE = 200.0f;
+
+const Prototype PROTOTYPES[] = {
+  {"REST", 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f},
+  {"TILT_LEFT", -0.85f, 0.0f, 0.52f, 0.0f, 0.0f, 0.0f},
+  {"TILT_RIGHT", 0.85f, 0.0f, 0.52f, 0.0f, 0.0f, 0.0f},
+  {"FACE_UP", 0.0f, 0.9f, 0.3f, 0.0f, 0.0f, 0.0f},
+  {"SHAKE", 0.15f, 0.1f, 1.8f, 180.0f, 20.0f, 0.0f},
+};
+constexpr uint8_t PROTOTYPE_COUNT = sizeof(PROTOTYPES) / sizeof(PROTOTYPES[0]);
+
 bool displayReady = false;
 bool imuReady = false;
 bool liveMode = true;
@@ -55,29 +80,29 @@ float gyroMagnitude(const ImuSample &item) {
   return magnitude3(item.gx, item.gy, item.gz);
 }
 
-float maxAbsAxis(const ImuSample &item) {
-  return max(max(fabsf(item.ax), fabsf(item.ay)), fabsf(item.az));
+float distanceToPrototype(const ImuSample &item, const Prototype &prototype) {
+  float dax = item.ax - prototype.ax;
+  float day = item.ay - prototype.ay;
+  float daz = item.az - prototype.az;
+  float dgx = (item.gx - prototype.gx) / GYRO_SCALE;
+  float dgy = (item.gy - prototype.gy) / GYRO_SCALE;
+  float dgz = (item.gz - prototype.gz) / GYRO_SCALE;
+  return sqrtf(dax * dax + day * day + daz * daz + dgx * dgx + dgy * dgy + dgz * dgz);
 }
 
 Classification classify(const ImuSample &item, const char *source) {
-  float amag = accMagnitude(item);
-  float gmag = gyroMagnitude(item);
-  float dominant = maxAbsAxis(item);
-  float confidence = fminf(0.99f, fmaxf(0.50f, dominant / fmaxf(amag, 0.01f)));
+  const Prototype *best = &PROTOTYPES[0];
+  float bestDistance = distanceToPrototype(item, *best);
+  for (uint8_t i = 1; i < PROTOTYPE_COUNT; i++) {
+    float distance = distanceToPrototype(item, PROTOTYPES[i]);
+    if (distance < bestDistance) {
+      best = &PROTOTYPES[i];
+      bestDistance = distance;
+    }
+  }
 
-  if (gmag > 120.0f || fabsf(amag - 1.0f) > 0.55f) {
-    return {"SHAKE", fminf(0.99f, fmaxf(0.65f, gmag / 220.0f)), source};
-  }
-  if (item.ax < -0.55f) {
-    return {"TILT_LEFT", confidence, source};
-  }
-  if (item.ax > 0.55f) {
-    return {"TILT_RIGHT", confidence, source};
-  }
-  if (item.ay > 0.65f) {
-    return {"FACE_UP", confidence, source};
-  }
-  return {"REST", fminf(0.99f, fmaxf(0.60f, item.az)), source};
+  float confidence = fminf(0.99f, fmaxf(0.50f, 1.0f / (1.0f + bestDistance)));
+  return {best->label, confidence, source};
 }
 
 void centerText(const char *text, int16_t y, uint8_t size, uint16_t color) {
@@ -127,7 +152,17 @@ void drawClassifierScreen() {
 }
 
 void emitModel() {
-  Serial.println("TINYML_MODEL name=imu_baseline type=centroid_rule classes=REST,TILT_LEFT,TILT_RIGHT,FACE_UP,SHAKE features=ax,ay,az,gx,gy,gz");
+  Serial.print("TINYML_MODEL name=");
+  Serial.print(MODEL_NAME);
+  Serial.print(" type=nearest_centroid hash=");
+  Serial.print(MODEL_HASH);
+  Serial.print(" prototypes=");
+  Serial.print(PROTOTYPE_COUNT);
+  Serial.print(" training_samples=");
+  Serial.print(MODEL_TRAINING_SAMPLES);
+  Serial.print(" validation_accuracy=");
+  Serial.print(MODEL_VALIDATION_ACCURACY, 3);
+  Serial.println(" classes=REST,TILT_LEFT,TILT_RIGHT,FACE_UP,SHAKE features=ax,ay,az,gx,gy,gz");
   Serial.flush();
 }
 

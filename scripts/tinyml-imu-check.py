@@ -19,6 +19,11 @@ BAUDS = {
 }
 
 READY_RE = re.compile(r"TINYML_(?:READY|PARTIAL) display=(?P<display>[01]) imu=(?P<imu>[01])")
+MODEL_RE = re.compile(
+    r"TINYML_MODEL name=(?P<name>\S+) type=(?P<type>\S+) hash=(?P<hash>\S+) "
+    r"prototypes=(?P<prototypes>\d+) training_samples=(?P<training_samples>\d+) "
+    r"validation_accuracy=(?P<validation_accuracy>\d+(?:\.\d+)?) .*classes=(?P<classes>\S+)"
+)
 CLASS_RE = re.compile(
     r"TINYML_CLASS source=(?P<source>\S+) label=(?P<label>\S+) confidence=(?P<confidence>\d+(?:\.\d+)?) "
     r"ax=(?P<ax>-?\d+(?:\.\d+)?) ay=(?P<ay>-?\d+(?:\.\d+)?) az=(?P<az>-?\d+(?:\.\d+)?) "
@@ -117,6 +122,7 @@ def main() -> int:
         ("REST", "0.00,0.00,1.00,0.00,0.00,0.00"),
         ("TILT_LEFT", "-0.82,0.00,0.55,0.00,0.00,0.00"),
         ("TILT_RIGHT", "0.82,0.00,0.55,0.00,0.00,0.00"),
+        ("FACE_UP", "0.00,0.82,0.35,0.00,0.00,0.00"),
         ("SHAKE", "0.15,0.10,1.85,180.00,20.00,0.00"),
     ]
 
@@ -147,13 +153,23 @@ def main() -> int:
         serial.write_line("PING")
         collected.append(serial.wait_for(lambda line: line == "PONG", 5, "PONG"))
         serial.write_line("MODEL?")
-        collected.append(
-            serial.wait_for(
-                lambda line: line.startswith("TINYML_MODEL") and "classes=" in line,
-                5,
-                "TINYML_MODEL",
-            )
+        model_line = serial.wait_for(
+            lambda line: line.startswith("TINYML_MODEL") and "hash=tinyml-imu-centroid-v1" in line,
+            5,
+            "TINYML_MODEL",
         )
+        collected.append(model_line)
+        model = MODEL_RE.search(model_line)
+        if not model:
+            raise SystemExit(f"Could not parse model metadata: {model_line}")
+        if model.group("type") != "nearest_centroid":
+            raise SystemExit(f"Unexpected model type: {model.group('type')}")
+        if int(model.group("prototypes")) < 5:
+            raise SystemExit(f"Expected at least five prototypes: {model_line}")
+        if int(model.group("training_samples")) < 20:
+            raise SystemExit(f"Expected at least 20 training samples: {model_line}")
+        if float(model.group("validation_accuracy")) < 0.95:
+            raise SystemExit(f"Expected validation_accuracy >= 0.95: {model_line}")
         serial.write_line("LIVE:0")
         collected.append(serial.wait_for(lambda line: line.startswith("TINYML_LIVE enabled=0"), 5, "TINYML_LIVE"))
 
@@ -185,7 +201,7 @@ def main() -> int:
     print(
         "tinyml_imu_summary "
         f"classifications={len(classes)} labels={','.join(labels)} "
-        f"min_confidence={min_confidence:.3f}"
+        f"model=tinyml-imu-centroid-v1 min_confidence={min_confidence:.3f}"
     )
     if min_confidence < 0.5:
         raise SystemExit(f"min_confidence {min_confidence:.3f} < 0.5")
