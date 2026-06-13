@@ -45,6 +45,7 @@ uint32_t frame = 0;
 uint32_t touchEvents = 0;
 uint32_t commandCount = 0;
 uint32_t toggleCount = 0;
+uint32_t haCount = 0;
 uint32_t mqttCount = 0;
 uint32_t httpCount = 0;
 uint8_t selectedDevice = 0;
@@ -246,6 +247,8 @@ void emitState() {
   Serial.print(activeScene);
   Serial.print(" toggles=");
   Serial.print(toggleCount);
+  Serial.print(" ha=");
+  Serial.print(haCount);
   Serial.print(" mqtt=");
   Serial.print(mqttCount);
   Serial.print(" http=");
@@ -271,6 +274,20 @@ void emitDevice(uint8_t index, const char *source) {
   Serial.print(device.online ? 1 : 0);
   Serial.print(" source=");
   Serial.println(source);
+  Serial.flush();
+}
+
+void emitHomeAssistant(const String &service, uint8_t index, const char *action) {
+  Serial.print("IOT_HA service=");
+  Serial.print(service);
+  Serial.print(" idx=");
+  Serial.print(index);
+  Serial.print(" action=");
+  Serial.print(action);
+  Serial.print(" state=");
+  Serial.print(devices[index].state);
+  Serial.print(" value=");
+  Serial.println(devices[index].value);
   Serial.flush();
 }
 
@@ -314,6 +331,69 @@ void setScene(const String &scene, const char *source) {
   }
   snprintf(lastAction, sizeof(lastAction), "scene=%s", activeScene);
   setPage(PANEL_SCENE, source);
+}
+
+void handleHomeAssistant(const String &payload) {
+  int firstColon = payload.indexOf(':');
+  int secondColon = firstColon > 0 ? payload.indexOf(':', firstColon + 1) : -1;
+  if (firstColon <= 0 || secondColon <= 0) {
+    Serial.print("IOT_HA_BAD value=");
+    Serial.println(payload);
+    Serial.flush();
+    return;
+  }
+
+  String service = payload.substring(0, firstColon);
+  String serviceUpper = service;
+  serviceUpper.toUpperCase();
+  long index = payload.substring(firstColon + 1, secondColon).toInt();
+  if (!validIndex(index)) {
+    Serial.print("IOT_HA_BAD_INDEX value=");
+    Serial.println(index);
+    Serial.flush();
+    return;
+  }
+
+  String value = payload.substring(secondColon + 1);
+  value.trim();
+  String upperValue = value;
+  upperValue.toUpperCase();
+
+  uint8_t deviceIndex = static_cast<uint8_t>(index);
+  const char *action = "SET";
+  haCount++;
+  if (serviceUpper.endsWith(".TOGGLE") || upperValue == "TOGGLE") {
+    action = "TOGGLE";
+    toggleDevice(deviceIndex, "ha");
+  } else if (serviceUpper.endsWith(".SET_TEMPERATURE") || serviceUpper.endsWith(".SET_VALUE")) {
+    action = "VALUE";
+    devices[deviceIndex].value = value.toInt();
+    devices[deviceIndex].online = true;
+    selectedDevice = deviceIndex;
+    snprintf(lastAction, sizeof(lastAction), "ha value %s", devices[deviceIndex].name);
+    drawPage();
+    emitDevice(deviceIndex, "ha");
+  } else if (serviceUpper.endsWith(".TURN_OFF")) {
+    action = "OFF";
+    setDeviceState(deviceIndex, "OFF", "ha");
+  } else if (serviceUpper.endsWith(".LOCK")) {
+    action = "LOCK";
+    setDeviceState(deviceIndex, "CLOSED", "ha");
+  } else if (serviceUpper.endsWith(".UNLOCK") || serviceUpper.endsWith(".OPEN")) {
+    action = "OPEN";
+    setDeviceState(deviceIndex, "OPEN", "ha");
+  } else {
+    if (value.length() == 0 || upperValue == "ON") {
+      action = "ON";
+      setDeviceState(deviceIndex, "ON", "ha");
+    } else {
+      setDeviceState(deviceIndex, value, "ha");
+    }
+  }
+
+  snprintf(lastAction, sizeof(lastAction), "ha %s", service.c_str());
+  emitHomeAssistant(service, deviceIndex, action);
+  setPage(PANEL_LOG, "ha");
 }
 
 void resetTouchPins() {
@@ -455,6 +535,10 @@ void handleCommand(String command) {
         emitDevice(selectedDevice, "serial");
       }
     }
+    return;
+  }
+  if (upper.startsWith("IOT:HA:")) {
+    handleHomeAssistant(command.substring(7));
     return;
   }
   if (upper.startsWith("IOT:MQTT:")) {

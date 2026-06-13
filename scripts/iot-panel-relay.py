@@ -25,7 +25,7 @@ BAUDS = {
 STATE_RE = re.compile(
     r"IOT_STATE .*devices=(?P<devices>\d+) online=(?P<online>\d+) "
     r"active=(?P<active>\d+) scene=(?P<scene>\S+) toggles=(?P<toggles>\d+) "
-    r"mqtt=(?P<mqtt>\d+) http=(?P<http>\d+) commands=(?P<commands>\d+)"
+    r"ha=(?P<ha>\d+) mqtt=(?P<mqtt>\d+) http=(?P<http>\d+) commands=(?P<commands>\d+)"
 )
 
 
@@ -135,17 +135,18 @@ def apply_home_assistant(serial: SerialPort, events: dict[str, Any]) -> int:
     for item in as_list(events.get("home_assistant")):
         if not isinstance(item, dict):
             continue
+        service = str(item.get("service", "homeassistant.turn_on"))[:40]
         index = int(item.get("index", 0))
         if item.get("toggle", False):
-            send_and_wait(serial, f"IOT:TOGGLE:{index}", f"IOT_DEVICE idx={index}")
+            send_and_wait(serial, f"IOT:HA:{service}:{index}:TOGGLE", "IOT_HA")
             count += 1
             continue
         if "value" in item:
-            send_and_wait(serial, f"IOT:VALUE:{index}:{int(item['value'])}", f"IOT_DEVICE idx={index}")
+            send_and_wait(serial, f"IOT:HA:{service}:{index}:{int(item['value'])}", "IOT_HA")
             count += 1
             continue
         state = str(item.get("state", "ON")).upper()
-        send_and_wait(serial, f"IOT:SET:{index}:{state}", f"IOT_DEVICE idx={index}")
+        send_and_wait(serial, f"IOT:HA:{service}:{index}:{state}", "IOT_HA")
         count += 1
     return count
 
@@ -209,6 +210,8 @@ def apply_events(serial: SerialPort, events: dict[str, Any]) -> dict[str, int | 
         raise SystemExit(f"Expected all devices online, saw: {state}")
     if str(parsed["scene"]) != scene:
         raise SystemExit(f"Expected scene={scene}, saw: {state}")
+    if int(parsed["ha"]) < ha_count:
+        raise SystemExit(f"Expected at least {ha_count} Home Assistant events, saw: {state}")
     if int(parsed["mqtt"]) < mqtt_count:
         raise SystemExit(f"Expected at least {mqtt_count} MQTT events, saw: {state}")
     if int(parsed["http"]) < http_count:

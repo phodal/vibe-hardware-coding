@@ -24,7 +24,7 @@ STATE_RE = re.compile(
     r"IOT_STATE .*page=(?P<page>\S+) display=(?P<display>[01]) touch=(?P<touch>[01]) "
     r"selected=(?P<selected>\d+) devices=(?P<devices>\d+) online=(?P<online>\d+) "
     r"active=(?P<active>\d+) scene=(?P<scene>\S+) toggles=(?P<toggles>\d+) "
-    r"mqtt=(?P<mqtt>\d+) http=(?P<http>\d+) commands=(?P<commands>\d+)"
+    r"ha=(?P<ha>\d+) mqtt=(?P<mqtt>\d+) http=(?P<http>\d+) commands=(?P<commands>\d+)"
 )
 DEVICE_RE = re.compile(
     r"IOT_DEVICE idx=(?P<idx>\d+) name=(?P<name>\S+) kind=(?P<kind>\S+) "
@@ -173,6 +173,8 @@ def main() -> int:
             ("PAGE:DEVICES", "IOT_PAGE", "page=DEVICES"),
             ("IOT:SET:0:ON", "IOT_DEVICE", "idx=0"),
             ("IOT:TOGGLE:1", "IOT_DEVICE", "idx=1"),
+            ("IOT:HA:light.turn_on:0:ON", "IOT_HA", "service=light.turn_on"),
+            ("IOT:HA:switch.toggle:1:TOGGLE", "IOT_HA", "action=TOGGLE"),
             ("IOT:MQTT:home/door:2:OPEN", "IOT_MQTT", "idx=2"),
             ("IOT:HTTP:POST:/api/light/turn_on:200", "IOT_HTTP", "status=200"),
             ("SCENE:NIGHT", "IOT_PAGE", "page=SCENE"),
@@ -208,6 +210,8 @@ def main() -> int:
         raise SystemExit(f"Expected at least 4 devices, saw {latest['devices']}")
     if int(latest["online"]) < 4:
         raise SystemExit(f"Expected all devices online, saw {latest['online']}")
+    if int(latest["ha"]) < 2:
+        raise SystemExit("Expected at least two Home Assistant service events.")
     if int(latest["mqtt"]) < 1:
         raise SystemExit("Expected at least one MQTT event.")
     if int(latest["http"]) < 1:
@@ -223,7 +227,8 @@ def main() -> int:
         "iot_panel_summary "
         f"states={len(states)} page_flow={','.join(pages)} "
         f"devices={latest['devices']} online={latest['online']} active={latest['active']} "
-        f"scene={latest['scene']} toggles={latest['toggles']} mqtt={latest['mqtt']} http={latest['http']}"
+        f"scene={latest['scene']} toggles={latest['toggles']} ha={latest['ha']} "
+        f"mqtt={latest['mqtt']} http={latest['http']}"
     )
     return 0
 

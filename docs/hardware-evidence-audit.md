@@ -14,7 +14,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 | imu-interaction | P1 | verified | none | 9 item(s) | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | suite-passed | No immediate evidence gap. |
 | power-lifecycle | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
 | desk-widget | P1 | verified | none | 17 item(s) | passed `.logs/hardware-smoke-suite/20260614-052802/summary.json` | suite-passed | No immediate evidence gap. |
-| iot-panel | P1 | partial | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-043837/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
+| iot-panel | P1 | verified | none | 6 item(s) | passed `.logs/hardware-smoke-suite/20260614-053656/summary.json` | suite-passed | No immediate evidence gap. |
 | esp-claw-agent | P2 | partial | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-044424/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
 | tinyml-imu | P2 | partial | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-044424/summary.json` | suite-passed | Decide what remains before promoting matrix status to verified. |
 | audio-front-end | P2 | required_quiet_window | audio | 10 item(s) | missing | quiet-window-gated | Needs an explicit quiet-window audio run. |
@@ -152,12 +152,13 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 ## iot-panel
 
 - Doc: `docs/p1-iot-control-panel.md`
-- Latest suite summary: `.logs/hardware-smoke-suite/20260614-043837/summary.json`
+- Latest suite summary: `.logs/hardware-smoke-suite/20260614-053656/summary.json`
 - Latest suite status: `passed`
 - Verified Locally:
   - `make iot-panel-build`: passed.
-  - `make iot-panel-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated direct serial commands for devices, MQTT, HTTP, and scenes.
-  - `SKIP_BUILD=1 make iot-panel-relay-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated mock Home Assistant, MQTT, HTTP, and scene events through the host relay.
+  - `make iot-panel-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated direct serial commands for devices, explicit Home Assistant service calls, MQTT, HTTP, and scenes.
+  - `SKIP_BUILD=1 make iot-panel-relay-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated mock Home Assistant service calls, MQTT, HTTP, and scene events through the host relay.
+  - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target iot-panel --skip-build --per-target-timeout 240 --max-failures 1"`: passed with summary `.logs/hardware-smoke-suite/20260614-053656/summary.json`.
   - `SKIP_BUILD=1 skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh iot-panel /Users/phodal/hardware/arduino relay`: passed through the repo Skill helper.
   - `SKIP_BUILD=1 /Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh iot-panel /Users/phodal/hardware/arduino relay`: passed through the global Skill helper.
 
