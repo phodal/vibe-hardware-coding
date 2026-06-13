@@ -327,6 +327,10 @@ case "$ACTION" in
         smoke)
           exec "$PROJECT_DIR/scripts/iot-panel-smoke.sh"
           ;;
+        relay)
+          cd "$PROJECT_DIR"
+          exec make iot-panel-relay-smoke
+          ;;
         check)
           exec python3 "$PROJECT_DIR/scripts/iot-panel-check.py" "${EXTRA_ARGS[@]:1}"
           ;;

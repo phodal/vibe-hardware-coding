@@ -139,6 +139,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
 21. For IoT control panel validation:
    - Run `make iot-panel-build` to compile the serial-driven Home Assistant / MQTT / HTTP control panel.
    - Run `make iot-panel-smoke` to upload it and validate device state changes, MQTT-style inbound updates, HTTP-style outbound actions, and scenes without Wi-Fi credentials.
+   - Run `make iot-panel-relay-smoke` to validate the host event adapter that maps mock, JSON, or HTTP smart-home events into the panel serial protocol.
    - Use `IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make iot-panel-smoke` when camera OCR should verify the screen reaches `OK`.
    - This path is safe for late-night validation because it does not play audio or use the host microphone.
 
@@ -183,6 +184,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
      `DESK_WIDGET_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh desk-widget <project-dir> smoke`
      `scripts/waveshare-arduino-cli.sh desk-widget <project-dir> relay`
      `IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh iot-panel <project-dir> smoke`
+     `scripts/waveshare-arduino-cli.sh iot-panel <project-dir> relay`
      `OFFLINE_VOICE_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh offline-voice <project-dir> smoke`
      `TINYML_IMU_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh tinyml-imu <project-dir> smoke`
      and
@@ -254,6 +256,7 @@ make desk-widget-smoke
 make desk-widget-relay-smoke
 make iot-panel-build
 make iot-panel-smoke
+make iot-panel-relay-smoke
 make offline-voice-build
 make offline-voice-smoke
 make tinyml-imu-build

@@ -132,6 +132,7 @@ make desk-widget-smoke
 make desk-widget-relay-smoke
 make iot-panel-build
 make iot-panel-smoke
+make iot-panel-relay-smoke
 make tinyml-imu-build
 make tinyml-imu-smoke
 make esp-claw-agent-build
@@ -162,7 +163,7 @@ make lvgl-visual-agent-smoke
 
 `make desk-widget-smoke` uploads the serial-driven desk widget and validates CI/GitHub/alert/timer/AI-summary pages without network credentials or audio devices. `make desk-widget-relay-smoke` validates the host adapter that turns mock, JSON, or HTTP events into the same widget protocol. Use `DESK_WIDGET_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make desk-widget-smoke` when camera OCR should also verify the screen reaches `OK`; details are in `docs/p1-desk-widget.md`.
 
-`make iot-panel-smoke` uploads the serial-driven IoT control panel and validates device state changes, MQTT-style inbound updates, HTTP-style outbound actions, and scene changes without Wi-Fi credentials. Use `IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make iot-panel-smoke` when camera OCR should also verify the screen reaches `OK`; details are in `docs/p1-iot-control-panel.md`.
+`make iot-panel-smoke` uploads the serial-driven IoT control panel and validates device state changes, MQTT-style inbound updates, HTTP-style outbound actions, and scene changes without Wi-Fi credentials. `make iot-panel-relay-smoke` validates the host adapter that turns mock, JSON, or HTTP smart-home events into the same panel protocol. Use `IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make iot-panel-smoke` when camera OCR should also verify the screen reaches `OK`; details are in `docs/p1-iot-control-panel.md`.
 
 `make tinyml-imu-smoke` uploads the TinyML IMU classifier scaffold, disables live mode, injects deterministic accelerometer/gyroscope feature vectors over serial, and verifies `REST`, `TILT_LEFT`, `TILT_RIGHT`, and `SHAKE` labels. This is the model automation harness before replacing the embedded rule classifier with ESP-DL or a trained model; details are in `docs/p2-tinyml-imu-classifier.md`.
 

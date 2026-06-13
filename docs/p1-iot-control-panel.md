@@ -14,10 +14,28 @@ The `iot_control_panel` sketch is the first Home Assistant / MQTT / HTTP control
 ```bash
 make iot-panel-build
 make iot-panel-smoke
+make iot-panel-relay-smoke
 IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make iot-panel-smoke
 ```
 
 The smoke script uploads the sketch, waits for `IOT_READY`, sends device, MQTT, HTTP, and scene commands, then verifies `IOT_STATE`, `IOT_DEVICE`, `IOT_MQTT`, and `IOT_HTTP` output.
+
+`make iot-panel-relay-smoke` uploads the same sketch and runs `scripts/iot-panel-relay.py`. The relay maps mock, JSON-file, or HTTP smart-home events into the board serial protocol. This is the host-side adapter gate before using real Home Assistant, MQTT broker, or HTTP controller credentials.
+
+Relay payload shape:
+
+```json
+{
+  "home_assistant": [
+    {"service": "light.turn_on", "index": 0, "state": "ON"},
+    {"service": "switch.toggle", "index": 1, "toggle": true},
+    {"service": "climate.set_temperature", "index": 3, "value": 23}
+  ],
+  "mqtt": [{"topic": "home/door", "index": 2, "state": "OPEN"}],
+  "http": [{"method": "POST", "path": "/api/light/turn_on", "status": 200}],
+  "scene": "NIGHT"
+}
+```
 
 ## Serial Protocol
 
@@ -34,4 +52,12 @@ The smoke script uploads the sketch, waits for `IOT_READY`, sends device, MQTT, 
 
 ## Notes
 
-This is a control-plane and UI slice, not yet a direct network integration. A future host relay can bridge real Home Assistant, MQTT, or HTTP events into this protocol; after that is stable, the same state model can move into direct Wi-Fi firmware.
+This is a control-plane and UI slice, not yet a direct network integration. The host relay bridges Home Assistant, MQTT, or HTTP-style events into this protocol; after that is stable, the same state model can move into direct Wi-Fi firmware.
+
+## Verified Locally
+
+- `make iot-panel-build`: passed.
+- `make iot-panel-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated direct serial commands for devices, MQTT, HTTP, and scenes.
+- `SKIP_BUILD=1 make iot-panel-relay-smoke`: uploaded to `/dev/cu.usbmodem83101` and validated mock Home Assistant, MQTT, HTTP, and scene events through the host relay.
+- `SKIP_BUILD=1 skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh iot-panel /Users/phodal/hardware/arduino relay`: passed through the repo Skill helper.
+- `SKIP_BUILD=1 /Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh iot-panel /Users/phodal/hardware/arduino relay`: passed through the global Skill helper.
