@@ -12,12 +12,13 @@ The probe uses the board's ES7210 microphone input and ESP-SR VAD, then reports 
 
 ```bash
 make audio-vad-build
+make audio-afe-readiness
 make audio-vad-preflight
 make audio-vad-smoke
 AUDIO_VAD_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make audio-vad-smoke
 ```
 
-`make audio-vad-preflight` is safe when audio should stay quiet. It rebuilds the ES7210 probe, checks required sketch/helper files, validates serial/checker markers, verifies upload artifacts, checks `config/audio-afe-profile.tsv`, and reports `audio_devices_used=0 stimulus_played=0 uploaded=0`.
+`make audio-afe-readiness` and `make audio-vad-preflight` are safe when audio should stay quiet. They rebuild the ES7210 probe, check required sketch/helper files, validate serial/checker markers, verify upload artifacts, check `config/audio-afe-profile.tsv`, and report `audio_devices_used=0 stimulus_played=0 uploaded=0` from preflight. The readiness script emits `audio_afe_readiness` rows so automation can distinguish implemented source/build readiness from source-integration and physical-audio requirements.
 
 The AFE profile is intentionally explicit about what is ready for automation:
 
@@ -49,10 +50,12 @@ AUDIO_VAD_REQUIRE_SPEECH=1
 ## Verified Locally
 
 - `make audio-vad-build`: passed.
+- `make audio-afe-readiness`: rebuilt the ES7210 probe and reported `audio_afe_readiness_summary components=5 implemented=2 planned=3 source_ready=2 source_integration_required=3 physical_audio_required=5 build=ready checker=ready destructive=0 audio=0`.
 - `make audio-vad-preflight`: rebuilt the ES7210 probe and passed without uploading, playing stimulus, or opening audio devices.
 - Preflight build size: sketch `439475` bytes, globals `23024` bytes.
 - Preflight artifact check: `audio_vad_probe.ino.bin`, `.bootloader.bin`, `.partitions.bin`, and `.elf` were present under `.arduino-build/audio_vad_probe`.
 - Preflight AFE profile check: `es7210_capture` and `vad` are implemented; `aec`, `noise_suppression`, and `wakenet` remain planned physical-audio integrations.
+- Preflight readiness rows: `es7210_capture` and `vad` report `source=ready build=ready checker=ready`; `aec`, `noise_suppression`, and `wakenet` report `source=source-integration-required`.
 - Preflight summary: `audio_devices_used=0 stimulus_played=0 uploaded=0`, port `/dev/cu.usbmodem83101`.
 - `skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh audio-vad /Users/phodal/hardware/arduino preflight`: passed the same no-audio preflight through the repo Skill helper.
 - `/Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh audio-vad /Users/phodal/hardware/arduino preflight`: passed the same no-audio preflight through the global Skill helper.

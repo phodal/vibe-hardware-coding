@@ -20,7 +20,7 @@ case "$ACTION" in
         "$PROJECT_DIR/scripts/xiaozhi.sh" preflight
       fi
       make cloud-ai-build
-      make audio-vad-build
+      make audio-afe-readiness
       make speaker-output-build
       make sensor-status-build
       make power-lifecycle-build
@@ -180,6 +180,10 @@ case "$ACTION" in
         preflight)
           cd "$PROJECT_DIR"
           exec make audio-vad-preflight
+          ;;
+        readiness|afe|afe-readiness)
+          cd "$PROJECT_DIR"
+          exec make audio-afe-readiness
           ;;
         smoke)
           exec "$PROJECT_DIR/scripts/audio-vad-smoke.sh"

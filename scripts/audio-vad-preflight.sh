@@ -10,6 +10,7 @@ BUILD_DIR="${AUDIO_VAD_BUILD_PATH:-$ROOT_DIR/.arduino-build/audio_vad_probe}"
 MAIN_INO="$SKETCH_DIR/audio_vad_probe.ino"
 CHECKER="$ROOT_DIR/scripts/audio-vad-check.py"
 AFE_PROFILE="$ROOT_DIR/config/audio-afe-profile.tsv"
+AFE_READINESS="$ROOT_DIR/scripts/audio-afe-readiness.py"
 
 require_file() {
   local path="$1"
@@ -66,6 +67,7 @@ require_file "$SKETCH_DIR/audio_hal.h"
 require_file "$SKETCH_DIR/pin_config.h"
 require_file "$CHECKER"
 require_file "$AFE_PROFILE"
+require_file "$AFE_READINESS"
 
 require_marker "AUDIO_VAD_READY" "$MAIN_INO"
 require_marker "AUDIO_METRIC" "$MAIN_INO"
@@ -95,6 +97,12 @@ require_artifact "$BUILD_DIR/audio_vad_probe.ino.bin"
 require_artifact "$BUILD_DIR/audio_vad_probe.ino.bootloader.bin"
 require_artifact "$BUILD_DIR/audio_vad_probe.ino.partitions.bin"
 require_artifact "$BUILD_DIR/audio_vad_probe.ino.elf"
+
+python3 "$AFE_READINESS" \
+  --profile "$AFE_PROFILE" \
+  --sketch "$SKETCH_DIR" \
+  --build "$BUILD_DIR" \
+  --checker "$CHECKER"
 
 arduino-cli version
 arduino-cli core list | rg "esp32:esp32[[:space:]]+${ARDUINO_CORE_VERSION}" >/dev/null

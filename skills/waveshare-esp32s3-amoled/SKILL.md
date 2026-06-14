@@ -90,6 +90,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
 
 11. For microphone/audio-front-end validation:
    - Run `make audio-vad-build` to compile the ES7210 microphone probe.
+   - Run `make audio-afe-readiness` when audio should stay quiet and you only need machine-readable AFE readiness; it rebuilds and reports implemented source/build/checker readiness versus source-integration and physical-audio requirements.
    - Run `make audio-vad-preflight` when audio should stay quiet; it rebuilds and checks artifacts, serial port, ES7210 source markers, checker options, and `config/audio-afe-profile.tsv` without uploading, playing stimulus, or opening audio devices.
    - Treat the AFE profile as coverage metadata: ES7210 capture and ESP-SR VAD are implemented, while AEC, noise suppression, and real WakeNet audio frames still require source integration and physical audio evidence.
    - Run `make audio-vad-smoke` to upload it, play a host-side `say` stimulus, and validate RMS/peak serial metrics.
@@ -192,6 +193,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
      `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh cloud-ai <project-dir> smoke`
      `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh cloud-ai <project-dir> pipeline`
      `scripts/waveshare-arduino-cli.sh cloud-ai <project-dir> cache`
+     `scripts/waveshare-arduino-cli.sh audio-vad <project-dir> readiness`
      `AUDIO_VAD_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh audio-vad <project-dir> smoke`
      `SPEAKER_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh speaker-output <project-dir> smoke`
      `SENSOR_STATUS_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh sensor-status <project-dir> smoke`
@@ -265,6 +267,7 @@ make cloud-ai-smoke
 make cloud-ai-pipeline-smoke
 make cloud-ai-cache-smoke
 make audio-vad-build
+make audio-afe-readiness
 make audio-vad-preflight
 make audio-vad-smoke
 make speaker-output-build

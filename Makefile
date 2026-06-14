@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 DEMO ?= 01-helloworld
 
-.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-color-check camera-aligner camera-diagnose feature-matrix-check feature-matrix-doc hardware-evidence-audit hardware-evidence-doc goal-completion-audit goal-completion-doc hardware-smoke-list hardware-smoke-suite official-demos official-build official-upload official-smoke official-build-all official-audio-preflight official-coverage xiaozhi-latest xiaozhi-download xiaozhi-inspect xiaozhi-preflight xiaozhi-flash xiaozhi-source-clone xiaozhi-source-check xiaozhi-idf-env xiaozhi-idf-build cloud-ai-build cloud-ai-upload cloud-ai-smoke cloud-ai-pipeline-smoke cloud-ai-cache-smoke cloud-ai-relay audio-vad-build audio-vad-preflight audio-vad-smoke speaker-output-build speaker-output-smoke sensor-status-build sensor-status-smoke power-lifecycle-build power-lifecycle-smoke wifi-connectivity-build wifi-connectivity-smoke touch-status-build touch-status-smoke interaction-dashboard-build interaction-dashboard-smoke imu-interaction-build imu-interaction-smoke desk-widget-build desk-widget-smoke desk-widget-relay-smoke iot-panel-build iot-panel-smoke iot-panel-relay-smoke tinyml-imu-build tinyml-imu-model-check tinyml-imu-smoke esp-claw-agent-build esp-claw-agent-smoke offline-voice-build offline-voice-smoke lvgl-visual-agent-build lvgl-visual-agent-smoke install-hooks board-list clean
+.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-color-check camera-aligner camera-diagnose feature-matrix-check feature-matrix-doc hardware-evidence-audit hardware-evidence-doc goal-completion-audit goal-completion-doc hardware-smoke-list hardware-smoke-suite official-demos official-build official-upload official-smoke official-build-all official-audio-preflight official-coverage xiaozhi-latest xiaozhi-download xiaozhi-inspect xiaozhi-preflight xiaozhi-flash xiaozhi-source-clone xiaozhi-source-check xiaozhi-idf-env xiaozhi-idf-build cloud-ai-build cloud-ai-upload cloud-ai-smoke cloud-ai-pipeline-smoke cloud-ai-cache-smoke cloud-ai-relay audio-vad-build audio-afe-readiness audio-vad-preflight audio-vad-smoke speaker-output-build speaker-output-smoke sensor-status-build sensor-status-smoke power-lifecycle-build power-lifecycle-smoke wifi-connectivity-build wifi-connectivity-smoke touch-status-build touch-status-smoke interaction-dashboard-build interaction-dashboard-smoke imu-interaction-build imu-interaction-smoke desk-widget-build desk-widget-smoke desk-widget-relay-smoke iot-panel-build iot-panel-smoke iot-panel-relay-smoke tinyml-imu-build tinyml-imu-model-check tinyml-imu-smoke esp-claw-agent-build esp-claw-agent-smoke offline-voice-build offline-voice-smoke lvgl-visual-agent-build lvgl-visual-agent-smoke install-hooks board-list clean
 
 setup:
 	./scripts/setup.sh
@@ -125,6 +125,9 @@ cloud-ai-relay:
 
 audio-vad-build:
 	SKETCH=sketches/audio_vad_probe BUILD_PATH=.arduino-build/audio_vad_probe ./scripts/build.sh
+
+audio-afe-readiness: audio-vad-build
+	python3 ./scripts/audio-afe-readiness.py
 
 audio-vad-preflight: audio-vad-build
 	./scripts/audio-vad-preflight.sh
