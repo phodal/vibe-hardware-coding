@@ -12,6 +12,16 @@ Latest camera-ready preflight:
 - Log: `.logs/hardware-smoke-suite/20260614-102834/camera-ready.log`
 - Return code: `2`
 
+Latest camera diagnose:
+
+- Directory: `.logs/camera-diagnose-20260614-105736`
+- Summary: `.logs/camera-diagnose-20260614-105736/summary.txt`
+- Device: `0` at `1280x720`
+- Swift capture status: `1`
+- FFmpeg capture status: `skipped`
+- Recommendation: `no_video_frame_captured_close_camera_apps_or_reconnect_usb_camera`
+- Swift diagnostics: `CameraSnapshot: Timed out before a camera frame was captured. diagnostics{running=true frames=0 drops=0 last_drop=none preset=AVCaptureSessionPreset1280x720 active_preset=AVCaptureSessionPreset1280x720 device=罗技高清网络摄像机_C930c,connected=1,suspended=0,in_use=0 active_format=1920x1080@30-30fps|24-24fps|20-20fps|15-15fps|10-10fps|7-7fps|5-5fps}`
+
 
 | ID | Priority | Matrix status | Audio mode | Visual status | Artifacts | Next visual gap |
 | --- | --- | --- | --- | --- | --- | --- |

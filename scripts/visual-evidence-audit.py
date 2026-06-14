@@ -11,6 +11,7 @@ from typing import Any
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 MATRIX_PATH = ROOT / "config" / "feature-matrix.tsv"
 SMOKE_SUITE_LOG_ROOT = ROOT / ".logs" / "hardware-smoke-suite"
+CAMERA_DIAGNOSE_ROOT = ROOT / ".logs"
 CAMERA_PATH_RE = re.compile(r"(?:/Users/[^`\\s)]*/hardware/arduino/)?\.logs/camera-ocr-[0-9-]+\.(?:jpg|jpeg|png|txt)")
 VISUAL_TERMS = (
     "VISUAL_SMOKE",
@@ -107,6 +108,50 @@ def latest_camera_ready_preflight() -> dict[str, Any] | None:
     }
 
 
+def parse_key_value_file(path: pathlib.Path) -> dict[str, str]:
+    values: dict[str, str] = {}
+    if not path.exists():
+        return values
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        values[key.strip()] = value.strip()
+    return values
+
+
+def latest_camera_diagnose() -> dict[str, Any] | None:
+    candidates: list[tuple[float, pathlib.Path]] = []
+    for summary_path in CAMERA_DIAGNOSE_ROOT.glob("camera-diagnose-*/summary.txt"):
+        try:
+            candidates.append((summary_path.stat().st_mtime, summary_path))
+        except OSError:
+            continue
+    if not candidates:
+        return None
+
+    _, summary_path = max(candidates, key=lambda item: item[0])
+    summary = parse_key_value_file(summary_path)
+    diag_dir = pathlib.Path(summary.get("camera_diagnose_dir", summary_path.parent))
+    swift_log = diag_dir / "swift-capture.log"
+    swift_tail = ""
+    if swift_log.exists():
+        swift_lines = swift_log.read_text(encoding="utf-8", errors="replace").splitlines()
+        interesting = [line for line in swift_lines if "CameraSnapshot" in line]
+        swift_tail = interesting[-1] if interesting else (swift_lines[-1] if swift_lines else "")
+
+    return {
+        "summary": rel(summary_path),
+        "dir": rel(diag_dir),
+        "camera_device": summary.get("camera_device", "unknown"),
+        "camera_size": summary.get("camera_size", "unknown"),
+        "swift_capture_status": summary.get("swift_capture_status", "unknown"),
+        "ffmpeg_capture_status": summary.get("ffmpeg_capture_status", "unknown"),
+        "capture_recommendation": summary.get("capture_recommendation", "unknown"),
+        "swift_diagnostics": swift_tail,
+    }
+
+
 def visual_status(row: dict[str, str], doc_text: str, verified_text: str) -> tuple[str, str]:
     verified_artifacts = artifact_paths(verified_text)
     if verified_artifacts:
@@ -157,6 +202,7 @@ def audit_rows(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
 def render_markdown(records: list[dict[str, Any]]) -> str:
     camera_verified = sum(1 for item in records if item["visual_status"].startswith("camera-verified"))
     camera_preflight = latest_camera_ready_preflight()
+    camera_diagnose = latest_camera_diagnose()
     lines = [
         "# Visual Evidence Audit",
         "",
@@ -177,6 +223,22 @@ def render_markdown(records: list[dict[str, Any]]) -> str:
             f"- Summary: `{camera_preflight['summary']}`",
             f"- Log: `{camera_preflight['log']}`",
             f"- Return code: `{camera_preflight['returncode']}`",
+            "",
+        ]
+    if camera_diagnose:
+        insert_at = 7
+        if camera_preflight:
+            insert_at = 14
+        lines[insert_at:insert_at] = [
+            "Latest camera diagnose:",
+            "",
+            f"- Directory: `{camera_diagnose['dir']}`",
+            f"- Summary: `{camera_diagnose['summary']}`",
+            f"- Device: `{camera_diagnose['camera_device']}` at `{camera_diagnose['camera_size']}`",
+            f"- Swift capture status: `{camera_diagnose['swift_capture_status']}`",
+            f"- FFmpeg capture status: `{camera_diagnose['ffmpeg_capture_status']}`",
+            f"- Recommendation: `{camera_diagnose['capture_recommendation']}`",
+            f"- Swift diagnostics: `{camera_diagnose['swift_diagnostics']}`",
             "",
         ]
     details: list[str] = []
@@ -213,6 +275,7 @@ def main() -> int:
 
     records = audit_rows(load_matrix(pathlib.Path(args.matrix)))
     camera_preflight = latest_camera_ready_preflight()
+    camera_diagnose = latest_camera_diagnose()
     if args.markdown:
         print(render_markdown(records), end="")
         return 0
@@ -222,6 +285,14 @@ def main() -> int:
             "visual_evidence_camera_preflight "
             f"status={camera_preflight['status']} returncode={camera_preflight['returncode']} "
             f"summary={camera_preflight['summary']} log={camera_preflight['log']}"
+        )
+    if camera_diagnose:
+        print(
+            "visual_evidence_camera_diagnose "
+            f"recommendation={camera_diagnose['capture_recommendation']} "
+            f"swift_status={camera_diagnose['swift_capture_status']} "
+            f"ffmpeg_status={camera_diagnose['ffmpeg_capture_status']} "
+            f"summary={camera_diagnose['summary']} dir={camera_diagnose['dir']}"
         )
 
     camera_verified = 0
