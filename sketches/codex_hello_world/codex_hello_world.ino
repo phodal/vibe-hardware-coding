@@ -17,7 +17,7 @@ void drawStatusScreen() {
   gfx->setTextColor(RGB565_CYAN);
   gfx->setTextSize(2);
   gfx->setCursor(24, 40);
-  gfx->println("Codex Arduino CLI");
+  gfx->println("OK Qoder");
 
   gfx->setTextColor(RGB565_GREEN);
   gfx->setTextSize(2);
