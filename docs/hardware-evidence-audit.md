@@ -6,8 +6,8 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 
 | ID | Priority | Matrix status | Audio mode | Doc evidence | Latest suite | Posture | Next gap |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| official-demos | P0 | verified | conditional | 22 item(s) | passed `.logs/hardware-smoke-suite/20260614-050454/summary.json` | suite-passed | No immediate evidence gap. |
-| xiaozhi-ai | P0 | required_external | audio | 21 item(s) | passed `.logs/hardware-smoke-suite/20260614-071849/summary.json` | external-gated | Needs external firmware/source environment evidence. |
+| official-demos | P0 | verified | conditional | 22 item(s) | passed `.logs/hardware-smoke-suite/20260614-084339/summary.json` | suite-passed | No immediate evidence gap. |
+| xiaozhi-ai | P0 | required_external | audio | 23 item(s) | passed `.logs/hardware-smoke-suite/20260614-071849/summary.json` | external-gated | Needs external firmware/source environment evidence. |
 | cloud-ai-terminal | P0 | verified | non_audio_control | 12 item(s) | passed `.logs/hardware-smoke-suite/20260614-060731/summary.json` | suite-passed | No immediate evidence gap. |
 | offline-voice | P1 | verified | non_audio_control | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-055754/summary.json` | suite-passed | No immediate evidence gap. |
 | lvgl-visual-agent | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
@@ -17,12 +17,12 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 | iot-panel | P1 | verified | none | 6 item(s) | passed `.logs/hardware-smoke-suite/20260614-053656/summary.json` | suite-passed | No immediate evidence gap. |
 | esp-claw-agent | P2 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-055205/summary.json` | suite-passed | No immediate evidence gap. |
 | tinyml-imu | P2 | verified | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-054530/summary.json` | suite-passed | No immediate evidence gap. |
-| audio-front-end | P2 | required_quiet_window | audio | 12 item(s) | missing | quiet-window-gated | Needs an explicit quiet-window audio run. |
+| audio-front-end | P2 | required_quiet_window | audio | 14 item(s) | missing | quiet-window-gated | Needs an explicit quiet-window audio run. |
 
 ## official-demos
 
 - Doc: `docs/p0-official-demos.md`
-- Latest suite summary: `.logs/hardware-smoke-suite/20260614-050454/summary.json`
+- Latest suite summary: `.logs/hardware-smoke-suite/20260614-084339/summary.json`
 - Latest suite status: `passed`
 - Verified Locally:
   - `make official-demos`: listed all 7 manifest rows.
@@ -60,6 +60,8 @@ This report audits evidence surfaces only. It does not prove completion by itsel
   - `make xiaozhi-preflight` verifies the current release asset, `merged-binary.bin` SHA-256, esptool path, serial port, source checkout marker, and ESP-IDF availability without flashing firmware or using audio hardware.
   - Latest `xiaozhi_preflight_summary`: `tag=v2.2.6 asset=v2.2.6_waveshare-esp32-s3-touch-amoled-1.75c.zip asset_size=3116104 slug=waveshare-esp32-s3-touch-amoled-1.75c port=/dev/cu.usbmodem83101 esptool=/Users/phodal/Library/Arduino15/packages/esp32/tools/esptool_py/5.1.0/esptool source=v2.2.6-37-g3f9e5fc idf=/Users/phodal/hardware/arduino/.vendor/esp-idf-v5.5.4/tools/idf.py destructive=0 audio=0`.
   - Latest `merged-binary.bin` SHA-256: `c08f389e2650b2076d2155fa62c0b34c5f3359e07833a8fca5f0f53c6e8bf7dd`.
+  - `make xiaozhi-backup`: read the current board flash without writing or using audio hardware.
+  - Latest `xiaozhi_backup_summary`: `path=/Users/phodal/hardware/arduino/.vendor/xiaozhi/backups/esp32s3-flash-20260614-081746.bin address=0x0 size=0x1000000 baud=115200 no_stub=1 bytes=16777216 sha256=8b411598bb4d2ab2142f0dd63f64d3fd9a71d9e78077b1d34a706b6463d02638 destructive=0 audio=0`.
   - Standalone `esptool.py` is not installed, but Arduino ESP32 core provides `~/Library/Arduino15/packages/esp32/tools/esptool_py/5.1.0/esptool`.
   - `make xiaozhi-source-clone` cloned official source to `.vendor/xiaozhi/source` at `v2.2.6-37-g3f9e5fc`.
   - `make xiaozhi-source-check` confirmed the source tree contains `CONFIG_BOARD_TYPE_WAVESHARE_ESP32_S3_TOUCH_AMOLED_1_75C`.
@@ -210,10 +212,12 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 - Latest suite summary: missing
 - Verified Locally:
   - `make audio-vad-build`: passed.
+  - `make audio-afe-readiness`: rebuilt the ES7210 probe and reported `audio_afe_readiness_summary components=5 implemented=2 planned=3 source_ready=2 source_integration_required=3 physical_audio_required=5 build=ready checker=ready destructive=0 audio=0`.
   - `make audio-vad-preflight`: rebuilt the ES7210 probe and passed without uploading, playing stimulus, or opening audio devices.
   - Preflight build size: sketch `439475` bytes, globals `23024` bytes.
   - Preflight artifact check: `audio_vad_probe.ino.bin`, `.bootloader.bin`, `.partitions.bin`, and `.elf` were present under `.arduino-build/audio_vad_probe`.
   - Preflight AFE profile check: `es7210_capture` and `vad` are implemented; `aec`, `noise_suppression`, and `wakenet` remain planned physical-audio integrations.
+  - Preflight readiness rows: `es7210_capture` and `vad` report `source=ready build=ready checker=ready`; `aec`, `noise_suppression`, and `wakenet` report `source=source-integration-required`.
   - Preflight summary: `audio_devices_used=0 stimulus_played=0 uploaded=0`, port `/dev/cu.usbmodem83101`.
   - `skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh audio-vad /Users/phodal/hardware/arduino preflight`: passed the same no-audio preflight through the repo Skill helper.
   - `/Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh audio-vad /Users/phodal/hardware/arduino preflight`: passed the same no-audio preflight through the global Skill helper.
