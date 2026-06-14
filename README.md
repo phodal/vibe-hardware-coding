@@ -82,6 +82,8 @@ CAMERA_RAW_IMAGE=.logs/camera-ocr-YYYYMMDD-HHMMSS.jpg OCR_PREPROCESS_MODE=amoled
 
 The visual calibration sketch includes large `OK` text plus red/green/blue/yellow swatches. This is the preferred camera setup target before trying vendor demos with white backgrounds or small LVGL fonts. To check swatches on an existing image directly, run `make camera-color-check IMAGE=.logs/camera-ocr-YYYYMMDD-HHMMSS.jpg`; tune strict placement checks with `COLOR_SWATCH_MIN_X_GAP`, `COLOR_SWATCH_MAX_Y_SPREAD`, or `COLOR_SWATCH_GEOMETRY=0`.
 
+`make claude-skill-smoke` asks the local `claude` CLI to read the repo-owned Waveshare Skill and invoke its helper script for the same non-audio visual smoke path. This validates the agent-facing Skill wiring from a second agent process. The default `CLAUDE_SKILL_SMOKE_MODE=visual` uploads the calibration sketch, captures camera OCR, and checks the color swatches. Use `CLAUDE_SKILL_SMOKE_MODE=audit make claude-skill-smoke` for a no-upload feature-matrix-only fallback. Details and local evidence are in `docs/skill-automation.md`.
+
 `make camera-aligner` opens a SwiftPM macOS camera tuning tool. Use it to:
 
 - preview the selected camera live

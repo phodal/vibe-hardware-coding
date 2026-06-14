@@ -190,6 +190,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
 25. For Skill automation wiring:
    - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `audio_vad_probe`, `speaker_output_probe`, `sensor_status_probe`, `power_lifecycle_probe`, `wifi_connectivity_probe`, `touch_status_probe`, `interaction_dashboard`, `imu_interaction_probe`, `lvgl_visual_agent`, `desk_widget`, `iot_control_panel`, `offline_voice_control`, `tinyml_imu_classifier`, and `esp_claw_agent`.
    - Run `scripts/waveshare-arduino-cli.sh feature-matrix <project-dir> check` to validate coverage metadata before claiming all 12 requested directions are wired.
+   - Run `make claude-skill-smoke` from this repo to ask the local Claude CLI to read the repo Skill and invoke this helper for the non-audio visual smoke path. The wrapper records Claude's transcript plus the command log under `.logs/`, and `CLAUDE_SKILL_SMOKE_MODE=audit` switches to a no-upload feature-matrix check.
    - `verify`/`doctor` is intentionally compile-only; it does not upload firmware or run camera OCR.
    - Run explicit hardware smokes when the user wants board validation:
      `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh cloud-ai <project-dir> smoke`
