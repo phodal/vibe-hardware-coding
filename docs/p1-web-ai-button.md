@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`sketches/web_ai_button` turns the board into a direct Wi-Fi client for a local Mac HTTP AI trigger server. The AMOLED shows a large `ASK AI` button; tapping it makes the ESP32-S3 call the computer's webserver and renders the returned text on the screen.
+`sketches/web_ai_button` turns the board into a direct Wi-Fi client for a local Mac HTTP AI trigger server. The AMOLED shows `Phodal` above a large `ASK AI` button; tapping it makes the ESP32-S3 call the computer's webserver and renders the returned text on the screen.
 
 This is the first board-to-computer AI trigger path. It intentionally avoids microphone and speaker hardware: touch plus HTTP proves the control plane before any audio UX is added.
 
@@ -26,6 +26,14 @@ It returns JSON with `text` and `response`. Default mode is `mock` and returns `
 
 `make web-ai-button-smoke` starts the local server, uploads `sketches/web_ai_button`, sends Wi-Fi credentials from the ignored `.env` file over serial, configures the board endpoint to the Mac LAN IP, triggers one request over serial, and verifies `WEB_AI_RESPONSE status=ok`.
 
+For manual tapping after the smoke, keep the Mac server alive:
+
+```bash
+WEB_AI_KEEP_SERVER=1 SKIP_BUILD=1 make web-ai-button-smoke
+```
+
+Without `WEB_AI_KEEP_SERVER=1`, the smoke intentionally shuts down its temporary webserver when the automation exits.
+
 ## Local Configuration
 
 Store Wi-Fi credentials only in `.env`:
@@ -43,6 +51,7 @@ WEB_AI_HOST_IP=192.168.x.x
 WEB_AI_SERVER_MODE=mock
 WEB_AI_QUESTION='touch button'
 WEB_AI_EXPECT='AI OK'
+WEB_AI_KEEP_SERVER=1
 ```
 
 Set `WEB_AI_HOST_IP` when the automatic macOS interface detection picks the wrong address. The board must be able to reach `http://$WEB_AI_HOST_IP:$WEB_AI_SERVER_PORT/ask` from the Wi-Fi network.
@@ -84,11 +93,12 @@ Manual validation is the same runtime path: leave the local server running, tap 
 
 ## Verified Locally
 
-- `make web-ai-button-build`: passed with `1136079 bytes` program storage and `47224 bytes` dynamic memory.
-- `SKIP_BUILD=1 make web-ai-button-smoke`: uploaded to `/dev/cu.usbmodem83101`, started the local mock AI server, configured the board endpoint to `http://<mac-lan-ip>:8787/ask`, joined Wi-Fi with credentials from `.env`, reached `WEB_AI_RESPONSE status=ok code=200 text=AI OK from Mac`, and reported `web_ai_button_summary connected=1 ip=192.168.31.65 triggers=1 touch=1`.
-- `OCR_EXPECTED=AI OCR_ROTATE=180 LOG_DIR=.logs/web-ai-button-visual ./scripts/camera-ocr.sh`: passed against the AI response screen and OCR saw `WEB AI` plus `ASK AI`.
-- Evidence pack: `docs/evidence/web-ai-button-20260614-124803/summary.md`.
-- Physical human tap on the AMOLED button is still pending; the touch controller is ready and the same `triggerAi()` path is wired to touch and serial trigger events.
+- `make web-ai-button-build`: passed with `1136191 bytes` program storage and `47224 bytes` dynamic memory.
+- `WEB_AI_KEEP_SERVER=1 SKIP_BUILD=1 make web-ai-button-smoke`: uploaded to `/dev/cu.usbmodem83101`, started the local mock AI server, configured the board endpoint to `http://<mac-lan-ip>:8787/ask`, joined Wi-Fi with credentials from `.env`, reached `WEB_AI_RESPONSE status=ok code=200 text=AI OK from Mac`, and reported `web_ai_button_summary connected=1 ip=192.168.31.65 triggers=1 touch=1`.
+- `WEB_AI_KEEP_SERVER=1` was verified after the smoke: the detached server process was still running and `GET /health` returned HTTP 200.
+- `OCR_EXPECTED=Phodal OCR_ROTATE=180 LOG_DIR=.logs/web-ai-button-phodal-final ./scripts/camera-ocr.sh`: passed against the AI response screen and OCR saw `Phodal`.
+- Evidence pack: `docs/evidence/web-ai-button-20260614-130537/summary.md`.
+- A real pre-config tap was captured before this guard existed and returned `wifi_missing`; the current firmware now ignores pre-config button taps with `WEB_AI_TOUCH_IGNORED reason=not_ready` instead of treating them as failed AI requests. Touch remains wired to the same `triggerAi()` path after Wi-Fi and endpoint configuration.
 
 ## Notes
 

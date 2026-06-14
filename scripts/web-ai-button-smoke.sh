@@ -19,6 +19,7 @@ SERVER_HOST="${WEB_AI_SERVER_HOST:-0.0.0.0}"
 SERVER_PORT="${WEB_AI_SERVER_PORT:-8787}"
 SERVER_MODE="${WEB_AI_SERVER_MODE:-mock}"
 SERVER_LOG="${LOG_DIR:-$ROOT_DIR/.logs}/web-ai-server.log"
+SERVER_PID_FILE="${LOG_DIR:-$ROOT_DIR/.logs}/web-ai-server.pid"
 mkdir -p "$(dirname "$SERVER_LOG")"
 
 host_ip="${WEB_AI_HOST_IP:-}"
@@ -36,16 +37,42 @@ if [[ -z "$host_ip" ]]; then
   exit 2
 fi
 
-python3 "$ROOT_DIR/scripts/local-ai-webserver.py" \
-  --host "$SERVER_HOST" \
-  --port "$SERVER_PORT" \
-  --mode "$SERVER_MODE" \
-  >"$SERVER_LOG" 2>&1 &
-server_pid=$!
+if [[ "${WEB_AI_KEEP_SERVER:-0}" == "1" ]]; then
+  server_pid="$(
+    python3 - "$ROOT_DIR/scripts/local-ai-webserver.py" "$SERVER_HOST" "$SERVER_PORT" "$SERVER_MODE" "$SERVER_LOG" <<'PY'
+import subprocess
+import sys
+
+script, host, port, mode, log_path = sys.argv[1:]
+log = open(log_path, "ab", buffering=0)
+process = subprocess.Popen(
+    [sys.executable, script, "--host", host, "--port", port, "--mode", mode],
+    stdin=subprocess.DEVNULL,
+    stdout=log,
+    stderr=subprocess.STDOUT,
+    start_new_session=True,
+    close_fds=True,
+)
+print(process.pid)
+PY
+  )"
+else
+  python3 "$ROOT_DIR/scripts/local-ai-webserver.py" \
+    --host "$SERVER_HOST" \
+    --port "$SERVER_PORT" \
+    --mode "$SERVER_MODE" \
+    >"$SERVER_LOG" 2>&1 &
+  server_pid=$!
+fi
 cleanup() {
+  if [[ "${WEB_AI_KEEP_SERVER:-0}" == "1" ]]; then
+    return
+  fi
   kill "$server_pid" >/dev/null 2>&1 || true
+  rm -f "$SERVER_PID_FILE"
 }
 trap cleanup EXIT
+printf '%s\n' "$server_pid" >"$SERVER_PID_FILE"
 
 sleep "${WEB_AI_SERVER_SETTLE_SECONDS:-0.5}"
 python3 - <<PY
@@ -73,6 +100,10 @@ python3 "$ROOT_DIR/scripts/web-ai-button-check.py" \
   --question "${WEB_AI_QUESTION:-touch button}" \
   --expect "${WEB_AI_EXPECT:-AI OK}" \
   --timeout "${WEB_AI_TIMEOUT:-40}"
+
+if [[ "${WEB_AI_KEEP_SERVER:-0}" == "1" ]]; then
+  echo "web_ai_server_kept_alive pid=$server_pid log=$SERVER_LOG endpoint=http://$host_ip:$SERVER_PORT/ask"
+fi
 
 if [[ "${WEB_AI_BUTTON_VISUAL_SMOKE:-0}" == "1" ]]; then
   OCR_EXPECTED="${WEB_AI_BUTTON_OCR_EXPECTED:-AI}" "$ROOT_DIR/scripts/camera-ocr.sh"

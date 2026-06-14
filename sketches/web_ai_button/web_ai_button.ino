@@ -88,7 +88,7 @@ void drawScreen(const char *status, uint16_t statusColor = RGB565_WHITE) {
   gfx->fillScreen(RGB565_BLACK);
   gfx->drawRoundRect(14, 14, LCD_WIDTH - 28, LCD_HEIGHT - 28, 22, RGB565_BLUE);
 
-  centerText("WEB AI", 42, 6, RGB565_CYAN);
+  centerText("Phodal", 42, 6, RGB565_CYAN);
 
   gfx->fillRoundRect(BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, 22, RGB565_GREEN);
   gfx->drawRoundRect(BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, 22, RGB565_WHITE);
@@ -391,6 +391,12 @@ void handleTouch() {
   Serial.flush();
 
   if (touchX[0] >= BUTTON_X && touchX[0] <= BUTTON_X + BUTTON_W && touchY[0] >= BUTTON_Y && touchY[0] <= BUTTON_Y + BUTTON_H) {
+    if (WiFi.status() != WL_CONNECTED || aiEndpoint.length() == 0) {
+      Serial.println("WEB_AI_TOUCH_IGNORED reason=not_ready");
+      Serial.flush();
+      drawScreen("Config needed", RGB565_YELLOW);
+      return;
+    }
     triggerAi("touch", "touch button");
   }
 }

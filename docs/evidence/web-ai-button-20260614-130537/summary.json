@@ -1,0 +1,24 @@
+{
+  "id": "web-ai-button-20260614-130537",
+  "timestamp": "20260614-130537",
+  "sketch": "sketches/web_ai_button",
+  "display_title": "Phodal",
+  "build": "passed",
+  "upload": "passed",
+  "touch": "ready",
+  "pre_config_touch_guard": "passed",
+  "wifi_join": "passed",
+  "http_ai_trigger": "passed",
+  "server_keepalive": "passed",
+  "camera_ocr": "passed",
+  "expected_ocr": "Phodal",
+  "ocr_rotation": 180,
+  "destructive": 0,
+  "audio": 0,
+  "artifacts": {
+    "raw_image": "camera-ocr-20260614-130537.jpg",
+    "processed_image": "camera-ocr-20260614-130537.processed.png",
+    "ocr_text": "camera-ocr-20260614-130537.txt",
+    "server_log": "server.log"
+  }
+}
