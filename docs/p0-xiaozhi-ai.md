@@ -15,12 +15,30 @@ make xiaozhi-download
 make xiaozhi-inspect
 make xiaozhi-preflight
 make xiaozhi-backup
+make xiaozhi-runtime-check
 make xiaozhi-idf-env
 make xiaozhi-idf-build
 CONFIRM=--yes make xiaozhi-flash
 ```
 
 Use `latest`, `inspect`, `preflight`, and `backup` first. They only query/download the release asset, confirm the firmware archive shape, hash `merged-binary.bin`, inspect local source/ESP-IDF readiness, confirm the serial/esptool environment, and read the current board flash to a local backup. `CONFIRM=--yes make xiaozhi-flash` is the first destructive XiaoZhi firmware step.
+
+After an approved XiaoZhi flash, run:
+
+```bash
+make xiaozhi-runtime-check
+```
+
+This resets the ESP32-S3 while serial capture is already open, records `.logs/xiaozhi-runtime-*.log`, and looks for XiaoZhi-specific onboarding or activation markers such as `XiaoZhi`, `小智`, `验证码`, `激活`, or `配网`. It does not flash firmware, open the camera, use the host microphone, or play audio. It emits:
+
+- `xiaozhi_runtime_summary ... destructive=0 audio=0`
+
+If the upstream firmware changes its boot log wording, override the marker set without weakening the no-audio boundary:
+
+```bash
+XIAOZHI_RUNTIME_EXPECT_ANY='XiaoZhi,验证码,配网' make xiaozhi-runtime-check
+XIAOZHI_RUNTIME_EXPECT_ALL='XiaoZhi' make xiaozhi-runtime-check
+```
 
 `make xiaozhi-flash` is intentionally guarded. With `CONFIRM=--yes`, it expands to:
 
@@ -73,6 +91,12 @@ XIAOZHI_BAUD=921600
 XIAOZHI_BACKUP_BAUD=115200
 XIAOZHI_BACKUP_NO_STUB=1
 XIAOZHI_BACKUP_SILENT=1
+XIAOZHI_RUNTIME_BAUD=115200
+XIAOZHI_RUNTIME_SECONDS=20
+XIAOZHI_RUNTIME_PULSE_RTS=1
+XIAOZHI_RUNTIME_INPUT_LOG=
+XIAOZHI_RUNTIME_EXPECT_ANY='XiaoZhi,Xiaozhi,xiaozhi,小智,验证码,激活,activation,Activation,配网'
+XIAOZHI_RUNTIME_EXPECT_ALL=
 XIAOZHI_SDKCONFIG_DEFAULTS='sdkconfig.defaults;sdkconfig.defaults.esp32s3;/absolute/path/to/config/xiaozhi-sdkconfig.defaults'
 XIAOZHI_IDF_PATH=.vendor/esp-idf-v5.5.4
 XIAOZHI_IDF_PYTHON_ENV_PATH=~/.espressif/python_env/idf5.5_py3.14_env
@@ -100,6 +124,8 @@ Flashing XiaoZhi replaces the Arduino demo currently on the board. To return to 
 - Latest `merged-binary.bin` SHA-256: `c08f389e2650b2076d2155fa62c0b34c5f3359e07833a8fca5f0f53c6e8bf7dd`.
 - `make xiaozhi-backup`: read the current board flash without writing or using audio hardware.
 - Latest `xiaozhi_backup_summary`: `path=/Users/phodal/hardware/arduino/.vendor/xiaozhi/backups/esp32s3-flash-20260614-081746.bin address=0x0 size=0x1000000 baud=115200 no_stub=1 bytes=16777216 sha256=8b411598bb4d2ab2142f0dd63f64d3fd9a71d9e78077b1d34a706b6463d02638 destructive=0 audio=0`.
+- `make xiaozhi-runtime-check` is wired for the post-flash no-audio runtime gate, but it has not been run against XiaoZhi firmware yet because flashing was not approved during this update.
+- Offline checker validation used a fixture log with `XiaoZhi`/`验证码` markers and emitted `xiaozhi_runtime_summary ... destructive=0 audio=0`; `XIAOZHI_RUNTIME_INPUT_LOG=<path> make xiaozhi-runtime-check` provides the same no-serial fixture path for Skill/helper smoke tests.
 - Standalone `esptool.py` is not installed, but Arduino ESP32 core provides `~/Library/Arduino15/packages/esp32/tools/esptool_py/5.1.0/esptool`.
 - `make xiaozhi-source-clone` cloned official source to `.vendor/xiaozhi/source` at `v2.2.6-37-g3f9e5fc`.
 - `make xiaozhi-source-check` confirmed the source tree contains `CONFIG_BOARD_TYPE_WAVESHARE_ESP32_S3_TOUCH_AMOLED_1_75C`.

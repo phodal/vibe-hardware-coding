@@ -77,6 +77,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `make xiaozhi-backup` before any XiaoZhi flash; it reads the current board flash to `.vendor/xiaozhi/backups/` and prints `xiaozhi_backup_summary ... destructive=0 audio=0`. The backup path defaults to `--no-stub` at `XIAOZHI_BACKUP_BAUD=115200` because long stub reads can stop on this USB Serial/JTAG path.
    - Run `BACKUP=<path> CONFIRM=--yes make xiaozhi-restore` only when you intentionally want to write a saved flash image back to the board.
    - Run `make xiaozhi-flash` only when the user is ready to replace the current Arduino demo with XiaoZhi firmware.
+   - After an approved XiaoZhi flash, run `make xiaozhi-runtime-check` before any audio interaction. It captures serial logs after an RTS reset, looks for XiaoZhi onboarding or activation markers, and reports `xiaozhi_runtime_summary ... destructive=0 audio=0`.
    - For source builds, run `make xiaozhi-source-clone` then `make xiaozhi-source-check`; the local defaults select `CONFIG_BOARD_TYPE_WAVESHARE_ESP32_S3_TOUCH_AMOLED_1_75C=y`.
    - Run `make xiaozhi-idf-env` to prove the local ESP-IDF shell can be activated without flashing firmware or using audio hardware.
    - Run `make xiaozhi-idf-build` to compile XiaoZhi from source without flashing; the script prints `xiaozhi_idf_build_summary ... destructive=0 audio=0` on success.
@@ -263,6 +264,7 @@ make xiaozhi-latest
 make xiaozhi-inspect
 make xiaozhi-preflight
 make xiaozhi-backup
+make xiaozhi-runtime-check
 make xiaozhi-source-check
 make xiaozhi-idf-env
 make xiaozhi-idf-build

@@ -19,6 +19,12 @@ XIAOZHI_BAUD="${XIAOZHI_BAUD:-921600}"
 XIAOZHI_BACKUP_BAUD="${XIAOZHI_BACKUP_BAUD:-115200}"
 XIAOZHI_BACKUP_NO_STUB="${XIAOZHI_BACKUP_NO_STUB:-1}"
 XIAOZHI_BACKUP_SILENT="${XIAOZHI_BACKUP_SILENT:-1}"
+XIAOZHI_RUNTIME_BAUD="${XIAOZHI_RUNTIME_BAUD:-115200}"
+XIAOZHI_RUNTIME_SECONDS="${XIAOZHI_RUNTIME_SECONDS:-20}"
+XIAOZHI_RUNTIME_MIN_LINES="${XIAOZHI_RUNTIME_MIN_LINES:-1}"
+XIAOZHI_RUNTIME_MIN_BYTES="${XIAOZHI_RUNTIME_MIN_BYTES:-1}"
+XIAOZHI_RUNTIME_PULSE_RTS="${XIAOZHI_RUNTIME_PULSE_RTS:-1}"
+XIAOZHI_RUNTIME_INPUT_LOG="${XIAOZHI_RUNTIME_INPUT_LOG:-}"
 XIAOZHI_SDKCONFIG_DEFAULTS="${XIAOZHI_SDKCONFIG_DEFAULTS:-sdkconfig.defaults;sdkconfig.defaults.esp32s3;$ROOT_DIR/config/xiaozhi-sdkconfig.defaults}"
 XIAOZHI_IDF_PATH="${XIAOZHI_IDF_PATH:-$ROOT_DIR/.vendor/esp-idf-v5.5.4}"
 XIAOZHI_IDF_PYTHON_ENV_PATH="${XIAOZHI_IDF_PYTHON_ENV_PATH:-}"
@@ -31,6 +37,7 @@ Usage:
   scripts/xiaozhi.sh inspect
   scripts/xiaozhi.sh preflight
   scripts/xiaozhi.sh backup [output.bin]
+  scripts/xiaozhi.sh runtime-check
   scripts/xiaozhi.sh restore <backup.bin> --yes
   scripts/xiaozhi.sh flash --yes
   scripts/xiaozhi.sh erase --yes
@@ -345,6 +352,42 @@ backup_flash() {
     "$output" "$XIAOZHI_FLASH_ADDRESS" "$XIAOZHI_FLASH_SIZE" "$XIAOZHI_BACKUP_BAUD" "$XIAOZHI_BACKUP_NO_STUB" "$(stat -f %z "$output")" "$(sha256_file "$output")"
 }
 
+runtime_check() {
+  local log_dir log_path args
+  if [[ -z "$XIAOZHI_RUNTIME_INPUT_LOG" ]]; then
+    require_port
+  fi
+  log_dir="${LOG_DIR:-$ROOT_DIR/.logs}"
+  mkdir -p "$log_dir"
+  log_path="${XIAOZHI_RUNTIME_LOG:-$log_dir/xiaozhi-runtime-$(date +%Y%m%d-%H%M%S).log}"
+  args=(
+    "$ROOT_DIR/scripts/xiaozhi-runtime-check.py"
+    --baud "$XIAOZHI_RUNTIME_BAUD"
+    --seconds "$XIAOZHI_RUNTIME_SECONDS"
+    --min-lines "$XIAOZHI_RUNTIME_MIN_LINES"
+    --min-bytes "$XIAOZHI_RUNTIME_MIN_BYTES"
+    --log "$log_path"
+  )
+  if [[ -n "$XIAOZHI_RUNTIME_INPUT_LOG" ]]; then
+    args+=(--input-log "$XIAOZHI_RUNTIME_INPUT_LOG")
+  else
+    args+=(--port "$ARDUINO_PORT")
+  fi
+  if [[ -n "${XIAOZHI_RUNTIME_EXPECT_ANY:-}" ]]; then
+    args+=(--expect-any "$XIAOZHI_RUNTIME_EXPECT_ANY")
+  fi
+  if [[ -n "${XIAOZHI_RUNTIME_EXPECT_ALL:-}" ]]; then
+    args+=(--expect-all "$XIAOZHI_RUNTIME_EXPECT_ALL")
+  fi
+  if [[ -n "${XIAOZHI_RUNTIME_REJECT:-}" ]]; then
+    args+=(--reject "$XIAOZHI_RUNTIME_REJECT")
+  fi
+  if [[ "$XIAOZHI_RUNTIME_PULSE_RTS" == "1" ]]; then
+    args+=(--pulse-rts)
+  fi
+  python3 "${args[@]}"
+}
+
 restore_flash() {
   local backup="${1:-}"
   local confirm="${2:-}"
@@ -374,6 +417,9 @@ case "$ACTION" in
     ;;
   backup)
     backup_flash "${2:-}"
+    ;;
+  runtime-check|runtime)
+    runtime_check
     ;;
   restore)
     restore_flash "${2:-}" "${3:-}"
