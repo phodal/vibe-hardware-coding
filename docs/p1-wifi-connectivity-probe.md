@@ -20,6 +20,13 @@ Default validation scans for nearby APs only. It does not print SSID names and d
 
 `WIFI_TEST_SSID` and `WIFI_TEST_PASSWORD` enable an optional join check. The host checker redacts the `JOIN` command in its own log, but the values still exist in the process environment while the command runs.
 
+For local supervised testing, store credentials in the ignored `.env` file rather than committed files:
+
+```bash
+WIFI_TEST_SSID='...'
+WIFI_TEST_PASSWORD='...'
+```
+
 ## Serial Contract
 
 The board emits:
@@ -56,5 +63,6 @@ Do not hard-code SSID or password into Arduino source, docs, or committed script
 
 - `make wifi-connectivity-build`: passed.
 - `SKIP_BUILD=1 make wifi-connectivity-smoke`: uploaded to `/dev/cu.usbmodem83101`, completed `PING`/`PONG`, serial scan, and status checks; scan count was 10, best RSSI was -67 dBm, and no SSID names were printed.
+- `make wifi-connectivity-smoke` with local `.env` credentials: uploaded to `/dev/cu.usbmodem83101`, scanned 3 APs, redacted the host-side `JOIN` command, joined successfully with `connected=1`, best scan RSSI `-69` dBm, and final `wifi_connectivity_summary count=3 best_rssi=-69 scan_count=2 connected=1`.
 - `skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh wifi-connectivity /Users/phodal/hardware/arduino check --port /dev/cu.usbmodem83101 --seconds 1`: passed against the flashed sketch.
 - `/Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh wifi-connectivity /Users/phodal/hardware/arduino check --port /dev/cu.usbmodem83101 --seconds 1`: passed against the flashed sketch.

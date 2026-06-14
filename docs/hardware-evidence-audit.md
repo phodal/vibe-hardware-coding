@@ -43,9 +43,9 @@ This report audits evidence surfaces only. It does not prove completion by itsel
   - Latest `03` smoke log: `.logs/official-03-power-axp2101-20260614-072414.log`.
   - Earlier unpatched `03` smoke failed at Station Wi-Fi connection before `Setup done`; failed log `.logs/official-03-power-axp2101-20260614-064803.log`.
   - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target official-demos --allow-conditional --per-target-timeout 420 --max-failures 1"`: built, uploaded, and passed the default `01-helloworld` official display/serial baseline on `/dev/cu.usbmodem83101`.
-  - Latest suite summary: `.logs/hardware-smoke-suite/20260614-050454/summary.json`.
-  - Latest suite target log: `.logs/hardware-smoke-suite/20260614-050454/official-demos.log`.
-  - Latest suite serial log: `.logs/hardware-smoke-suite/20260614-050454/official-demos/official-01-helloworld-20260614-050707.log`.
+  - Latest suite summary: `.logs/hardware-smoke-suite/20260614-084339/summary.json`.
+  - Latest suite target log: `.logs/hardware-smoke-suite/20260614-084339/official-demos.log`.
+  - Latest suite serial log: `.logs/hardware-smoke-suite/20260614-084339/official-demos/official-01-helloworld-20260614-084516.log`.
   - Latest suite build size: sketch `411067` bytes, globals `22896` bytes.
 
 ## xiaozhi-ai
