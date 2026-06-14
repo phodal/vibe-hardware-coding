@@ -134,7 +134,7 @@ def main() -> int:
     parser.add_argument("--command", help="Command for mode=command. Prompt is passed on stdin and AI_TRIGGER_PROMPT.")
     parser.add_argument("--command-timeout", type=float, default=float(os.environ.get("LOCAL_AI_COMMAND_TIMEOUT", "30")))
     parser.add_argument("--max-chars", type=int, default=int(os.environ.get("LOCAL_AI_MAX_CHARS", "180")))
-    parser.add_argument("--mock-response", default=os.environ.get("LOCAL_AI_MOCK_RESPONSE", "AI OK from Mac"))
+    parser.add_argument("--mock-response", default=os.environ.get("LOCAL_AI_MOCK_RESPONSE", "Qoder OK from Mac"))
     args = parser.parse_args()
 
     server = AiServer((args.host, args.port), AiHandler, args)

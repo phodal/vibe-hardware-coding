@@ -98,7 +98,7 @@ python3 "$ROOT_DIR/scripts/web-ai-button-check.py" \
   --password "$WIFI_TEST_PASSWORD" \
   --endpoint "http://$host_ip:$SERVER_PORT/ask" \
   --question "${WEB_AI_QUESTION:-touch button}" \
-  --expect "${WEB_AI_EXPECT:-AI OK}" \
+  --expect "${WEB_AI_EXPECT:-Qoder OK}" \
   --timeout "${WEB_AI_TIMEOUT:-40}"
 
 if [[ "${WEB_AI_KEEP_SERVER:-0}" == "1" ]]; then
@@ -106,5 +106,5 @@ if [[ "${WEB_AI_KEEP_SERVER:-0}" == "1" ]]; then
 fi
 
 if [[ "${WEB_AI_BUTTON_VISUAL_SMOKE:-0}" == "1" ]]; then
-  OCR_EXPECTED="${WEB_AI_BUTTON_OCR_EXPECTED:-AI}" "$ROOT_DIR/scripts/camera-ocr.sh"
+  OCR_EXPECTED="${WEB_AI_BUTTON_OCR_EXPECTED:-OK}" "$ROOT_DIR/scripts/camera-ocr.sh"
 fi

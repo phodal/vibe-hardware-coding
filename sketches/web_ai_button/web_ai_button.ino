@@ -4,6 +4,7 @@
 #include <TouchDrvCSTXXX.hpp>
 #include <WiFi.h>
 #include <Wire.h>
+#include <string.h>
 #include "pin_config.h"
 
 #ifndef DISPLAY_ROTATION
@@ -88,11 +89,17 @@ void drawScreen(const char *status, uint16_t statusColor = RGB565_WHITE) {
   gfx->fillScreen(RGB565_BLACK);
   gfx->drawRoundRect(14, 14, LCD_WIDTH - 28, LCD_HEIGHT - 28, 22, RGB565_BLUE);
 
-  centerText("Phodal", 42, 6, RGB565_CYAN);
+  centerText("Qoder", 42, 6, RGB565_CYAN);
+  centerText("OK", 104, 5, RGB565_WHITE);
 
   gfx->fillRoundRect(BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, 22, RGB565_GREEN);
   gfx->drawRoundRect(BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, 22, RGB565_WHITE);
-  centerText("ASK AI", BUTTON_Y + 38, 5, RGB565_BLACK, RGB565_GREEN);
+  if (strcmp(status, "AI OK") == 0) {
+    centerText("Qoder", BUTTON_Y + 22, 5, RGB565_BLACK, RGB565_GREEN);
+    centerText("OK", BUTTON_Y + 78, 4, RGB565_BLACK, RGB565_GREEN);
+  } else {
+    centerText("ASK AI", BUTTON_Y + 38, 5, RGB565_BLACK, RGB565_GREEN);
+  }
 
   gfx->setTextSize(2);
   gfx->setTextColor(statusColor, RGB565_BLACK);
@@ -188,7 +195,18 @@ void connectWifi(const String &ssid, const String &password) {
   wifiPassword.trim();
 
   drawScreen("WiFi join", RGB565_YELLOW);
-  WiFi.disconnect(true, true);
+  if (WiFi.status() == WL_CONNECTED && WiFi.SSID() == wifiSsid) {
+    wifiReady = true;
+    Serial.print("WEB_AI_WIFI status=ok connected=1 rssi=");
+    Serial.print(WiFi.RSSI());
+    Serial.print(" ip=");
+    Serial.println(WiFi.localIP().toString());
+    Serial.flush();
+    drawScreen("Ready", RGB565_GREEN);
+    return;
+  }
+
+  WiFi.disconnect(false, true);
   delay(200);
   WiFi.mode(WIFI_STA);
   WiFi.begin(wifiSsid.c_str(), wifiPassword.c_str());

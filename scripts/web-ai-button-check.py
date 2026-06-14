@@ -118,6 +118,7 @@ def main() -> int:
     parser.add_argument("--endpoint", required=True)
     parser.add_argument("--question", default="touch button")
     parser.add_argument("--expect", default="AI OK")
+    parser.add_argument("--post-wifi-delay", type=float, default=1.5)
     parser.add_argument("--timeout", type=float, default=35)
     args = parser.parse_args()
 
@@ -136,6 +137,7 @@ def main() -> int:
         )
         lines.extend(serial.wait_for_any(["WEB_AI_WIFI status="], args.timeout))
         lines.extend(serial.read_lines(0.5))
+        time.sleep(args.post_wifi_delay)
 
         serial.write_line(f"TRIGGER:{args.question}")
         lines.extend(serial.wait_for_any(["WEB_AI_RESPONSE status="], args.timeout))
