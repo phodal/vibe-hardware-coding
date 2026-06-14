@@ -85,6 +85,25 @@ case "$ACTION" in
       esac
     fi
     ;;
+  visual-evidence)
+    if [[ -x "$PROJECT_DIR/scripts/visual-evidence-audit.py" ]]; then
+      cd "$PROJECT_DIR"
+      if [[ "${#EXTRA_ARGS[@]}" -eq 0 ]]; then
+        exec make visual-evidence-audit
+      fi
+      case "${EXTRA_ARGS[0]}" in
+        audit)
+          exec make visual-evidence-audit
+          ;;
+        doc)
+          exec make visual-evidence-doc
+          ;;
+        markdown)
+          exec python3 "$PROJECT_DIR/scripts/visual-evidence-audit.py" --markdown
+          ;;
+      esac
+    fi
+    ;;
   goal-completion)
     if [[ -x "$PROJECT_DIR/scripts/goal-completion-audit.py" ]]; then
       cd "$PROJECT_DIR"
@@ -560,6 +579,10 @@ case "$ACTION" in
     echo "No project hardware evidence audit found. Use a project that provides scripts/hardware-evidence-audit.py." >&2
     exit 2
     ;;
+  visual-evidence)
+    echo "No project visual evidence audit found. Use a project that provides scripts/visual-evidence-audit.py." >&2
+    exit 2
+    ;;
   goal-completion)
     echo "No project goal completion audit found. Use a project that provides scripts/goal-completion-audit.py." >&2
     exit 2
@@ -641,7 +664,7 @@ case "$ACTION" in
     exit 2
     ;;
   *)
-    echo "Usage: $0 {setup|build|upload|monitor|smoke|verify|doctor|visual-smoke|feature-matrix|hardware-evidence|goal-completion|hardware-smoke-suite|camera-aligner|official-demos|official-demo|xiaozhi|cloud-ai|audio-vad|speaker-output|sensor-status|power-lifecycle|wifi-connectivity|touch-status|interaction-dashboard|imu-interaction|lvgl-visual-agent|desk-widget|iot-panel|offline-voice|tinyml-imu|esp-claw-agent} [project-dir] [action-args...]" >&2
+    echo "Usage: $0 {setup|build|upload|monitor|smoke|verify|doctor|visual-smoke|feature-matrix|hardware-evidence|visual-evidence|goal-completion|hardware-smoke-suite|camera-aligner|official-demos|official-demo|xiaozhi|cloud-ai|audio-vad|speaker-output|sensor-status|power-lifecycle|wifi-connectivity|touch-status|interaction-dashboard|imu-interaction|lvgl-visual-agent|desk-widget|iot-panel|offline-voice|tinyml-imu|esp-claw-agent} [project-dir] [action-args...]" >&2
     exit 2
     ;;
 esac

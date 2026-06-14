@@ -63,6 +63,8 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `make feature-matrix-doc` after changing `config/feature-matrix.tsv` to regenerate `docs/hardware-verification-matrix.md`.
    - Run `make hardware-evidence-audit` to identify lanes with missing `Verified Locally` sections or missing smoke-suite evidence.
    - Run `make hardware-evidence-doc` to regenerate `docs/hardware-evidence-audit.md`.
+   - Run `make visual-evidence-audit` to identify lanes that lack recorded camera/OCR artifacts in their local evidence sections.
+   - Run `make visual-evidence-doc` to regenerate `docs/visual-evidence-audit.md`.
    - Run `make goal-completion-audit` for the stricter requirement-level completion gate; use `python3 scripts/goal-completion-audit.py --strict` only when a non-zero result should fail CI or handoff.
    - Run `make goal-completion-doc` to regenerate `docs/goal-completion-audit.md`.
    - Run `make hardware-smoke-list` to inspect the default serialized non-audio smoke selection.
@@ -192,6 +194,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
 25. For Skill automation wiring:
    - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `audio_vad_probe`, `speaker_output_probe`, `sensor_status_probe`, `power_lifecycle_probe`, `wifi_connectivity_probe`, `touch_status_probe`, `interaction_dashboard`, `imu_interaction_probe`, `lvgl_visual_agent`, `desk_widget`, `iot_control_panel`, `offline_voice_control`, `tinyml_imu_classifier`, and `esp_claw_agent`.
    - Run `scripts/waveshare-arduino-cli.sh feature-matrix <project-dir> check` to validate coverage metadata before claiming all 12 requested directions are wired.
+   - Run `scripts/waveshare-arduino-cli.sh visual-evidence <project-dir> audit` to check camera/OCR evidence coverage through the Skill helper.
    - Run `make claude-skill-smoke` from this repo to ask the local Claude CLI to read the repo Skill and invoke this helper for the non-audio visual smoke path. The wrapper records Claude's transcript plus the command log under `.logs/`, and `CLAUDE_SKILL_SMOKE_MODE=audit` switches to a no-upload feature-matrix check.
    - `verify`/`doctor` is intentionally compile-only; it does not upload firmware or run camera OCR.
    - Run explicit hardware smokes when the user wants board validation:
@@ -251,6 +254,8 @@ make feature-matrix-check
 make feature-matrix-doc
 make hardware-evidence-audit
 make hardware-evidence-doc
+make visual-evidence-audit
+make visual-evidence-doc
 make goal-completion-audit
 make goal-completion-doc
 make hardware-smoke-list
