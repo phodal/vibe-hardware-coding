@@ -47,7 +47,7 @@ case "$ACTION" in
       exec "$PROJECT_DIR/scripts/visual-smoke.sh"
     fi
     ;;
-  camera-ready|camera-diagnose)
+  camera-ready|camera-diagnose|ok-qoder-evidence)
     if [[ -f "$PROJECT_DIR/Makefile" ]]; then
       cd "$PROJECT_DIR"
       exec make "$ACTION"
@@ -670,7 +670,7 @@ case "$ACTION" in
     exit 2
     ;;
   *)
-    echo "Usage: $0 {setup|build|upload|monitor|smoke|verify|doctor|visual-smoke|feature-matrix|hardware-evidence|visual-evidence|goal-completion|hardware-smoke-suite|camera-aligner|official-demos|official-demo|xiaozhi|cloud-ai|audio-vad|speaker-output|sensor-status|power-lifecycle|wifi-connectivity|touch-status|interaction-dashboard|imu-interaction|lvgl-visual-agent|desk-widget|iot-panel|offline-voice|tinyml-imu|esp-claw-agent} [project-dir] [action-args...]" >&2
+    echo "Usage: $0 {setup|build|upload|monitor|smoke|verify|doctor|visual-smoke|feature-matrix|hardware-evidence|visual-evidence|goal-completion|hardware-smoke-suite|camera-aligner|camera-ready|camera-diagnose|ok-qoder-evidence|official-demos|official-demo|xiaozhi|cloud-ai|audio-vad|speaker-output|sensor-status|power-lifecycle|wifi-connectivity|touch-status|interaction-dashboard|imu-interaction|lvgl-visual-agent|desk-widget|iot-panel|offline-voice|tinyml-imu|esp-claw-agent} [project-dir] [action-args...]" >&2
     exit 2
     ;;
 esac

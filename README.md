@@ -30,6 +30,7 @@ make visual-smoke
 make camera-aligner
 make camera-diagnose
 make camera-ready
+make ok-qoder-evidence
 make feature-matrix-check
 make hardware-evidence-audit
 make hardware-evidence-doc
@@ -82,6 +83,18 @@ CAMERA_RAW_IMAGE=.logs/camera-ocr-YYYYMMDD-HHMMSS.jpg OCR_PREPROCESS_MODE=amoled
 ```
 
 The visual calibration sketch includes large `OK` text plus red/green/blue/yellow swatches. This is the preferred camera setup target before trying vendor demos with white backgrounds or small LVGL fonts. To check swatches on an existing image directly, run `make camera-color-check IMAGE=.logs/camera-ocr-YYYYMMDD-HHMMSS.jpg`; tune strict placement checks with `COLOR_SWATCH_MIN_X_GAP`, `COLOR_SWATCH_MAX_Y_SPREAD`, or `COLOR_SWATCH_GEOMETRY=0`.
+
+`make ok-qoder-evidence` is the article-ready self-verification chain for the default `sketches/codex_hello_world` sketch. It clean-builds the sketch, uploads it, records serial frames, tries camera OCR for `Qoder`, and writes a committed evidence pack under `docs/evidence/ok-qoder-<timestamp>/`. The full chain is only complete when both the serial smoke and camera OCR pass. Use `ALLOW_PARTIAL=1 make ok-qoder-evidence` when you want to preserve a partial run for debugging or writing: the summary will still say whether the visual proof is missing. This is the smallest loop for explaining AI self-verification and self-iteration:
+
+1. change firmware source
+2. build with deterministic board options
+3. flash the board
+4. prove control flow through serial logs
+5. prove the AMOLED through camera image and OCR
+6. write artifacts and a machine-readable summary
+7. let the next agent iterate only from failed evidence, not from guesses
+
+Latest saved run: `docs/evidence/ok-qoder-20260614-112150/summary.md`. It proves build, upload, and serial runtime for `OK Qoder`; camera OCR is currently blocked because the Logitech C930c starts an AVFoundation session but returns `frames=0`, so no screen image was captured in that pack.
 
 `make claude-skill-smoke` asks the local `claude` CLI to read the repo-owned Waveshare Skill and invoke its helper script for the same non-audio visual smoke path. This validates the agent-facing Skill wiring from a second agent process. The default `CLAUDE_SKILL_SMOKE_MODE=visual` uploads the calibration sketch, captures camera OCR, and checks the color swatches. Use `CLAUDE_SKILL_SMOKE_MODE=audit make claude-skill-smoke` for a no-upload feature-matrix-only fallback. Details and local evidence are in `docs/skill-automation.md`.
 

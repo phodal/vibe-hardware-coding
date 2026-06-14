@@ -1,0 +1,10 @@
+Capturing camera device 0 via CameraSnapshot at 1280x720 -> /Users/phodal/hardware/arduino/docs/evidence/ok-qoder-20260614-112150/camera-ocr-20260614-112451.jpg
+[0/1] Planning build
+Building for debugging...
+[0/3] Write swift-version--58304C5D6DBC2206.txt
+Build of product 'CameraSnapshot' complete! (0.07s)
+CameraSnapshot: Timed out before a camera frame was captured. diagnostics{running=true frames=0 drops=0 last_drop=none preset=AVCaptureSessionPreset1280x720 active_preset=AVCaptureSessionPreset1280x720 device=罗技高清网络摄像机_C930c,connected=1,suspended=0,in_use=0 active_format=1920x1080@30-30fps|24-24fps|20-20fps|15-15fps|10-10fps|7-7fps|5-5fps}
+Swift camera capture failed; falling back to ffmpeg.
+Capturing camera device 0 via ffmpeg at 1280x720 (uyvy422) -> /Users/phodal/hardware/arduino/docs/evidence/ok-qoder-20260614-112150/camera-ocr-20260614-112451.jpg
+/Users/phodal/hardware/arduino/scripts/camera-ocr.sh: line 94:  6321 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$CAMERA_CAPTURE_TIMEOUT" ffmpeg -hide_banner -loglevel error -f avfoundation -framerate 30 -pixel_format "$CAMERA_PIXEL_FORMAT" -video_size "$CAMERA_SIZE" -i "$CAMERA_DEVICE:none" -frames:v 1 -y "$RAW_IMAGE"
+Camera capture failed or timed out after 8s.

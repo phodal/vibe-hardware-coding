@@ -199,6 +199,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `audio_vad_probe`, `speaker_output_probe`, `sensor_status_probe`, `power_lifecycle_probe`, `wifi_connectivity_probe`, `touch_status_probe`, `interaction_dashboard`, `imu_interaction_probe`, `lvgl_visual_agent`, `desk_widget`, `iot_control_panel`, `offline_voice_control`, `tinyml_imu_classifier`, and `esp_claw_agent`.
    - Run `scripts/waveshare-arduino-cli.sh feature-matrix <project-dir> check` to validate coverage metadata before claiming all 12 requested directions are wired.
    - Run `scripts/waveshare-arduino-cli.sh visual-evidence <project-dir> audit` to check camera/OCR evidence coverage through the Skill helper.
+   - Run `scripts/waveshare-arduino-cli.sh ok-qoder-evidence <project-dir>` to build, upload, serial-smoke, and camera-OCR the default `OK Qoder` hello sketch into a committed evidence pack under `docs/evidence/`.
    - Run `make claude-skill-smoke` from this repo to ask the local Claude CLI to read the repo Skill and invoke this helper for the non-audio visual smoke path. The wrapper records Claude's transcript plus the command log under `.logs/`, and `CLAUDE_SKILL_SMOKE_MODE=audit` switches to a no-upload feature-matrix check.
    - `verify`/`doctor` is intentionally compile-only; it does not upload firmware or run camera OCR.
    - Run explicit hardware smokes when the user wants board validation:
@@ -255,6 +256,7 @@ SMOKE_SECONDS=8 ./scripts/smoke.sh
 make camera-aligner
 make camera-diagnose
 make camera-ready
+make ok-qoder-evidence
 make feature-matrix-check
 make feature-matrix-doc
 make hardware-evidence-audit

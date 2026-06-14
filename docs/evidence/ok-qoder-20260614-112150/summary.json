@@ -1,0 +1,21 @@
+{
+  "id": "ok-qoder-20260614-112150",
+  "timestamp": "20260614-112150",
+  "sketch": "sketches/codex_hello_world",
+  "expected_ocr": "Qoder",
+  "build": "passed",
+  "smoke": "passed",
+  "serial": "passed",
+  "camera_ocr": "failed",
+  "destructive": 0,
+  "audio": 0,
+  "artifacts": {
+    "build_log": "build.log",
+    "smoke_log": "smoke.log",
+    "serial_log": "logs/smoke-20260614-112442.log",
+    "camera_ocr_log": "camera-ocr.log",
+    "raw_image": null,
+    "processed_image": null,
+    "ocr_text": null
+  }
+}
