@@ -27,6 +27,7 @@ CAMERA_EXPOSURE_POINT="${CAMERA_EXPOSURE_POINT:-}"
 CAMERA_FOCUS_POINT="${CAMERA_FOCUS_POINT:-}"
 OCR_ROTATE="${OCR_ROTATE:-0}"
 OCR_EXPECTED="${OCR_EXPECTED:-OK}"
+OCR_EXPECTED_ANY="${OCR_EXPECTED_ANY:-}"
 OCR_LANG="${OCR_LANG:-eng}"
 OCR_ENGINE="${OCR_ENGINE:-vision}"
 CAMERA_CAPTURE_TIMEOUT="${CAMERA_CAPTURE_TIMEOUT:-15}"
@@ -233,24 +234,18 @@ OCR_TEXT="$(tr -d '\r' < "$OCR_TEXT_FILE")"
 NORMALIZED_TEXT="$(printf '%s' "$OCR_TEXT" | tr '[:lower:]' '[:upper:]' | tr -cd 'A-Z0-9')"
 NORMALIZED_EXPECTED="$(printf '%s' "$OCR_EXPECTED" | tr '[:lower:]' '[:upper:]' | tr -cd 'A-Z0-9')"
 
-echo "OCR expected: $OCR_EXPECTED"
-echo "OCR text:"
-printf '%s\n' "$OCR_TEXT"
-echo "Artifacts:"
-echo "  raw:       $RAW_IMAGE"
-echo "  processed: $PROCESSED_IMAGE"
-echo "  text:      $OCR_TEXT_FILE"
-echo "  crop:      $CAMERA_CROP"
-echo "  rotate:    $OCR_ROTATE"
-echo "  engine:    $OCR_ENGINE"
-echo "  capture:   $CAMERA_CAPTURE_ENGINE"
-echo "  mode:      $OCR_PREPROCESS_MODE"
-echo "  filter:    $OCR_FILTER"
-if [[ -n "$CAMERA_EXPOSURE_BIAS" ]]; then
-  echo "  exposure:  $CAMERA_EXPOSURE_BIAS"
-fi
+matches_marker() {
+  local marker="$1"
+  local normalized_marker
+  normalized_marker="$(printf '%s' "$marker" | tr '[:lower:]' '[:upper:]' | tr -cd 'A-Z0-9')"
+  if [[ -n "$normalized_marker" ]]; then
+    [[ "$NORMALIZED_TEXT" == *"$normalized_marker"* ]]
+  else
+    [[ "$OCR_TEXT" == *"$marker"* ]]
+  fi
+}
 
-if [[ "$NORMALIZED_TEXT" == *"$NORMALIZED_EXPECTED"* ]]; then
+pass_with_optional_color_check() {
   if [[ "$COLOR_SWATCH_CHECK" == "1" ]]; then
     case "$COLOR_SWATCH_SOURCE" in
       raw)
@@ -270,7 +265,46 @@ if [[ "$NORMALIZED_TEXT" == *"$NORMALIZED_EXPECTED"* ]]; then
   fi
   echo "OCR validation passed."
   exit 0
+}
+
+echo "OCR expected: $OCR_EXPECTED"
+echo "OCR text:"
+printf '%s\n' "$OCR_TEXT"
+echo "Artifacts:"
+echo "  raw:       $RAW_IMAGE"
+echo "  processed: $PROCESSED_IMAGE"
+echo "  text:      $OCR_TEXT_FILE"
+echo "  crop:      $CAMERA_CROP"
+echo "  rotate:    $OCR_ROTATE"
+echo "  engine:    $OCR_ENGINE"
+echo "  capture:   $CAMERA_CAPTURE_ENGINE"
+echo "  mode:      $OCR_PREPROCESS_MODE"
+echo "  filter:    $OCR_FILTER"
+if [[ -n "$CAMERA_EXPOSURE_BIAS" ]]; then
+  echo "  exposure:  $CAMERA_EXPOSURE_BIAS"
 fi
 
-echo "OCR validation failed: normalized text '$NORMALIZED_TEXT' did not contain '$NORMALIZED_EXPECTED'." >&2
+if [[ -n "$OCR_EXPECTED_ANY" ]]; then
+  IFS=',' read -r -a OCR_EXPECTED_MARKERS <<< "$OCR_EXPECTED_ANY"
+  for marker in "${OCR_EXPECTED_MARKERS[@]}"; do
+    marker="${marker#"${marker%%[![:space:]]*}"}"
+    marker="${marker%"${marker##*[![:space:]]}"}"
+    if [[ -n "$marker" ]] && matches_marker "$marker"; then
+      echo "OCR matched marker: $marker"
+      pass_with_optional_color_check
+    fi
+  done
+  echo "OCR validation failed: text did not contain any marker from '$OCR_EXPECTED_ANY'." >&2
+  exit 1
+fi
+
+if [[ -n "$NORMALIZED_EXPECTED" ]]; then
+  if [[ "$NORMALIZED_TEXT" == *"$NORMALIZED_EXPECTED"* ]]; then
+    pass_with_optional_color_check
+  fi
+  echo "OCR validation failed: normalized text '$NORMALIZED_TEXT' did not contain '$NORMALIZED_EXPECTED'." >&2
+  exit 1
+fi
+
+echo "OCR validation failed: OCR_EXPECTED normalized to an empty marker. Use OCR_EXPECTED_ANY for non-ASCII markers." >&2
 exit 1

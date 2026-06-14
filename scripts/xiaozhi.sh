@@ -25,6 +25,8 @@ XIAOZHI_RUNTIME_MIN_LINES="${XIAOZHI_RUNTIME_MIN_LINES:-1}"
 XIAOZHI_RUNTIME_MIN_BYTES="${XIAOZHI_RUNTIME_MIN_BYTES:-1}"
 XIAOZHI_RUNTIME_PULSE_RTS="${XIAOZHI_RUNTIME_PULSE_RTS:-1}"
 XIAOZHI_RUNTIME_INPUT_LOG="${XIAOZHI_RUNTIME_INPUT_LOG:-}"
+XIAOZHI_RUNTIME_VISUAL_SMOKE="${XIAOZHI_RUNTIME_VISUAL_SMOKE:-0}"
+XIAOZHI_VISUAL_EXPECT_ANY="${XIAOZHI_VISUAL_EXPECT_ANY:-XiaoZhi,Xiaozhi,xiaozhi,小智,验证码,激活,activation,Activation,配网}"
 XIAOZHI_SDKCONFIG_DEFAULTS="${XIAOZHI_SDKCONFIG_DEFAULTS:-sdkconfig.defaults;sdkconfig.defaults.esp32s3;$ROOT_DIR/config/xiaozhi-sdkconfig.defaults}"
 XIAOZHI_IDF_PATH="${XIAOZHI_IDF_PATH:-$ROOT_DIR/.vendor/esp-idf-v5.5.4}"
 XIAOZHI_IDF_PYTHON_ENV_PATH="${XIAOZHI_IDF_PYTHON_ENV_PATH:-}"
@@ -38,6 +40,8 @@ Usage:
   scripts/xiaozhi.sh preflight
   scripts/xiaozhi.sh backup [output.bin]
   scripts/xiaozhi.sh runtime-check
+  scripts/xiaozhi.sh visual-check
+  scripts/xiaozhi.sh runtime-visual-check
   scripts/xiaozhi.sh restore <backup.bin> --yes
   scripts/xiaozhi.sh flash --yes
   scripts/xiaozhi.sh erase --yes
@@ -386,6 +390,17 @@ runtime_check() {
     args+=(--pulse-rts)
   fi
   python3 "${args[@]}"
+  if [[ "$XIAOZHI_RUNTIME_VISUAL_SMOKE" == "1" ]]; then
+    visual_check
+  elif [[ "$XIAOZHI_RUNTIME_VISUAL_SMOKE" != "0" ]]; then
+    echo "XIAOZHI_RUNTIME_VISUAL_SMOKE must be 0 or 1." >&2
+    exit 2
+  fi
+}
+
+visual_check() {
+  OCR_EXPECTED_ANY="${OCR_EXPECTED_ANY:-$XIAOZHI_VISUAL_EXPECT_ANY}" \
+    "$ROOT_DIR/scripts/camera-ocr.sh"
 }
 
 restore_flash() {
@@ -419,6 +434,13 @@ case "$ACTION" in
     backup_flash "${2:-}"
     ;;
   runtime-check|runtime)
+    runtime_check
+    ;;
+  visual-check|visual)
+    visual_check
+    ;;
+  runtime-visual-check|runtime-visual)
+    XIAOZHI_RUNTIME_VISUAL_SMOKE=1
     runtime_check
     ;;
   restore)
