@@ -14,12 +14,13 @@ make xiaozhi-latest
 make xiaozhi-download
 make xiaozhi-inspect
 make xiaozhi-preflight
+make xiaozhi-backup
 make xiaozhi-idf-env
 make xiaozhi-idf-build
 CONFIRM=--yes make xiaozhi-flash
 ```
 
-Use `latest`, `inspect`, and `preflight` first. They only query/download the release asset, confirm the firmware archive shape, hash `merged-binary.bin`, inspect local source/ESP-IDF readiness, and confirm the serial/esptool environment. `CONFIRM=--yes make xiaozhi-flash` is the first destructive step.
+Use `latest`, `inspect`, `preflight`, and `backup` first. They only query/download the release asset, confirm the firmware archive shape, hash `merged-binary.bin`, inspect local source/ESP-IDF readiness, confirm the serial/esptool environment, and read the current board flash to a local backup. `CONFIRM=--yes make xiaozhi-flash` is the first destructive XiaoZhi firmware step.
 
 `make xiaozhi-flash` is intentionally guarded. With `CONFIRM=--yes`, it expands to:
 
@@ -28,6 +29,16 @@ scripts/xiaozhi.sh flash --yes
 ```
 
 This writes the latest `waveshare-esp32-s3-touch-amoled-1.75c` merged binary to flash address `0x0` using esptool from the installed Arduino ESP32 core when no standalone `esptool` is available.
+
+`make xiaozhi-backup` is read-only and emits:
+
+- `xiaozhi_backup_summary ... path=... bytes=... sha256=... destructive=0 audio=0`
+
+To restore a backup, pass its path explicitly and confirm the destructive write:
+
+```bash
+BACKUP=.vendor/xiaozhi/backups/esp32s3-flash-YYYYMMDD-HHMMSS.bin CONFIRM=--yes make xiaozhi-restore
+```
 
 `make xiaozhi-preflight` is non-destructive and emits:
 
@@ -57,7 +68,11 @@ XIAOZHI_BOARD_SLUG=waveshare-esp32-s3-touch-amoled-1.75c
 XIAOZHI_RELEASE_REPO=78/xiaozhi-esp32
 XIAOZHI_WORK_DIR=.vendor/xiaozhi
 XIAOZHI_FLASH_ADDRESS=0x0
+XIAOZHI_FLASH_SIZE=0x1000000
 XIAOZHI_BAUD=921600
+XIAOZHI_BACKUP_BAUD=115200
+XIAOZHI_BACKUP_NO_STUB=1
+XIAOZHI_BACKUP_SILENT=1
 XIAOZHI_SDKCONFIG_DEFAULTS='sdkconfig.defaults;sdkconfig.defaults.esp32s3;/absolute/path/to/config/xiaozhi-sdkconfig.defaults'
 XIAOZHI_IDF_PATH=.vendor/esp-idf-v5.5.4
 XIAOZHI_IDF_PYTHON_ENV_PATH=~/.espressif/python_env/idf5.5_py3.14_env
@@ -83,6 +98,8 @@ Flashing XiaoZhi replaces the Arduino demo currently on the board. To return to 
 - `make xiaozhi-preflight` verifies the current release asset, `merged-binary.bin` SHA-256, esptool path, serial port, source checkout marker, and ESP-IDF availability without flashing firmware or using audio hardware.
 - Latest `xiaozhi_preflight_summary`: `tag=v2.2.6 asset=v2.2.6_waveshare-esp32-s3-touch-amoled-1.75c.zip asset_size=3116104 slug=waveshare-esp32-s3-touch-amoled-1.75c port=/dev/cu.usbmodem83101 esptool=/Users/phodal/Library/Arduino15/packages/esp32/tools/esptool_py/5.1.0/esptool source=v2.2.6-37-g3f9e5fc idf=/Users/phodal/hardware/arduino/.vendor/esp-idf-v5.5.4/tools/idf.py destructive=0 audio=0`.
 - Latest `merged-binary.bin` SHA-256: `c08f389e2650b2076d2155fa62c0b34c5f3359e07833a8fca5f0f53c6e8bf7dd`.
+- `make xiaozhi-backup`: read the current board flash without writing or using audio hardware.
+- Latest `xiaozhi_backup_summary`: `path=/Users/phodal/hardware/arduino/.vendor/xiaozhi/backups/esp32s3-flash-20260614-081746.bin address=0x0 size=0x1000000 baud=115200 no_stub=1 bytes=16777216 sha256=8b411598bb4d2ab2142f0dd63f64d3fd9a71d9e78077b1d34a706b6463d02638 destructive=0 audio=0`.
 - Standalone `esptool.py` is not installed, but Arduino ESP32 core provides `~/Library/Arduino15/packages/esp32/tools/esptool_py/5.1.0/esptool`.
 - `make xiaozhi-source-clone` cloned official source to `.vendor/xiaozhi/source` at `v2.2.6-37-g3f9e5fc`.
 - `make xiaozhi-source-check` confirmed the source tree contains `CONFIG_BOARD_TYPE_WAVESHARE_ESP32_S3_TOUCH_AMOLED_1_75C`.

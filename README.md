@@ -108,14 +108,18 @@ See `docs/p0-official-demos.md` for the current P0 bring-up matrix and local ver
 make xiaozhi-latest
 make xiaozhi-download
 make xiaozhi-inspect
+make xiaozhi-preflight
+make xiaozhi-backup
+make xiaozhi-idf-env
+make xiaozhi-idf-build
 CONFIRM=--yes make xiaozhi-flash
 make xiaozhi-source-clone
 make xiaozhi-source-check
 ```
 
-`make xiaozhi-latest`, `make xiaozhi-download`, and `make xiaozhi-inspect` automate the prebuilt XiaoZhi AI firmware route for `waveshare-esp32-s3-touch-amoled-1.75c`. `CONFIRM=--yes make xiaozhi-flash` writes the downloaded merged binary to the board and is intentionally explicit because it replaces the Arduino sketch currently on the device.
+`make xiaozhi-latest`, `make xiaozhi-download`, `make xiaozhi-inspect`, `make xiaozhi-preflight`, and `make xiaozhi-backup` automate the non-destructive prebuilt XiaoZhi AI firmware route for `waveshare-esp32-s3-touch-amoled-1.75c`. `make xiaozhi-backup` reads the current board flash into `.vendor/xiaozhi/backups/` with `destructive=0 audio=0`. `CONFIRM=--yes make xiaozhi-flash` writes the downloaded merged binary to the board and is intentionally explicit because it replaces the Arduino sketch currently on the device.
 
-The source route uses `scripts/xiaozhi.sh idf-build`, `scripts/xiaozhi.sh idf-flash`, and `scripts/xiaozhi.sh idf-monitor` from an ESP-IDF shell where `idf.py` is available. See `docs/p0-xiaozhi-ai.md` for the current XiaoZhi acceptance notes.
+The source route uses `make xiaozhi-idf-env`, `make xiaozhi-idf-build`, `scripts/xiaozhi.sh idf-flash`, and `scripts/xiaozhi.sh idf-monitor`. See `docs/p0-xiaozhi-ai.md` for the current XiaoZhi acceptance notes.
 
 ## Git Hooks
 

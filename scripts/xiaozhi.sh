@@ -12,8 +12,13 @@ XIAOZHI_SOURCE_REPO="${XIAOZHI_SOURCE_REPO:-https://github.com/78/xiaozhi-esp32.
 XIAOZHI_WORK_DIR="${XIAOZHI_WORK_DIR:-$ROOT_DIR/.vendor/xiaozhi}"
 XIAOZHI_SOURCE_DIR="${XIAOZHI_SOURCE_DIR:-$XIAOZHI_WORK_DIR/source}"
 XIAOZHI_FIRMWARE_DIR="${XIAOZHI_FIRMWARE_DIR:-$XIAOZHI_WORK_DIR/firmware}"
+XIAOZHI_BACKUP_DIR="${XIAOZHI_BACKUP_DIR:-$XIAOZHI_WORK_DIR/backups}"
 XIAOZHI_FLASH_ADDRESS="${XIAOZHI_FLASH_ADDRESS:-0x0}"
+XIAOZHI_FLASH_SIZE="${XIAOZHI_FLASH_SIZE:-0x1000000}"
 XIAOZHI_BAUD="${XIAOZHI_BAUD:-921600}"
+XIAOZHI_BACKUP_BAUD="${XIAOZHI_BACKUP_BAUD:-115200}"
+XIAOZHI_BACKUP_NO_STUB="${XIAOZHI_BACKUP_NO_STUB:-1}"
+XIAOZHI_BACKUP_SILENT="${XIAOZHI_BACKUP_SILENT:-1}"
 XIAOZHI_SDKCONFIG_DEFAULTS="${XIAOZHI_SDKCONFIG_DEFAULTS:-sdkconfig.defaults;sdkconfig.defaults.esp32s3;$ROOT_DIR/config/xiaozhi-sdkconfig.defaults}"
 XIAOZHI_IDF_PATH="${XIAOZHI_IDF_PATH:-$ROOT_DIR/.vendor/esp-idf-v5.5.4}"
 XIAOZHI_IDF_PYTHON_ENV_PATH="${XIAOZHI_IDF_PYTHON_ENV_PATH:-}"
@@ -25,6 +30,8 @@ Usage:
   scripts/xiaozhi.sh download
   scripts/xiaozhi.sh inspect
   scripts/xiaozhi.sh preflight
+  scripts/xiaozhi.sh backup [output.bin]
+  scripts/xiaozhi.sh restore <backup.bin> --yes
   scripts/xiaozhi.sh flash --yes
   scripts/xiaozhi.sh erase --yes
   scripts/xiaozhi.sh source-clone
@@ -302,6 +309,56 @@ run_esptool() {
   "$esptool" --chip esp32s3 --port "$ARDUINO_PORT" --baud "$XIAOZHI_BAUD" "$@"
 }
 
+run_esptool_backup() {
+  local esptool
+  esptool="$(find_esptool)"
+  local args=("$esptool")
+  if [[ "$XIAOZHI_BACKUP_NO_STUB" == "1" ]]; then
+    args+=(--no-stub)
+  fi
+  if [[ "$XIAOZHI_BACKUP_SILENT" == "1" ]]; then
+    args+=(--silent)
+  fi
+  args+=(--chip esp32s3 --port "$ARDUINO_PORT" --baud "$XIAOZHI_BACKUP_BAUD")
+  "${args[@]}" "$@"
+}
+
+sha256_file() {
+  shasum -a 256 "$1" | awk '{ print $1 }'
+}
+
+backup_flash() {
+  require_port
+  local output="${1:-}"
+  if [[ -z "$output" ]]; then
+    mkdir -p "$XIAOZHI_BACKUP_DIR"
+    output="$XIAOZHI_BACKUP_DIR/esp32s3-flash-$(date +%Y%m%d-%H%M%S).bin"
+  else
+    mkdir -p "$(dirname "$output")"
+  fi
+  if ! run_esptool_backup read-flash "$XIAOZHI_FLASH_ADDRESS" "$XIAOZHI_FLASH_SIZE" "$output"; then
+    rm -f "$output"
+    echo "XiaoZhi flash backup failed; removed incomplete backup file." >&2
+    exit 1
+  fi
+  printf 'xiaozhi_backup_summary path=%s address=%s size=%s baud=%s no_stub=%s bytes=%s sha256=%s destructive=0 audio=0\n' \
+    "$output" "$XIAOZHI_FLASH_ADDRESS" "$XIAOZHI_FLASH_SIZE" "$XIAOZHI_BACKUP_BAUD" "$XIAOZHI_BACKUP_NO_STUB" "$(stat -f %z "$output")" "$(sha256_file "$output")"
+}
+
+restore_flash() {
+  local backup="${1:-}"
+  local confirm="${2:-}"
+  if [[ -z "$backup" || ! -f "$backup" ]]; then
+    echo "Usage: scripts/xiaozhi.sh restore <backup.bin> --yes" >&2
+    exit 2
+  fi
+  require_yes "$confirm"
+  require_port
+  run_esptool write_flash -z "$XIAOZHI_FLASH_ADDRESS" "$backup"
+  printf 'xiaozhi_restore_summary path=%s address=%s bytes=%s sha256=%s destructive=1 audio=0\n' \
+    "$backup" "$XIAOZHI_FLASH_ADDRESS" "$(stat -f %z "$backup")" "$(sha256_file "$backup")"
+}
+
 case "$ACTION" in
   latest)
     latest_asset_json | python3 -m json.tool
@@ -314,6 +371,12 @@ case "$ACTION" in
     ;;
   preflight)
     preflight
+    ;;
+  backup)
+    backup_flash "${2:-}"
+    ;;
+  restore)
+    restore_flash "${2:-}" "${3:-}"
     ;;
   flash)
     require_yes "${2:-}"
