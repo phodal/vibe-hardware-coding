@@ -14,7 +14,7 @@ The `lvgl_visual_agent` sketch is the first repo-owned LVGL visual-agent surface
 ```bash
 make lvgl-visual-agent-build
 make lvgl-visual-agent-smoke
-LVGL_VISUAL_AGENT_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make lvgl-visual-agent-smoke
+LVGL_VISUAL_AGENT_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 DISPLAY_BRIGHTNESS=96 make lvgl-visual-agent-smoke
 ```
 
 The smoke script uploads the sketch, waits for `VIS_READY`, validates LVGL capabilities, drives page changes, sends chat/card/settings events, and checks final serial state.
@@ -41,11 +41,12 @@ The smoke script uploads the sketch, waits for `VIS_READY`, validates LVGL capab
   - two `VIS_CARD` updates
   - two `VIS_SETTING` updates
   - final `VIS_STATE` with nonzero chat/cards/settings/agent counters
-- Visual: optional OCR sees `OK` on the AMOLED.
+- Visual: optional OCR sees the large `LVGL` marker on the AMOLED. A saved camera frame without an exact OCR match is partial evidence only.
 
 ## Notes
 
 - This is the preferred repo-owned LVGL app surface. The official `05-lvgl-widgets` demo remains the vendor baseline, while this sketch validates an agent-specific workflow under automation.
+- The visual build defaults to `DISPLAY_BRIGHTNESS=96` and dark LVGL panels because the earlier white-panel UI overexposed the round AMOLED in the current camera mount.
 - This path is safe for late-night validation because it does not play audio or use the host microphone.
 
 ## Verified Locally
@@ -54,3 +55,4 @@ The smoke script uploads the sketch, waits for `VIS_READY`, validates LVGL capab
 - Latest suite summary: `.logs/hardware-smoke-suite/20260614-044244/summary.json`.
 - Latest target log: `.logs/hardware-smoke-suite/20260614-044244/lvgl-visual-agent.log`.
 - Observed summary: `lvgl_visual_agent_summary states=18 page_flow=CHAT,CARDS,SETTINGS,CHAT chat=1 cards=2 settings=2 agent=1 commands=13`.
+- `LVGL_VISUAL_AGENT_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 DISPLAY_BRIGHTNESS=96 LVGL_VISUAL_AGENT_SECONDS=4 make lvgl-visual-agent-smoke`: build, upload, and serial validation passed on `/dev/cu.usbmodem83101`; the visual capture saved `.logs/camera-ocr-20260615-085302.jpg` and `.logs/camera-ocr-20260615-085302.txt`, but OCR exited non-zero because Vision read `FFACT` / `ГACГ` instead of `LVGL`. Treat this as camera-captured OCR partial evidence, not a visual pass.

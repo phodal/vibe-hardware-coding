@@ -164,7 +164,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
 20. For LVGL visual-agent validation:
    - Run `make lvgl-visual-agent-build` to compile the repo-owned LVGL tabview app.
    - Run `make lvgl-visual-agent-smoke` to upload it and validate LVGL initialization, display flush, CST92xx touch input registration, chat bubbles, cards, settings, agent thoughts, and tab/page changes over serial.
-   - Use `LVGL_VISUAL_AGENT_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make lvgl-visual-agent-smoke` when camera OCR should verify the screen reaches `OK`.
+   - Use `LVGL_VISUAL_AGENT_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 DISPLAY_BRIGHTNESS=96 make lvgl-visual-agent-smoke` when camera OCR should verify the screen reaches the large `LVGL` marker.
    - Treat this as the agent-specific LVGL UI slice; the official `05-lvgl-widgets` demo remains the vendor baseline.
    - This path is safe for late-night validation because it does not play audio or use the host microphone.
 

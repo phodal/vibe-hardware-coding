@@ -12,6 +12,10 @@
 #define DISPLAY_ROTATION 0
 #endif
 
+#ifndef DISPLAY_BRIGHTNESS
+#define DISPLAY_BRIGHTNESS 96
+#endif
+
 #define LVGL_TICK_PERIOD_MS 2
 
 Arduino_DataBus *bus = new Arduino_ESP32QSPI(
@@ -61,6 +65,7 @@ lv_obj_t *cardListLabel = nullptr;
 lv_obj_t *settingsLabel = nullptr;
 lv_obj_t *settingListLabel = nullptr;
 lv_obj_t *statsLabel = nullptr;
+lv_obj_t *ocrLabel = nullptr;
 
 int16_t touchX[5] = {0};
 int16_t touchY[5] = {0};
@@ -245,6 +250,9 @@ lv_obj_t *makePanel(lv_obj_t *parent, const char *title, lv_coord_t y, lv_coord_
   lv_obj_align(panel, LV_ALIGN_TOP_MID, 0, y);
   lv_obj_set_style_radius(panel, 8, 0);
   lv_obj_set_style_pad_all(panel, 14, 0);
+  lv_obj_set_style_bg_color(panel, lv_color_hex(0x111827), 0);
+  lv_obj_set_style_border_color(panel, lv_color_hex(0x334155), 0);
+  lv_obj_set_style_text_color(panel, lv_color_hex(0xf8fafc), 0);
   lv_obj_t *label = lv_label_create(panel);
   lv_label_set_text(label, title);
   lv_obj_set_style_text_font(label, &lv_font_montserrat_18, 0);
@@ -258,6 +266,11 @@ void createUi() {
   chatTab = lv_tabview_add_tab(tabview, "Chat");
   cardsTab = lv_tabview_add_tab(tabview, "Cards");
   settingsTab = lv_tabview_add_tab(tabview, "Settings");
+  lv_obj_t *tabs[] = {chatTab, cardsTab, settingsTab};
+  for (lv_obj_t *tab : tabs) {
+    lv_obj_set_style_bg_color(tab, lv_color_hex(0x020617), 0);
+    lv_obj_set_style_text_color(tab, lv_color_hex(0xf8fafc), 0);
+  }
 
   lv_obj_t *chatPanel = makePanel(chatTab, "VIS OK", 12, 164);
   titleLabel = lv_label_create(chatPanel);
@@ -301,6 +314,17 @@ void createUi() {
   lv_obj_set_style_text_color(statsLabel, lv_color_hex(0xffffff), 0);
   lv_obj_set_style_pad_all(statsLabel, 6, 0);
   lv_obj_align(statsLabel, LV_ALIGN_BOTTOM_MID, 0, -6);
+
+  ocrLabel = lv_label_create(lv_layer_top());
+  lv_label_set_text(ocrLabel, "LVGL");
+  lv_obj_set_style_bg_opa(ocrLabel, LV_OPA_COVER, 0);
+  lv_obj_set_style_bg_color(ocrLabel, lv_color_hex(0x020617), 0);
+  lv_obj_set_style_text_color(ocrLabel, lv_color_hex(0xffffff), 0);
+  lv_obj_set_style_text_font(ocrLabel, &lv_font_montserrat_48, 0);
+  lv_obj_set_style_pad_hor(ocrLabel, 10, 0);
+  lv_obj_set_style_pad_ver(ocrLabel, 2, 0);
+  lv_obj_align(ocrLabel, LV_ALIGN_CENTER, 0, 76);
+
   updateLvglLabels();
 }
 
@@ -356,7 +380,7 @@ void setupDisplay() {
     return;
   }
   gfx->setRotation(DISPLAY_ROTATION);
-  gfx->setBrightness(200);
+  gfx->setBrightness(DISPLAY_BRIGHTNESS);
   displayReady = true;
 }
 

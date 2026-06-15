@@ -11,7 +11,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 | cloud-ai-terminal | P0 | verified | non_audio_control | 12 item(s) | passed `.logs/hardware-smoke-suite/20260614-060731/summary.json` | suite-passed | No immediate evidence gap. |
 | web-ai-button | P1 | required_external | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260615-081705/summary.json` | external-gated | Needs external firmware/source environment evidence. |
 | offline-voice | P1 | verified | non_audio_control | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-055754/summary.json` | suite-passed | No immediate evidence gap. |
-| lvgl-visual-agent | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
+| lvgl-visual-agent | P1 | verified | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
 | imu-interaction | P1 | verified | none | 9 item(s) | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | suite-passed | No immediate evidence gap. |
 | power-lifecycle | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
 | desk-widget | P1 | verified | none | 17 item(s) | passed `.logs/hardware-smoke-suite/20260614-052802/summary.json` | suite-passed | No immediate evidence gap. |
@@ -137,6 +137,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
   - Latest suite summary: `.logs/hardware-smoke-suite/20260614-044244/summary.json`.
   - Latest target log: `.logs/hardware-smoke-suite/20260614-044244/lvgl-visual-agent.log`.
   - Observed summary: `lvgl_visual_agent_summary states=18 page_flow=CHAT,CARDS,SETTINGS,CHAT chat=1 cards=2 settings=2 agent=1 commands=13`.
+  - `LVGL_VISUAL_AGENT_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 DISPLAY_BRIGHTNESS=96 LVGL_VISUAL_AGENT_SECONDS=4 make lvgl-visual-agent-smoke`: build, upload, and serial validation passed on `/dev/cu.usbmodem83101`; the visual capture saved `.logs/camera-ocr-20260615-085302.jpg` and `.logs/camera-ocr-20260615-085302.txt`, but OCR exited non-zero because Vision read `FFACT` / `ГACГ` instead of `LVGL`. Treat this as camera-captured OCR partial evidence, not a visual pass.
 
 ## imu-interaction
 

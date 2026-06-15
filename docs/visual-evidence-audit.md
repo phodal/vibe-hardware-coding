@@ -14,8 +14,8 @@ Latest camera-ready preflight:
 
 Latest camera diagnose:
 
-- Directory: `.logs/camera-diagnose-20260614-143802`
-- Summary: `.logs/camera-diagnose-20260614-143802/summary.txt`
+- Directory: `.logs/camera-diagnose-20260615-083305`
+- Summary: `.logs/camera-diagnose-20260615-083305/summary.txt`
 - Device: `0` at `1280x720`
 - Swift capture status: `0`
 - FFmpeg capture status: `skipped`
@@ -30,7 +30,7 @@ Latest camera diagnose:
 | cloud-ai-terminal | P0 | verified | non_audio_control | camera-verified | `.logs/camera-ocr-20260613-225433.jpg` | Verified Locally references camera OCR artifact(s). |
 | web-ai-button | P1 | required_external | none | camera-verified | `docs/evidence/web-ai-button-qoder-20260615-081421/camera-ocr-20260615-081421.jpg` | Verified Locally references camera OCR artifact(s). |
 | offline-voice | P1 | verified | non_audio_control | visual-gate-documented | none | Visual smoke path is documented but no local camera artifact is recorded. |
-| lvgl-visual-agent | P1 | verified | none | visual-gate-documented | none | Visual smoke path is documented but no local camera artifact is recorded. |
+| lvgl-visual-agent | P1 | verified | none | camera-captured-ocr-partial | `.logs/camera-ocr-20260615-085302.jpg`, `.logs/camera-ocr-20260615-085302.txt` | Camera artifact is recorded, but exact OCR did not pass. |
 | imu-interaction | P1 | verified | none | visual-gate-documented | none | Visual smoke path is documented but no local camera artifact is recorded. |
 | power-lifecycle | P1 | verified | none | visual-gate-documented | none | Visual smoke path is documented but no local camera artifact is recorded. |
 | desk-widget | P1 | verified | none | visual-gate-documented | none | Visual smoke path is documented but no local camera artifact is recorded. |
@@ -79,9 +79,11 @@ Latest camera diagnose:
 ## lvgl-visual-agent
 
 - Doc: `docs/p1-lvgl-visual-agent.md`
-- Visual status: `visual-gate-documented`
-- Camera artifacts: none recorded in `## Verified Locally`.
-- Next visual gap: Visual smoke path is documented but no local camera artifact is recorded.
+- Visual status: `camera-captured-ocr-partial`
+- Camera artifacts:
+  - `.logs/camera-ocr-20260615-085302.jpg`
+  - `.logs/camera-ocr-20260615-085302.txt`
+- Next visual gap: Camera artifact is recorded, but exact OCR did not pass.
 
 ## imu-interaction
 
