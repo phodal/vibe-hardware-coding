@@ -14,8 +14,8 @@ Latest camera-ready preflight:
 
 Latest camera diagnose:
 
-- Directory: `.logs/camera-diagnose-20260615-083305`
-- Summary: `.logs/camera-diagnose-20260615-083305/summary.txt`
+- Directory: `.logs/camera-diagnose-20260616-073954`
+- Summary: `.logs/camera-diagnose-20260616-073954/summary.txt`
 - Device: `0` at `1280x720`
 - Swift capture status: `0`
 - FFmpeg capture status: `skipped`
@@ -25,7 +25,7 @@ Latest camera diagnose:
 
 | ID | Priority | Matrix status | Audio mode | Visual status | Artifacts | Next visual gap |
 | --- | --- | --- | --- | --- | --- | --- |
-| official-demos | P0 | verified | conditional | visual-gate-documented | none | Visual smoke path is documented but no local camera artifact is recorded. |
+| official-demos | P0 | verified | conditional | camera-captured-ocr-partial | `.logs/camera-ocr-20260616-074026.jpg`, `.logs/camera-ocr-20260616-074026.txt` | Camera artifact is recorded, but exact OCR did not pass. |
 | xiaozhi-ai | P0 | required_external | audio | post-flash-required | none | Visual gate is documented, but needs approved external firmware/runtime evidence. |
 | cloud-ai-terminal | P0 | verified | non_audio_control | camera-verified | `.logs/camera-ocr-20260613-225433.jpg` | Verified Locally references camera OCR artifact(s). |
 | web-ai-button | P1 | required_external | none | camera-verified | `docs/evidence/web-ai-button-qoder-20260615-081421/camera-ocr-20260615-081421.jpg` | Verified Locally references camera OCR artifact(s). |
@@ -42,9 +42,11 @@ Latest camera diagnose:
 ## official-demos
 
 - Doc: `docs/p0-official-demos.md`
-- Visual status: `visual-gate-documented`
-- Camera artifacts: none recorded in `## Verified Locally`.
-- Next visual gap: Visual smoke path is documented but no local camera artifact is recorded.
+- Visual status: `camera-captured-ocr-partial`
+- Camera artifacts:
+  - `.logs/camera-ocr-20260616-074026.jpg`
+  - `.logs/camera-ocr-20260616-074026.txt`
+- Next visual gap: Camera artifact is recorded, but exact OCR did not pass.
 
 ## xiaozhi-ai
 

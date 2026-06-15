@@ -25,6 +25,13 @@ Usage:
 EOF
 }
 
+official_visual_smoke() {
+  local expected
+  expected="${OFFICIAL_OCR_EXPECTED:-Hello World}"
+  echo "==> Official visual OCR: id=$OFFICIAL_DEMO_ID expected='$expected'"
+  OCR_EXPECTED="$expected" "$ROOT_DIR/scripts/camera-ocr.sh"
+}
+
 patch_power_wifi_timeout() {
   local ino_file="$1"
   local timeout_ms="${OFFICIAL_POWER_WIFI_TIMEOUT_MS:-5000}"
@@ -423,6 +430,9 @@ case "$ACTION" in
     "$ROOT_DIR/scripts/upload.sh"
     sleep "${OFFICIAL_SMOKE_SETTLE_SECONDS:-0}"
     capture_serial "$OFFICIAL_DEMO_EXPECTED_SERIAL"
+    if [[ "${OFFICIAL_VISUAL_SMOKE:-0}" == "1" ]]; then
+      official_visual_smoke
+    fi
     ;;
   build-all)
     failed=0
