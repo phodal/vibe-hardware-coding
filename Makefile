@@ -67,10 +67,10 @@ goal-completion-doc:
 	python3 ./scripts/goal-completion-audit.py --markdown > docs/goal-completion-audit.md
 
 remaining-gates-list:
-	python3 ./scripts/remaining-gates-preflight.py --list
+	python3 ./scripts/remaining-gates-preflight.py --list $(REMAINING_GATES_ARGS)
 
 remaining-gates-preflight:
-	python3 ./scripts/remaining-gates-preflight.py
+	python3 ./scripts/remaining-gates-preflight.py $(REMAINING_GATES_ARGS)
 
 hardware-smoke-list:
 	python3 ./scripts/hardware-smoke-suite.py --list

@@ -41,6 +41,16 @@ GATES = [
         "audio": "0",
         "physical_followup": 'make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target audio-front-end --allow-audio"',
     },
+    {
+        "id": "web-ai-button",
+        "reason": "external-required",
+        "command": ["make", "web-ai-button-tap-smoke"],
+        "safe_scope": "supervised-physical-tap",
+        "destructive": "0",
+        "audio": "0",
+        "manual_required": "1",
+        "physical_followup": "make web-ai-button-tap-smoke",
+    },
 ]
 
 
@@ -110,6 +120,38 @@ def run_gate(gate: dict[str, str], log_dir: pathlib.Path, timeout: float) -> dic
         "destructive": gate["destructive"],
         "audio": gate["audio"],
         "physical_followup": gate["physical_followup"],
+        "manual_required": gate.get("manual_required", "0"),
+    }
+
+
+def skip_manual_gate(gate: dict[str, str], log_dir: pathlib.Path) -> dict[str, Any]:
+    log_path = log_dir / f"{gate['id']}.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    message = (
+        "Skipped by default because this gate requires supervised physical input. "
+        f"Run `{' '.join(gate['command'])}` when a human can tap the board."
+    )
+    log_path.write_text(message + "\n", encoding="utf-8")
+    print(
+        "remaining_gate_skipped "
+        f"id={gate['id']} status=skipped reason=manual-required log={log_path} "
+        f"destructive={gate['destructive']} audio={gate['audio']}",
+        flush=True,
+    )
+    return {
+        "id": gate["id"],
+        "reason": gate["reason"],
+        "command": gate["command"],
+        "safe_scope": gate["safe_scope"],
+        "status": "skipped",
+        "skip_reason": "manual-required",
+        "returncode": None,
+        "seconds": 0.0,
+        "log": str(log_path),
+        "destructive": gate["destructive"],
+        "audio": gate["audio"],
+        "physical_followup": gate["physical_followup"],
+        "manual_required": gate.get("manual_required", "0"),
     }
 
 
@@ -117,10 +159,11 @@ def write_summary(results: list[dict[str, Any]], log_dir: pathlib.Path) -> pathl
     summary_path = log_dir / "summary.json"
     payload = {
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "purpose": "Safe preflight for goal-completion items that still require audio-window or explicit flash approval.",
+        "purpose": "Safe preflight for goal-completion items that still require an audio window, explicit flash approval, or supervised manual input.",
         "results": results,
         "passed": sum(1 for item in results if item["status"] == "passed"),
-        "failed": sum(1 for item in results if item["status"] != "passed"),
+        "skipped": sum(1 for item in results if item["status"] == "skipped"),
+        "failed": sum(1 for item in results if item["status"] not in {"passed", "skipped"}),
         "destructive": "0",
         "audio": "0",
     }
@@ -133,6 +176,11 @@ def main() -> int:
     parser.add_argument("--log-dir", default=str(DEFAULT_LOG_ROOT / timestamp()))
     parser.add_argument("--timeout", type=float, default=240.0)
     parser.add_argument("--list", action="store_true")
+    parser.add_argument(
+        "--include-manual",
+        action="store_true",
+        help="Also run gates that require supervised physical input, such as tapping the AMOLED.",
+    )
     args = parser.parse_args()
 
     if args.list:
@@ -141,6 +189,7 @@ def main() -> int:
                 "remaining_gate "
                 f"id={gate['id']} reason={gate['reason']} command={' '.join(gate['command'])!r} "
                 f"safe_scope={gate['safe_scope']} destructive={gate['destructive']} audio={gate['audio']} "
+                f"manual_required={gate.get('manual_required', '0')} "
                 f"physical_followup={gate['physical_followup']!r}"
             )
         print(f"remaining_gates_preflight_summary gates={len(GATES)} mode=list destructive=0 audio=0")
@@ -148,12 +197,19 @@ def main() -> int:
 
     log_dir = pathlib.Path(args.log_dir)
     log_dir.mkdir(parents=True, exist_ok=True)
-    results = [run_gate(gate, log_dir, args.timeout) for gate in GATES]
+    results = [
+        run_gate(gate, log_dir, args.timeout)
+        if args.include_manual or gate.get("manual_required", "0") != "1"
+        else skip_manual_gate(gate, log_dir)
+        for gate in GATES
+    ]
     summary_path = write_summary(results, log_dir)
-    failed = sum(1 for item in results if item["status"] != "passed")
+    failed = sum(1 for item in results if item["status"] not in {"passed", "skipped"})
+    skipped = sum(1 for item in results if item["status"] == "skipped")
     print(
         "remaining_gates_preflight_summary "
-        f"gates={len(results)} passed={len(results) - failed} failed={failed} "
+        f"gates={len(results)} passed={sum(1 for item in results if item['status'] == 'passed')} "
+        f"skipped={skipped} failed={failed} "
         f"summary={summary_path} destructive=0 audio=0"
     )
     return 1 if failed else 0
