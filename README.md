@@ -163,6 +163,7 @@ CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make cloud-ai-smoke
 make local-ai-server
 make web-ai-button-build
 make web-ai-button-smoke
+make web-ai-button-tap-smoke
 make audio-vad-build
 make audio-afe-readiness
 make audio-vad-preflight
@@ -203,7 +204,7 @@ make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--dry-run"
 
 `make cloud-ai-smoke` uploads the self-developed `cloud_ai_terminal` sketch, runs the host serial relay in mock mode, and verifies the board displays an AI response. `make cloud-ai-pipeline-smoke` drives the silent ASR -> LLM -> TTS serial pipeline and verifies `PIPELINE_DONE` without using the microphone or speaker. `make cloud-ai-cache-smoke` additionally validates board-local NVS cache and runtime state commands. These slices validate the display and host/cloud protocol shape; real audio capture and speaker playback are tracked in `docs/p0-cloud-ai-terminal.md`.
 
-`make web-ai-button-smoke` starts a local Mac HTTP AI server, uploads `sketches/web_ai_button`, sends Wi-Fi credentials from the ignored `.env` file over serial, and verifies that the board can trigger the server and display the returned AI text. The AMOLED shows `Qoder` above a large `ASK AI` touch button for manual triggering after the smoke has configured Wi-Fi and the endpoint. Use `WEB_AI_KEEP_SERVER=1 SKIP_BUILD=1 make web-ai-button-smoke` when the server should stay alive for manual taps after automation exits; details are in `docs/p1-web-ai-button.md`.
+`make web-ai-button-smoke` starts a local Mac HTTP AI server, uploads `sketches/web_ai_button`, sends Wi-Fi credentials from the ignored `.env` file over serial, and verifies that the board can trigger the server and display the returned AI text. The AMOLED shows `Qoder` above a large `ASK AI` touch button. Use `make web-ai-button-tap-smoke` for the supervised physical tap gate; it waits for `WEB_AI_TOUCH_EVENT`, `WEB_AI_TRIGGER source=touch`, and the HTTP AI response. Use `WEB_AI_KEEP_SERVER=1 SKIP_BUILD=1 make web-ai-button-smoke` when the server should stay alive for manual taps after automation exits; details are in `docs/p1-web-ai-button.md`.
 
 Latest saved web-button evidence: `docs/evidence/web-ai-button-qoder-20260615-081421/summary.md`.
 

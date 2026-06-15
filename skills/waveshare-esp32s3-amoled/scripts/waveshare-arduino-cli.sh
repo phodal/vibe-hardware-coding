@@ -206,6 +206,10 @@ case "$ACTION" in
         smoke)
           exec "$PROJECT_DIR/scripts/web-ai-button-smoke.sh"
           ;;
+        tap-smoke|manual-tap)
+          cd "$PROJECT_DIR"
+          exec make web-ai-button-tap-smoke
+          ;;
         server)
           cd "$PROJECT_DIR"
           exec make local-ai-server

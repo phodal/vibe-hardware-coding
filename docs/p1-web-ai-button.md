@@ -13,6 +13,7 @@ make local-ai-server
 make web-ai-button-build
 make web-ai-button-upload
 make web-ai-button-smoke
+make web-ai-button-tap-smoke
 WEB_AI_BUTTON_VISUAL_SMOKE=1 make web-ai-button-smoke
 ```
 
@@ -26,7 +27,9 @@ It returns JSON with `text` and `response`. Default mode is `mock` and returns `
 
 `make web-ai-button-smoke` starts the local server, uploads `sketches/web_ai_button`, sends Wi-Fi credentials from the ignored `.env` file over serial, configures the board endpoint to the Mac LAN IP, triggers one request over serial, and verifies `WEB_AI_RESPONSE status=ok`.
 
-For manual tapping after the smoke, keep the Mac server alive:
+`make web-ai-button-tap-smoke` follows the same setup path, but waits for a real screen tap instead of sending serial `TRIGGER`. It passes only after the checker captures `WEB_AI_TOUCH_EVENT`, `WEB_AI_TRIGGER source=touch`, and `WEB_AI_RESPONSE status=ok`.
+
+For manual tapping after the automated smoke, keep the Mac server alive:
 
 ```bash
 WEB_AI_KEEP_SERVER=1 SKIP_BUILD=1 make web-ai-button-smoke
@@ -52,6 +55,7 @@ WEB_AI_SERVER_MODE=mock
 WEB_AI_QUESTION='touch button'
 WEB_AI_EXPECT='AI OK'
 WEB_AI_KEEP_SERVER=1
+WEB_AI_MANUAL_TAP=1
 ```
 
 Set `WEB_AI_HOST_IP` when the automatic macOS interface detection picks the wrong address. The board must be able to reach `http://$WEB_AI_HOST_IP:$WEB_AI_SERVER_PORT/ask` from the Wi-Fi network.
@@ -89,7 +93,7 @@ The board emits:
 - the board emits `WEB_AI_RESPONSE status=ok`
 - the returned text contains `WEB_AI_EXPECT`, default `Qoder OK`
 
-Manual validation is the same runtime path: leave the local server running, tap the `ASK AI` button on the AMOLED, and watch the returned text update on the screen.
+`make web-ai-button-tap-smoke` has the same acceptance checks plus a supervised physical event: tap the `ASK AI` button while the checker prints `manual_tap_waiting`, then it requires both `WEB_AI_TOUCH_EVENT` and `WEB_AI_TRIGGER source=touch` before accepting the HTTP response.
 
 ## Verified Locally
 
@@ -97,6 +101,7 @@ Manual validation is the same runtime path: leave the local server running, tap 
 - `WEB_AI_KEEP_SERVER=1` was verified after the smoke: the detached server process was still running and `GET /health` returned HTTP 200.
 - Evidence pack: `docs/evidence/web-ai-button-qoder-20260615-081421/summary.md`.
 - A real pre-config tap was captured before this guard existed and returned `wifi_missing`; the current firmware now ignores pre-config button taps with `WEB_AI_TOUCH_IGNORED reason=not_ready` instead of treating them as failed AI requests. Touch remains wired to the same `triggerAi()` path after Wi-Fi and endpoint configuration.
+- `web-ai-button-tap-smoke` is now the evidence path for promoting this external lane beyond serial-triggered automation; it still requires a supervised human tap and local `.env` Wi-Fi credentials.
 
 ## Notes
 

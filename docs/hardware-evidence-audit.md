@@ -9,7 +9,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 | official-demos | P0 | verified | conditional | 24 item(s) | passed `.logs/hardware-smoke-suite/20260614-084339/summary.json` | suite-passed | No immediate evidence gap. |
 | xiaozhi-ai | P0 | required_external | audio | 27 item(s) | passed `.logs/hardware-smoke-suite/20260614-071849/summary.json` | external-gated | Needs external firmware/source environment evidence. |
 | cloud-ai-terminal | P0 | verified | non_audio_control | 12 item(s) | passed `.logs/hardware-smoke-suite/20260614-060731/summary.json` | suite-passed | No immediate evidence gap. |
-| web-ai-button | P1 | required_external | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260615-081705/summary.json` | external-gated | Needs external firmware/source environment evidence. |
+| web-ai-button | P1 | required_external | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260615-081705/summary.json` | external-gated | Needs external firmware/source environment evidence. |
 | offline-voice | P1 | verified | non_audio_control | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-055754/summary.json` | suite-passed | No immediate evidence gap. |
 | lvgl-visual-agent | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
 | imu-interaction | P1 | verified | none | 9 item(s) | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | suite-passed | No immediate evidence gap. |
@@ -114,6 +114,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
   - `WEB_AI_KEEP_SERVER=1` was verified after the smoke: the detached server process was still running and `GET /health` returned HTTP 200.
   - Evidence pack: `docs/evidence/web-ai-button-qoder-20260615-081421/summary.md`.
   - A real pre-config tap was captured before this guard existed and returned `wifi_missing`; the current firmware now ignores pre-config button taps with `WEB_AI_TOUCH_IGNORED reason=not_ready` instead of treating them as failed AI requests. Touch remains wired to the same `triggerAi()` path after Wi-Fi and endpoint configuration.
+  - `web-ai-button-tap-smoke` is now the evidence path for promoting this external lane beyond serial-triggered automation; it still requires a supervised human tap and local `.env` Wi-Fi credentials.
 
 ## offline-voice
 

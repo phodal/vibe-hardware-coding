@@ -95,7 +95,7 @@ def next_action(row: dict[str, str], state: str) -> str:
         return "Safe now: run `make audio-afe-readiness` and `make audio-vad-preflight`; during an allowed audio window run `make hardware-smoke-suite HARDWARE_SMOKE_ARGS=\"--target audio-front-end --allow-audio\"` and record the result."
     if state == "external-required":
         if row["id"] == "web-ai-button":
-            return "Local-network evidence exists; keep `.env` credentials ignored and record supervised physical tap evidence before promoting this external lane."
+            return "Local-network evidence exists; keep `.env` credentials ignored and run `make web-ai-button-tap-smoke` for supervised physical tap evidence before promoting this external lane."
         return "Keep `make xiaozhi-preflight` and `make xiaozhi-backup` current; after explicit flash approval run `CONFIRM=--yes make xiaozhi-flash`, then `make xiaozhi-runtime-visual-check` before any audio interaction."
     if state == "partial-implementation":
         return "Finish the remaining feature behavior, then promote matrix status only after broad hardware evidence."

@@ -91,15 +91,21 @@ if [[ -z "${ARDUINO_PORT_PINNED:-}" ]]; then
   export ARDUINO_PORT
 fi
 
-python3 "$ROOT_DIR/scripts/web-ai-button-check.py" \
-  --port "$ARDUINO_PORT" \
-  --baud "${MONITOR_BAUD:-115200}" \
-  --ssid "$WIFI_TEST_SSID" \
-  --password "$WIFI_TEST_PASSWORD" \
-  --endpoint "http://$host_ip:$SERVER_PORT/ask" \
-  --question "${WEB_AI_QUESTION:-touch button}" \
-  --expect "${WEB_AI_EXPECT:-Qoder OK}" \
+CHECK_ARGS=(
+  --port "$ARDUINO_PORT"
+  --baud "${MONITOR_BAUD:-115200}"
+  --ssid "$WIFI_TEST_SSID"
+  --password "$WIFI_TEST_PASSWORD"
+  --endpoint "http://$host_ip:$SERVER_PORT/ask"
+  --question "${WEB_AI_QUESTION:-touch button}"
+  --expect "${WEB_AI_EXPECT:-Qoder OK}"
   --timeout "${WEB_AI_TIMEOUT:-40}"
+)
+if [[ "${WEB_AI_MANUAL_TAP:-0}" == "1" ]]; then
+  CHECK_ARGS+=(--manual-tap)
+fi
+
+python3 "$ROOT_DIR/scripts/web-ai-button-check.py" "${CHECK_ARGS[@]}"
 
 if [[ "${WEB_AI_KEEP_SERVER:-0}" == "1" ]]; then
   echo "web_ai_server_kept_alive pid=$server_pid log=$SERVER_LOG endpoint=http://$host_ip:$SERVER_PORT/ask"

@@ -118,6 +118,11 @@ def main() -> int:
     parser.add_argument("--endpoint", required=True)
     parser.add_argument("--question", default="touch button")
     parser.add_argument("--expect", default="AI OK")
+    parser.add_argument(
+        "--manual-tap",
+        action="store_true",
+        help="Wait for a physical WEB_AI_TOUCH_EVENT instead of sending a serial TRIGGER.",
+    )
     parser.add_argument("--post-wifi-delay", type=float, default=1.5)
     parser.add_argument("--timeout", type=float, default=35)
     args = parser.parse_args()
@@ -139,7 +144,14 @@ def main() -> int:
         lines.extend(serial.read_lines(0.5))
         time.sleep(args.post_wifi_delay)
 
-        serial.write_line(f"TRIGGER:{args.question}")
+        if args.manual_tap:
+            print(
+                "manual_tap_waiting message='Tap the ASK AI button on the AMOLED now.'",
+                flush=True,
+            )
+            lines.extend(serial.wait_for_any(["WEB_AI_TOUCH_EVENT"], args.timeout))
+        else:
+            serial.write_line(f"TRIGGER:{args.question}")
         lines.extend(serial.wait_for_any(["WEB_AI_RESPONSE status="], args.timeout))
         serial.write_line("STATE?")
         lines.extend(serial.read_lines(0.5))
@@ -152,6 +164,11 @@ def main() -> int:
     response = latest(lines, "WEB_AI_RESPONSE ")
     require(wifi.get("status") == "ok", f"Wi-Fi join failed: {wifi}")
     require(as_int(wifi, "connected") == 1, f"Wi-Fi did not connect: {wifi}")
+    if args.manual_tap:
+        touch_event = latest(lines, "WEB_AI_TOUCH_EVENT ")
+        trigger = latest(lines, "WEB_AI_TRIGGER ")
+        require(touch_event, "No physical WEB_AI_TOUCH_EVENT captured.")
+        require(trigger.get("source") == "touch", f"Touch did not trigger AI request: {trigger}")
     require(response.get("status") == "ok", f"AI response failed: {response}")
     require(args.expect in " ".join(lines), f"Expected {args.expect!r} in serial output.")
 

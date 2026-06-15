@@ -102,6 +102,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `make local-ai-server` to start the Mac-side HTTP AI trigger server.
    - Run `make web-ai-button-build` to compile the Wi-Fi + touch-button sketch.
    - Run `make web-ai-button-smoke` to start the local server, upload the sketch, pass ignored `.env` Wi-Fi credentials over serial, configure the board endpoint to the Mac LAN IP, and verify `WEB_AI_RESPONSE status=ok`.
+   - Run `make web-ai-button-tap-smoke` for the supervised physical tap gate; it follows the same setup path but waits for `WEB_AI_TOUCH_EVENT`, `WEB_AI_TRIGGER source=touch`, and `WEB_AI_RESPONSE status=ok` instead of sending serial `TRIGGER`.
    - Use `WEB_AI_BUTTON_VISUAL_SMOKE=1 make web-ai-button-smoke` when camera OCR should also verify the board reaches the AI response screen.
    - Do not hard-code or commit SSIDs, passwords, local IPs, or AI command credentials. The default local server mode is mock; use `WEB_AI_SERVER_MODE=command` and `AI_TRIGGER_COMMAND=...` only for supervised local AI experiments.
    - This path is safe for late-night validation because it does not play audio or use the host microphone.
@@ -215,6 +216,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
      `CLOUD_AI_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh cloud-ai <project-dir> pipeline`
      `scripts/waveshare-arduino-cli.sh cloud-ai <project-dir> cache`
      `WEB_AI_BUTTON_VISUAL_SMOKE=1 scripts/waveshare-arduino-cli.sh web-ai-button <project-dir> smoke`
+     `scripts/waveshare-arduino-cli.sh web-ai-button <project-dir> tap-smoke`
      `scripts/waveshare-arduino-cli.sh audio-vad <project-dir> readiness`
      `AUDIO_VAD_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh audio-vad <project-dir> smoke`
      `SPEAKER_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh speaker-output <project-dir> smoke`
@@ -301,6 +303,7 @@ make cloud-ai-cache-smoke
 make local-ai-server
 make web-ai-button-build
 make web-ai-button-smoke
+make web-ai-button-tap-smoke
 make audio-vad-build
 make audio-afe-readiness
 make audio-vad-preflight

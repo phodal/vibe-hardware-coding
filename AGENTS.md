@@ -54,6 +54,7 @@ Recoding changes to the AGENTS.md file for better organization and clarity.
 - Wi-Fi validation should be scan-only by default. Do not hard-code or commit SSIDs/passwords; use `WIFI_TEST_SSID` and `WIFI_TEST_PASSWORD` only for supervised local join checks.
 - Store supervised Wi-Fi join credentials only in ignored `.env` files. The Wi-Fi checker redacts the host-side `JOIN` command, but serial output remains the authoritative proof for `connected=1` and IP assignment; camera OCR should validate the stable `OK` subset because the pixel font can misread `JOIN`.
 - Touch validation has two levels: default `touch-status-smoke` proves the CST9217 controller is online, while `TOUCH_REQUIRE_EVENT=1` requires a supervised human tap.
+- Web AI Button validation also has two levels: `make web-ai-button-smoke` proves the serial-triggered Wi-Fi/HTTP/display path, while `make web-ai-button-tap-smoke` requires a supervised physical AMOLED tap and captures `WEB_AI_TOUCH_EVENT` plus `WEB_AI_TRIGGER source=touch` before accepting the AI response.
 
 ## Cloud AI Terminal Direction
 
