@@ -316,7 +316,7 @@ void createUi() {
   lv_obj_align(statsLabel, LV_ALIGN_BOTTOM_MID, 0, -6);
 
   ocrLabel = lv_label_create(lv_layer_top());
-  lv_label_set_text(ocrLabel, "LVGL");
+  lv_label_set_text(ocrLabel, "OK");
   lv_obj_set_style_bg_opa(ocrLabel, LV_OPA_COVER, 0);
   lv_obj_set_style_bg_color(ocrLabel, lv_color_hex(0x020617), 0);
   lv_obj_set_style_text_color(ocrLabel, lv_color_hex(0xffffff), 0);

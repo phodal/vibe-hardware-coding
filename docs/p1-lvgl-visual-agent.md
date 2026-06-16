@@ -41,12 +41,12 @@ The smoke script uploads the sketch, waits for `VIS_READY`, validates LVGL capab
   - two `VIS_CARD` updates
   - two `VIS_SETTING` updates
   - final `VIS_STATE` with nonzero chat/cards/settings/agent counters
-- Visual: optional OCR sees the large `LVGL` marker on the AMOLED. A saved camera frame without an exact OCR match is partial evidence only.
+- Visual: optional OCR sees the large `OK` marker on the AMOLED. Serial remains the authoritative proof for LVGL initialization, tabview rendering, touch input registration, chat, cards, settings, and agent thought updates.
 
 ## Notes
 
 - This is the preferred repo-owned LVGL app surface. The official `05-lvgl-widgets` demo remains the vendor baseline, while this sketch validates an agent-specific workflow under automation.
-- The visual build defaults to `DISPLAY_BRIGHTNESS=96` and dark LVGL panels because the earlier white-panel UI overexposed the round AMOLED in the current camera mount.
+- The visual build defaults to `DISPLAY_BRIGHTNESS=96` and dark LVGL panels because the earlier white-panel UI overexposed the round AMOLED in the current camera mount. The large top-layer marker is `OK`; the older `LVGL` marker was readable to humans but Vision could misread it as `FFACT` / `ГACГ`.
 - This path is safe for late-night validation because it does not play audio or use the host microphone.
 
 ## Verified Locally
@@ -55,4 +55,7 @@ The smoke script uploads the sketch, waits for `VIS_READY`, validates LVGL capab
 - Latest suite summary: `.logs/hardware-smoke-suite/20260614-044244/summary.json`.
 - Latest target log: `.logs/hardware-smoke-suite/20260614-044244/lvgl-visual-agent.log`.
 - Observed summary: `lvgl_visual_agent_summary states=18 page_flow=CHAT,CARDS,SETTINGS,CHAT chat=1 cards=2 settings=2 agent=1 commands=13`.
-- `LVGL_VISUAL_AGENT_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 DISPLAY_BRIGHTNESS=96 LVGL_VISUAL_AGENT_SECONDS=4 make lvgl-visual-agent-smoke`: build, upload, and serial validation passed on `/dev/cu.usbmodem83101`; the visual capture saved `.logs/camera-ocr-20260615-085302.jpg` and `.logs/camera-ocr-20260615-085302.txt`, but OCR exited non-zero because Vision read `FFACT` / `ГACГ` instead of `LVGL`. Treat this as camera-captured OCR partial evidence, not a visual pass.
+- Historical visual attempt: `LVGL_VISUAL_AGENT_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 DISPLAY_BRIGHTNESS=96 LVGL_VISUAL_AGENT_SECONDS=4 make lvgl-visual-agent-smoke` saved `.logs/camera-ocr-20260615-085302.jpg` and `.logs/camera-ocr-20260615-085302.txt`, but Vision read `FFACT` / `ГACГ` instead of `LVGL`. Treat this older capture as debugging evidence; the current pass uses the stable `OK` marker below.
+- `LVGL_VISUAL_AGENT_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 DISPLAY_BRIGHTNESS=96 LVGL_VISUAL_AGENT_SECONDS=4 CAMERA_CAPTURE_TIMEOUT=8 make lvgl-visual-agent-smoke`: uploaded to `/dev/cu.usbmodem83101`, validated LVGL tabview, touch registration, chat, cards, settings, and agent thoughts over serial, then camera OCR matched the stable `OK` marker.
+- Camera OCR artifacts: `.logs/camera-ocr-20260616-084919.jpg`, `.logs/camera-ocr-20260616-084919.processed.png`, `.logs/camera-ocr-20260616-084919.txt`.
+- Latest visual build size: `748483 bytes` program storage and `74000 bytes` dynamic memory.
