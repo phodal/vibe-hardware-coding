@@ -13,7 +13,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 | offline-voice | P1 | verified | non_audio_control | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-055754/summary.json` | suite-passed | No immediate evidence gap. |
 | lvgl-visual-agent | P1 | verified | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
 | imu-interaction | P1 | verified | none | 12 item(s) | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | suite-passed | No immediate evidence gap. |
-| power-lifecycle | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
+| power-lifecycle | P1 | verified | none | 8 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
 | desk-widget | P1 | verified | none | 19 item(s) | passed `.logs/hardware-smoke-suite/20260614-052802/summary.json` | suite-passed | No immediate evidence gap. |
 | iot-panel | P1 | verified | none | 8 item(s) | passed `.logs/hardware-smoke-suite/20260614-053656/summary.json` | suite-passed | No immediate evidence gap. |
 | esp-claw-agent | P2 | verified | none | 7 item(s) | passed `.logs/hardware-smoke-suite/20260614-055205/summary.json` | suite-passed | No immediate evidence gap. |
@@ -170,6 +170,10 @@ This report audits evidence surfaces only. It does not prove completion by itsel
   - Latest suite summary: `.logs/hardware-smoke-suite/20260614-044244/summary.json`.
   - Latest target log: `.logs/hardware-smoke-suite/20260614-044244/power-lifecycle.log`.
   - Observed summary: `power_lifecycle_summary modes=ACTIVE,DIM,STANDBY system_mv=4306 vbus_mv=5166 batt_mv=4078 battery_connected=1 estimate_min=166 mode_changes=3 wake_count=1`.
+  - `POWER_LIFECYCLE_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 POWER_LIFECYCLE_SECONDS=4 CAMERA_CAPTURE_TIMEOUT=8 make power-lifecycle-smoke`: uploaded to `/dev/cu.usbmodem83101`, validated DIM/STANDBY/ACTIVE, brightness, capacity, load profile, wake, and runtime estimate over serial, then captured the board screen for OCR.
+  - Focused camera OCR pass on the same screen: `OCR_EXPECTED=OK CAMERA_CAPTURE_TIMEOUT=8 CAMERA_FOCUS_POINT=0.48,0.52 CAMERA_EXPOSURE_POINT=0.48,0.52 OCR_PREPROCESS_MODE=color OCR_SCALE_WIDTH=2400 ./scripts/camera-ocr.sh`.
+  - Camera OCR artifacts: `.logs/camera-ocr-20260616-084122.jpg`, `.logs/camera-ocr-20260616-084122.processed.png`, `.logs/camera-ocr-20260616-084122.txt`.
+  - Latest visual build size: `442967 bytes` program storage and `22992 bytes` dynamic memory.
 
 ## desk-widget
 

@@ -33,5 +33,10 @@ fi
 python3 "$ROOT_DIR/scripts/power-lifecycle-check.py" "${CHECK_ARGS[@]}"
 
 if [[ "${POWER_LIFECYCLE_VISUAL_SMOKE:-0}" == "1" ]]; then
-  OCR_EXPECTED="${POWER_LIFECYCLE_OCR_EXPECTED:-OK}" "$ROOT_DIR/scripts/camera-ocr.sh"
+  OCR_EXPECTED="${POWER_LIFECYCLE_OCR_EXPECTED:-OK}" \
+    OCR_PREPROCESS_MODE="${OCR_PREPROCESS_MODE:-color}" \
+    OCR_SCALE_WIDTH="${OCR_SCALE_WIDTH:-2400}" \
+    CAMERA_EXPOSURE_POINT="${CAMERA_EXPOSURE_POINT:-0.48,0.52}" \
+    CAMERA_FOCUS_POINT="${CAMERA_FOCUS_POINT:-0.48,0.52}" \
+    "$ROOT_DIR/scripts/camera-ocr.sh"
 fi

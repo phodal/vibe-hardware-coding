@@ -135,7 +135,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `make power-lifecycle-build` to compile the AXP2101 power lifecycle probe.
    - Run `make power-lifecycle-smoke` to upload it and validate DIM, STANDBY, ACTIVE, brightness, capacity, load-profile, wake, and runtime-estimate serial behavior.
    - Use `POWER_REQUIRE_BATTERY=1 make power-lifecycle-smoke` only when a battery is physically connected; the default smoke should not fail USB-only benches.
-   - Use `POWER_LIFECYCLE_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make power-lifecycle-smoke` when camera OCR should verify the screen reaches `OK`.
+   - Use `POWER_LIFECYCLE_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make power-lifecycle-smoke` when camera OCR should verify the screen reaches `OK`; the script defaults to color preprocessing plus centered focus/exposure for this probe because generic gray OCR can miss the white marker.
    - This path is safe for late-night validation because it does not play audio or use the host microphone. Its standby mode keeps serial alive and should not be treated as proof of true ESP32 deep sleep or measured current draw.
 
 16. For Wi-Fi connectivity validation:
