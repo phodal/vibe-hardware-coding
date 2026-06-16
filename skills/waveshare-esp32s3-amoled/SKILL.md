@@ -46,6 +46,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Use `CAMERA_RAW_IMAGE=/path/to/raw.jpg ./scripts/camera-ocr.sh` to retune crop, rotation, or `OCR_PREPROCESS_MODE` without recapturing.
    - Camera capture is bounded by `CAMERA_CAPTURE_TIMEOUT`; if it times out before saving a frame, debug macOS camera availability or another app owning the camera before changing board firmware.
    - Run `make camera-ready` before expensive visual smokes when camera availability is uncertain; it uses Swift capture only and fails unless a frame is saved. Run `make camera-diagnose` when capture fails; it records camera inventory, Swift AVFoundation status, related processes, and bounded video-only capture probes under `.logs/`. Use `CAMERA_DIAGNOSE_FFMPEG=0` when you want to avoid ffmpeg device enumeration. If Swift diagnostics report `running=true frames=0 drops=0`, the capture session started but macOS/USB delivered no video buffers, so fix the host camera pipeline before rerunning board smokes.
+   - Run `make camera-reset` to restart macOS camera services and rerun the strict camera-ready check. It does not quit chat apps unless `CAMERA_RESET_QUIT_CHAT_APPS=1` is set.
    - Pass only if OCR sees `OK`; use the saved raw/processed images to debug focus, glare, rotation, or garbled output.
 
 7. For official demo bring-up:
@@ -268,6 +269,7 @@ SMOKE_SECONDS=8 ./scripts/smoke.sh
 make camera-aligner
 make camera-diagnose
 make camera-ready
+make camera-reset
 make ok-qoder-evidence
 make feature-matrix-check
 make feature-matrix-doc

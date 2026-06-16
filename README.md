@@ -30,6 +30,7 @@ make visual-smoke
 make camera-aligner
 make camera-diagnose
 make camera-ready
+make camera-reset
 make ok-qoder-evidence
 make feature-matrix-check
 make hardware-evidence-audit
@@ -110,7 +111,7 @@ Latest saved run: `docs/evidence/ok-qoder-20260614-120532/summary.md`. It proves
 - see Vision OCR results update live
 - copy the generated `CAMERA_CROP` and `OCR_ROTATE` values for `make visual-smoke`
 
-`make camera-diagnose` writes a bounded diagnostic bundle under `.logs/camera-diagnose-*` with macOS camera inventory, Swift device status, camera-related processes, and optional Swift/ffmpeg video-only capture probes. Use `CAMERA_DIAGNOSE_FFMPEG=0 make camera-diagnose` to avoid ffmpeg device enumeration. `make camera-ready` is the stricter preflight for visual smokes: it uses Swift capture only and fails unless a frame is saved. If Swift diagnostics show `running=true frames=0 drops=0`, the camera session started but macOS/USB delivered no video buffers; fix the host camera path before rerunning board visual smokes.
+`make camera-diagnose` writes a bounded diagnostic bundle under `.logs/camera-diagnose-*` with macOS camera inventory, Swift device status, camera-related processes, and optional Swift/ffmpeg video-only capture probes. Use `CAMERA_DIAGNOSE_FFMPEG=0 make camera-diagnose` to avoid ffmpeg device enumeration. `make camera-ready` is the stricter preflight for visual smokes: it uses Swift capture only and fails unless a frame is saved. If Swift diagnostics show `running=true frames=0 drops=0`, the camera session started but macOS/USB delivered no video buffers; fix the host camera path before rerunning board visual smokes. `make camera-reset` restarts macOS camera services and then runs the same strict camera-ready check; it does not quit chat apps unless `CAMERA_RESET_QUIT_CHAT_APPS=1` is set.
 
 `make feature-matrix-check` verifies that each requested feature direction has matching Makefile, script/sketch, documentation, and Skill helper coverage. `make feature-matrix-doc` regenerates `docs/hardware-verification-matrix.md`.
 

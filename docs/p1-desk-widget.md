@@ -70,3 +70,5 @@ This is a control-plane and UI slice. It does not require Wi-Fi credentials yet;
 - Latest calendar suite target log: `.logs/hardware-smoke-suite/20260614-052802/desk-widget.log`.
 - Latest build size: `435871 bytes` program storage and `23312 bytes` dynamic memory.
 - Observed calendar relay result: `{"status": "ok", "mode": "mock", "ci": {"state": "FAIL", "label": "build red"}, "github": {"count": 7}, "calendar": {"count": 2, "next": "standup in 15"}, "alert_count": 1}`.
+- `SKIP_BUILD=1 DESK_WIDGET_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 DESK_WIDGET_SECONDS=4 CAMERA_CAPTURE_TIMEOUT=8 make desk-widget-smoke`: uploaded to `/dev/cu.usbmodem83101`, validated the serial CI/GitHub/alert/calendar/timer/summary flow, returned to `PAGE:HOME`, and camera OCR matched `OK`.
+- Camera OCR artifacts: `.logs/camera-ocr-20260616-081727.jpg`, `.logs/camera-ocr-20260616-081727.processed.png`, `.logs/camera-ocr-20260616-081727.txt`.
