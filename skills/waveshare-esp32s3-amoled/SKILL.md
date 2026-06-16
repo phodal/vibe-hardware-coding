@@ -181,7 +181,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `make iot-panel-build` to compile the serial-driven Home Assistant / MQTT / HTTP control panel.
    - Run `make iot-panel-smoke` to upload it and validate device state changes, explicit `IOT_HA` Home Assistant service calls, MQTT-style inbound updates, HTTP-style outbound actions, and scenes without Wi-Fi credentials.
    - Run `make iot-panel-relay-smoke` to validate the host event adapter that maps mock, JSON, or HTTP smart-home events into the panel serial protocol, including board-side `IOT_HA` output and the `ha=` state counter.
-   - Use `IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make iot-panel-smoke` when camera OCR should verify the screen reaches `OK`.
+   - Use `IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make iot-panel-smoke` when camera OCR should verify the screen reaches the stable `IOT` marker; serial verifies device, Home Assistant, MQTT, HTTP, and scene details.
    - This path is safe for late-night validation because it does not play audio or use the host microphone.
 
 23. For offline voice-control state-machine validation:

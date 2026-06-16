@@ -31,5 +31,5 @@ fi
 python3 "$ROOT_DIR/scripts/iot-panel-check.py" "${IOT_PANEL_CHECK_ARGS[@]}"
 
 if [[ "${IOT_PANEL_VISUAL_SMOKE:-0}" == "1" ]]; then
-  OCR_EXPECTED="${IOT_PANEL_OCR_EXPECTED:-OK}" "$ROOT_DIR/scripts/camera-ocr.sh"
+  OCR_EXPECTED="${IOT_PANEL_OCR_EXPECTED:-IOT}" "$ROOT_DIR/scripts/camera-ocr.sh"
 fi

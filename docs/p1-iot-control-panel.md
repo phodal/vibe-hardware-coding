@@ -20,6 +20,8 @@ IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make iot-panel-smoke
 
 The smoke script uploads the sketch, waits for `IOT_READY`, sends device, Home Assistant, MQTT, HTTP, and scene commands, then verifies `IOT_STATE`, `IOT_DEVICE`, `IOT_HA`, `IOT_MQTT`, and `IOT_HTTP` output.
 
+When `IOT_PANEL_VISUAL_SMOKE=1` is set, camera OCR checks the stable `IOT` marker on the returned home page. Serial remains the authoritative proof for device, Home Assistant, MQTT, HTTP, and scene state.
+
 `make iot-panel-relay-smoke` uploads the same sketch and runs `scripts/iot-panel-relay.py`. The relay maps mock, JSON-file, or HTTP smart-home events into the board serial protocol. Home Assistant events use the explicit `IOT:HA` command and must produce board-side `IOT_HA` output plus an incremented `ha=` state counter. This is the host-side adapter gate before using real Home Assistant, MQTT broker, or HTTP controller credentials.
 
 Relay payload shape:
@@ -63,3 +65,5 @@ This is a control-plane and UI slice, not yet a direct network integration. The 
 - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target iot-panel --skip-build --per-target-timeout 240 --max-failures 1"`: passed with summary `.logs/hardware-smoke-suite/20260614-053656/summary.json`.
 - `SKIP_BUILD=1 skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh iot-panel /Users/phodal/hardware/arduino relay`: passed through the repo Skill helper.
 - `SKIP_BUILD=1 /Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh iot-panel /Users/phodal/hardware/arduino relay`: passed through the global Skill helper.
+- `SKIP_BUILD=1 IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 IOT_PANEL_SECONDS=4 CAMERA_CAPTURE_TIMEOUT=8 make iot-panel-smoke`: uploaded to `/dev/cu.usbmodem83101`, validated device, Home Assistant, MQTT, HTTP, and `SCENE:NIGHT` serial state, returned to `PAGE:HOME`, and camera OCR matched `IOT`.
+- Camera OCR artifacts: `.logs/camera-ocr-20260616-082115.jpg`, `.logs/camera-ocr-20260616-082115.processed.png`, `.logs/camera-ocr-20260616-082115.txt`.

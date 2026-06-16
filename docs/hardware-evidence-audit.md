@@ -15,7 +15,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 | imu-interaction | P1 | verified | none | 12 item(s) | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | suite-passed | No immediate evidence gap. |
 | power-lifecycle | P1 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | suite-passed | No immediate evidence gap. |
 | desk-widget | P1 | verified | none | 19 item(s) | passed `.logs/hardware-smoke-suite/20260614-052802/summary.json` | suite-passed | No immediate evidence gap. |
-| iot-panel | P1 | verified | none | 6 item(s) | passed `.logs/hardware-smoke-suite/20260614-053656/summary.json` | suite-passed | No immediate evidence gap. |
+| iot-panel | P1 | verified | none | 8 item(s) | passed `.logs/hardware-smoke-suite/20260614-053656/summary.json` | suite-passed | No immediate evidence gap. |
 | esp-claw-agent | P2 | verified | none | 4 item(s) | passed `.logs/hardware-smoke-suite/20260614-055205/summary.json` | suite-passed | No immediate evidence gap. |
 | tinyml-imu | P2 | verified | none | 6 item(s) | passed `.logs/hardware-smoke-suite/20260614-054530/summary.json` | suite-passed | No immediate evidence gap. |
 | audio-front-end | P2 | required_quiet_window | audio | 14 item(s) | missing | quiet-window-gated | Needs an explicit quiet-window audio run. |
@@ -209,6 +209,8 @@ This report audits evidence surfaces only. It does not prove completion by itsel
   - `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target iot-panel --skip-build --per-target-timeout 240 --max-failures 1"`: passed with summary `.logs/hardware-smoke-suite/20260614-053656/summary.json`.
   - `SKIP_BUILD=1 skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh iot-panel /Users/phodal/hardware/arduino relay`: passed through the repo Skill helper.
   - `SKIP_BUILD=1 /Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh iot-panel /Users/phodal/hardware/arduino relay`: passed through the global Skill helper.
+  - `SKIP_BUILD=1 IOT_PANEL_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 IOT_PANEL_SECONDS=4 CAMERA_CAPTURE_TIMEOUT=8 make iot-panel-smoke`: uploaded to `/dev/cu.usbmodem83101`, validated device, Home Assistant, MQTT, HTTP, and `SCENE:NIGHT` serial state, returned to `PAGE:HOME`, and camera OCR matched `IOT`.
+  - Camera OCR artifacts: `.logs/camera-ocr-20260616-082115.jpg`, `.logs/camera-ocr-20260616-082115.processed.png`, `.logs/camera-ocr-20260616-082115.txt`.
 
 ## esp-claw-agent
 
