@@ -35,6 +35,8 @@ make ok-qoder-evidence
 make feature-matrix-check
 make hardware-evidence-audit
 make hardware-evidence-doc
+make evidence-index
+make evidence-index-doc
 make remaining-gates-doc
 make remaining-gates-runbook
 make hardware-smoke-list
@@ -118,6 +120,8 @@ Latest saved run: `docs/evidence/ok-qoder-20260614-120532/summary.md`. It proves
 `make feature-matrix-check` verifies that each requested feature direction has matching Makefile, script/sketch, documentation, and Skill helper coverage. `make feature-matrix-doc` regenerates `docs/hardware-verification-matrix.md`.
 
 `make hardware-evidence-audit` reports which feature lanes have documented verification evidence and latest smoke-suite evidence. `make hardware-evidence-doc` regenerates `docs/hardware-evidence-audit.md`.
+
+`make evidence-index` prints a consolidated cross-reference of strict completion, feature docs, hardware-suite status, visual OCR status, and remaining-gate status. `make evidence-index-doc` regenerates `docs/evidence-index.md`; this is the quickest article and handoff map, while `make goal-completion-audit` remains the strict completion gate.
 
 `make remaining-gates-preflight` refreshes the safe side of the still-incomplete gates without audio, XiaoZhi flashing, or unsupervised physical taps. `make remaining-gates-doc` regenerates `docs/remaining-gates-preflight.md` from the latest summary so these blocked completion requirements stay explicit. `make remaining-gates-runbook` regenerates `docs/remaining-gates-supervised-runbook.md`, which is the operator checklist for the four gates that still need an allowed audio window, explicit XiaoZhi flash approval, or a supervised AMOLED tap.
 
@@ -204,6 +208,8 @@ make lvgl-visual-agent-build
 make lvgl-visual-agent-smoke
 make hardware-evidence-audit
 make hardware-evidence-doc
+make evidence-index
+make evidence-index-doc
 make remaining-gates-doc
 make remaining-gates-runbook
 make hardware-smoke-list

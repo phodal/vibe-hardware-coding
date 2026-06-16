@@ -133,6 +133,25 @@ case "$ACTION" in
       esac
     fi
     ;;
+  evidence-index)
+    if [[ -x "$PROJECT_DIR/scripts/evidence-index.py" ]]; then
+      cd "$PROJECT_DIR"
+      if [[ "${#EXTRA_ARGS[@]}" -eq 0 ]]; then
+        exec make evidence-index
+      fi
+      case "${EXTRA_ARGS[0]}" in
+        check|index)
+          exec make evidence-index
+          ;;
+        doc)
+          exec make evidence-index-doc
+          ;;
+        markdown)
+          exec python3 "$PROJECT_DIR/scripts/evidence-index.py" --markdown
+          ;;
+      esac
+    fi
+    ;;
   hardware-smoke-suite)
     if [[ -x "$PROJECT_DIR/scripts/hardware-smoke-suite.py" ]]; then
       cd "$PROJECT_DIR"

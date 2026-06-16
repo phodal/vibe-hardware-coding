@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 DEMO ?= 01-helloworld
 
-.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-color-check camera-aligner camera-diagnose camera-ready camera-reset ok-qoder-evidence claude-skill-smoke feature-matrix-check feature-matrix-doc hardware-evidence-audit hardware-evidence-doc visual-evidence-audit visual-evidence-doc goal-completion-audit goal-completion-doc remaining-gates-preflight remaining-gates-list remaining-gates-doc remaining-gates-runbook hardware-smoke-list hardware-smoke-suite official-demos official-build official-upload official-smoke official-build-all official-audio-preflight official-audio-physical-plan official-audio-physical-smoke official-coverage xiaozhi-latest xiaozhi-download xiaozhi-inspect xiaozhi-preflight xiaozhi-readiness xiaozhi-backup xiaozhi-runtime-check xiaozhi-visual-check xiaozhi-runtime-visual-check xiaozhi-restore xiaozhi-flash xiaozhi-source-clone xiaozhi-source-check xiaozhi-idf-env xiaozhi-idf-build cloud-ai-build cloud-ai-upload cloud-ai-smoke cloud-ai-pipeline-smoke cloud-ai-cache-smoke cloud-ai-relay local-ai-server web-ai-button-build web-ai-button-upload web-ai-button-smoke web-ai-button-tap-smoke audio-vad-build audio-afe-readiness audio-vad-preflight audio-vad-smoke speaker-output-build speaker-output-smoke sensor-status-build sensor-status-smoke power-lifecycle-build power-lifecycle-smoke wifi-connectivity-build wifi-connectivity-smoke touch-status-build touch-status-smoke interaction-dashboard-build interaction-dashboard-smoke imu-interaction-build imu-interaction-smoke desk-widget-build desk-widget-smoke desk-widget-relay-smoke iot-panel-build iot-panel-smoke iot-panel-relay-smoke tinyml-imu-build tinyml-imu-model-check tinyml-imu-smoke esp-claw-agent-build esp-claw-agent-smoke offline-voice-build offline-voice-smoke lvgl-visual-agent-build lvgl-visual-agent-smoke install-hooks hook-smoke board-list clean
+.PHONY: setup build upload monitor smoke visual-smoke camera-ocr camera-color-check camera-aligner camera-diagnose camera-ready camera-reset ok-qoder-evidence claude-skill-smoke feature-matrix-check feature-matrix-doc hardware-evidence-audit hardware-evidence-doc visual-evidence-audit visual-evidence-doc goal-completion-audit goal-completion-doc evidence-index evidence-index-doc remaining-gates-preflight remaining-gates-list remaining-gates-doc remaining-gates-runbook hardware-smoke-list hardware-smoke-suite official-demos official-build official-upload official-smoke official-build-all official-audio-preflight official-audio-physical-plan official-audio-physical-smoke official-coverage xiaozhi-latest xiaozhi-download xiaozhi-inspect xiaozhi-preflight xiaozhi-readiness xiaozhi-backup xiaozhi-runtime-check xiaozhi-visual-check xiaozhi-runtime-visual-check xiaozhi-restore xiaozhi-flash xiaozhi-source-clone xiaozhi-source-check xiaozhi-idf-env xiaozhi-idf-build cloud-ai-build cloud-ai-upload cloud-ai-smoke cloud-ai-pipeline-smoke cloud-ai-cache-smoke cloud-ai-relay local-ai-server web-ai-button-build web-ai-button-upload web-ai-button-smoke web-ai-button-tap-smoke audio-vad-build audio-afe-readiness audio-vad-preflight audio-vad-smoke speaker-output-build speaker-output-smoke sensor-status-build sensor-status-smoke power-lifecycle-build power-lifecycle-smoke wifi-connectivity-build wifi-connectivity-smoke touch-status-build touch-status-smoke interaction-dashboard-build interaction-dashboard-smoke imu-interaction-build imu-interaction-smoke desk-widget-build desk-widget-smoke desk-widget-relay-smoke iot-panel-build iot-panel-smoke iot-panel-relay-smoke tinyml-imu-build tinyml-imu-model-check tinyml-imu-smoke esp-claw-agent-build esp-claw-agent-smoke offline-voice-build offline-voice-smoke lvgl-visual-agent-build lvgl-visual-agent-smoke install-hooks hook-smoke board-list clean
 
 setup:
 	./scripts/setup.sh
@@ -68,6 +68,12 @@ goal-completion-audit:
 
 goal-completion-doc:
 	python3 ./scripts/goal-completion-audit.py --markdown > docs/goal-completion-audit.md
+
+evidence-index:
+	python3 ./scripts/evidence-index.py
+
+evidence-index-doc:
+	python3 ./scripts/evidence-index.py --markdown > docs/evidence-index.md
 
 remaining-gates-list:
 	python3 ./scripts/remaining-gates-preflight.py --list $(REMAINING_GATES_ARGS)

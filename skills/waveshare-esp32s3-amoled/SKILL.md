@@ -72,6 +72,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `make visual-evidence-doc` to regenerate `docs/visual-evidence-audit.md`.
    - Run `make goal-completion-audit` for the stricter requirement-level completion gate; use `python3 scripts/goal-completion-audit.py --strict` only when a non-zero result should fail CI or handoff.
    - Run `make goal-completion-doc` to regenerate `docs/goal-completion-audit.md`.
+   - Run `make evidence-index` for a consolidated handoff map across strict completion, feature docs, hardware suite, visual OCR, and remaining-gate status. Run `make evidence-index-doc` to regenerate `docs/evidence-index.md`.
    - Run `make remaining-gates-preflight` to refresh the safe side of incomplete lanes without flashing XiaoZhi or using audio hardware, then `make remaining-gates-doc` to regenerate `docs/remaining-gates-preflight.md` from the latest summary. It must still leave strict completion at 9/13 until approved physical/external/manual evidence exists. Web AI Button physical tap is recorded as skipped/manual-required by default unless `REMAINING_GATES_ARGS=--include-manual` is passed.
    - Run `make remaining-gates-runbook` to regenerate `docs/remaining-gates-supervised-runbook.md` before handing off the four remaining gates. It keeps the required approval, supervised command, expected evidence, and completion boundary visible for audio, XiaoZhi flash, and physical tap work.
    - Run `make hardware-smoke-list` to inspect the default serialized non-audio smoke selection.
@@ -213,6 +214,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `web_ai_button`, `audio_vad_probe`, `speaker_output_probe`, `sensor_status_probe`, `power_lifecycle_probe`, `wifi_connectivity_probe`, `touch_status_probe`, `interaction_dashboard`, `imu_interaction_probe`, `lvgl_visual_agent`, `desk_widget`, `iot_control_panel`, `offline_voice_control`, `tinyml_imu_classifier`, and `esp_claw_agent`.
    - Run `scripts/waveshare-arduino-cli.sh feature-matrix <project-dir> check` to validate coverage metadata before claiming all tracked directions are wired.
    - Run `scripts/waveshare-arduino-cli.sh visual-evidence <project-dir> audit` to check camera/OCR evidence coverage through the Skill helper.
+   - Run `scripts/waveshare-arduino-cli.sh evidence-index <project-dir>` to print the consolidated evidence map, or pass `doc`/`markdown` to regenerate or render it.
    - Run `scripts/waveshare-arduino-cli.sh ok-qoder-evidence <project-dir>` to build, upload, serial-smoke, and camera-OCR the default `OK Qoder` hello sketch into a committed evidence pack under `docs/evidence/`.
    - Run `make claude-skill-smoke` from this repo to ask the local Claude CLI to read the repo Skill and invoke this helper for the non-audio visual smoke path. The wrapper records Claude's transcript plus the command log under `.logs/`, and `CLAUDE_SKILL_SMOKE_MODE=audit` switches to a no-upload feature-matrix check.
    - `verify`/`doctor` is intentionally compile-only; it does not upload firmware or run camera OCR.
@@ -283,6 +285,8 @@ make visual-evidence-audit
 make visual-evidence-doc
 make goal-completion-audit
 make goal-completion-doc
+make evidence-index
+make evidence-index-doc
 make remaining-gates-list
 make remaining-gates-preflight
 make remaining-gates-doc
