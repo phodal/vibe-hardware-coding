@@ -6,18 +6,18 @@ This report is stricter than the evidence audit. A feature is complete only when
 
 Summary: `9` of `13` feature directions are currently complete under this stricter gate.
 
-| ID | Priority | Matrix status | Audio mode | Suite | Completion | Next action |
-| --- | --- | --- | --- | --- | --- | --- |
-| official-demos | P0 | verified | conditional | passed `.logs/hardware-smoke-suite/20260614-084339/summary.json` | conditional-physical-evidence-required | Run `make official-audio-physical-plan`; during an allowed audio window run `ALLOW_AUDIO=1 make official-audio-physical-smoke`, adding `OFFICIAL_AUDIO_OUTPUT_CONFIRM=heard` for supervised ES8311 output evidence. |
-| xiaozhi-ai | P0 | required_external | audio | passed `.logs/hardware-smoke-suite/20260614-071849/summary.json` | external-required | Keep `make xiaozhi-preflight` and `make xiaozhi-backup` current; after explicit flash approval run `CONFIRM=--yes make xiaozhi-flash`, then `make xiaozhi-runtime-visual-check` before any audio interaction. |
-| cloud-ai-terminal | P0 | verified | non_audio_control | passed `.logs/hardware-smoke-suite/20260614-060731/summary.json` | complete | No immediate action. |
-| web-ai-button | P1 | required_external | none | passed `.logs/hardware-smoke-suite/20260615-081705/summary.json` | external-required | Local-network evidence exists; keep `.env` credentials ignored and run `make web-ai-button-tap-smoke` for supervised physical tap evidence before promoting this external lane. |
-| offline-voice | P1 | verified | non_audio_control | passed `.logs/hardware-smoke-suite/20260614-055754/summary.json` | complete | No immediate action. |
-| lvgl-visual-agent | P1 | verified | none | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | complete | No immediate action. |
-| imu-interaction | P1 | verified | none | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | complete | No immediate action. |
-| power-lifecycle | P1 | verified | none | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | complete | No immediate action. |
-| desk-widget | P1 | verified | none | passed `.logs/hardware-smoke-suite/20260614-052802/summary.json` | complete | No immediate action. |
-| iot-panel | P1 | verified | none | passed `.logs/hardware-smoke-suite/20260614-053656/summary.json` | complete | No immediate action. |
-| esp-claw-agent | P2 | verified | none | passed `.logs/hardware-smoke-suite/20260614-055205/summary.json` | complete | No immediate action. |
-| tinyml-imu | P2 | verified | none | passed `.logs/hardware-smoke-suite/20260614-054530/summary.json` | complete | No immediate action. |
-| audio-front-end | P2 | required_quiet_window | audio | missing | quiet-window-required | Safe now: run `make audio-afe-readiness` and `make audio-vad-preflight`; during an allowed audio window run `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target audio-front-end --allow-audio"` and record the result. |
+| ID | Priority | Matrix status | Audio mode | Suite | Safe preflight | Completion | Next action |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| official-demos | P0 | verified | conditional | passed `.logs/hardware-smoke-suite/20260614-084339/summary.json` | passed `plan-only` `.logs/remaining-gates-preflight/20260616-231338/summary.json` | conditional-physical-evidence-required | Run `make official-audio-physical-plan`; during an allowed audio window run `ALLOW_AUDIO=1 make official-audio-physical-smoke`, adding `OFFICIAL_AUDIO_OUTPUT_CONFIRM=heard` for supervised ES8311 output evidence. |
+| xiaozhi-ai | P0 | required_external | audio | passed `.logs/hardware-smoke-suite/20260614-071849/summary.json` | passed `preflight-source-build-existing-backup` `.logs/remaining-gates-preflight/20260616-231338/summary.json` | external-required | Keep `make xiaozhi-readiness` current; after explicit flash approval run `XIAOZHI_READINESS_BACKUP=1 make xiaozhi-readiness`, then `CONFIRM=--yes make xiaozhi-flash` and `make xiaozhi-runtime-visual-check` before any audio interaction. |
+| cloud-ai-terminal | P0 | verified | non_audio_control | passed `.logs/hardware-smoke-suite/20260614-060731/summary.json` | - | complete | No immediate action. |
+| web-ai-button | P1 | required_external | none | passed `.logs/hardware-smoke-suite/20260615-081705/summary.json` | skipped `supervised-physical-tap` `.logs/remaining-gates-preflight/20260616-231338/summary.json` | external-required | Local-network evidence exists; keep `.env` credentials ignored and run `make web-ai-button-tap-smoke` for supervised physical tap evidence before promoting this external lane. |
+| offline-voice | P1 | verified | non_audio_control | passed `.logs/hardware-smoke-suite/20260614-055754/summary.json` | - | complete | No immediate action. |
+| lvgl-visual-agent | P1 | verified | none | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | - | complete | No immediate action. |
+| imu-interaction | P1 | verified | none | passed `.logs/hardware-smoke-suite/20260614-045308/summary.json` | - | complete | No immediate action. |
+| power-lifecycle | P1 | verified | none | passed `.logs/hardware-smoke-suite/20260614-044244/summary.json` | - | complete | No immediate action. |
+| desk-widget | P1 | verified | none | passed `.logs/hardware-smoke-suite/20260614-052802/summary.json` | - | complete | No immediate action. |
+| iot-panel | P1 | verified | none | passed `.logs/hardware-smoke-suite/20260614-053656/summary.json` | - | complete | No immediate action. |
+| esp-claw-agent | P2 | verified | none | passed `.logs/hardware-smoke-suite/20260614-055205/summary.json` | - | complete | No immediate action. |
+| tinyml-imu | P2 | verified | none | passed `.logs/hardware-smoke-suite/20260614-054530/summary.json` | - | complete | No immediate action. |
+| audio-front-end | P2 | required_quiet_window | audio | missing | passed `compile-and-artifact-preflight` `.logs/remaining-gates-preflight/20260616-231338/summary.json` | quiet-window-required | Safe now: run `make audio-afe-readiness` and `make audio-vad-preflight`; during an allowed audio window run `make hardware-smoke-suite HARDWARE_SMOKE_ARGS="--target audio-front-end --allow-audio"` and record the result. |

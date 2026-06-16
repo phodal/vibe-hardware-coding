@@ -10,6 +10,7 @@ from typing import Any
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 MATRIX_PATH = ROOT / "config" / "feature-matrix.tsv"
 SUITE_ROOT = ROOT / ".logs" / "hardware-smoke-suite"
+REMAINING_GATES_ROOT = ROOT / ".logs" / "remaining-gates-preflight"
 
 
 def load_matrix(path: pathlib.Path) -> list[dict[str, str]]:
@@ -38,6 +39,28 @@ def verified_bullets(doc_path: pathlib.Path) -> list[str]:
 
 
 def load_suite_results(root: pathlib.Path) -> dict[str, dict[str, Any]]:
+    latest: dict[str, dict[str, Any]] = {}
+    if not root.exists():
+        return latest
+    for summary_path in sorted(root.glob("*/summary.json")):
+        try:
+            payload = json.loads(summary_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        generated_at = str(payload.get("generated_at", ""))
+        for item in payload.get("results", []):
+            if not isinstance(item, dict) or "id" not in item:
+                continue
+            row_id = str(item["id"])
+            record = dict(item)
+            record["summary"] = str(summary_path)
+            record["generated_at"] = generated_at
+            if row_id not in latest or generated_at >= str(latest[row_id].get("generated_at", "")):
+                latest[row_id] = record
+    return latest
+
+
+def load_remaining_gate_results(root: pathlib.Path) -> dict[str, dict[str, Any]]:
     latest: dict[str, dict[str, Any]] = {}
     if not root.exists():
         return latest
@@ -96,7 +119,7 @@ def next_action(row: dict[str, str], state: str) -> str:
     if state == "external-required":
         if row["id"] == "web-ai-button":
             return "Local-network evidence exists; keep `.env` credentials ignored and run `make web-ai-button-tap-smoke` for supervised physical tap evidence before promoting this external lane."
-        return "Keep `make xiaozhi-preflight` and `make xiaozhi-backup` current; after explicit flash approval run `CONFIRM=--yes make xiaozhi-flash`, then `make xiaozhi-runtime-visual-check` before any audio interaction."
+        return "Keep `make xiaozhi-readiness` current; after explicit flash approval run `XIAOZHI_READINESS_BACKUP=1 make xiaozhi-readiness`, then `CONFIRM=--yes make xiaozhi-flash` and `make xiaozhi-runtime-visual-check` before any audio interaction."
     if state == "partial-implementation":
         return "Finish the remaining feature behavior, then promote matrix status only after broad hardware evidence."
     if state == "conditional-physical-evidence-required":
@@ -110,11 +133,16 @@ def next_action(row: dict[str, str], state: str) -> str:
     return "Review evidence manually."
 
 
-def audit_rows(rows: list[dict[str, str]], suite_results: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+def audit_rows(
+    rows: list[dict[str, str]],
+    suite_results: dict[str, dict[str, Any]],
+    remaining_gate_results: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     for row in rows:
         bullets = verified_bullets(ROOT / row["doc"])
         suite = suite_results.get(row["id"])
+        remaining_gate = remaining_gate_results.get(row["id"])
         state = completion_state(row, bullets, suite)
         records.append(
             {
@@ -122,6 +150,9 @@ def audit_rows(rows: list[dict[str, str]], suite_results: dict[str, dict[str, An
                 "doc_items": len(bullets),
                 "suite_status": suite.get("status", "missing") if suite else "missing",
                 "suite_summary": rel(str(suite.get("summary", ""))) if suite else "",
+                "remaining_gate_status": remaining_gate.get("status", "") if remaining_gate else "",
+                "remaining_gate_scope": remaining_gate.get("safe_scope", "") if remaining_gate else "",
+                "remaining_gate_summary": rel(str(remaining_gate.get("summary", ""))) if remaining_gate else "",
                 "completion": state,
                 "complete": state == "complete",
                 "next_action": next_action(row, state),
@@ -141,20 +172,28 @@ def render_markdown(records: list[dict[str, Any]]) -> str:
         "",
         f"Summary: `{complete}` of `{len(records)}` feature directions are currently complete under this stricter gate.",
         "",
-        "| ID | Priority | Matrix status | Audio mode | Suite | Completion | Next action |",
-        "| --- | --- | --- | --- | --- | --- | --- |",
+        "| ID | Priority | Matrix status | Audio mode | Suite | Safe preflight | Completion | Next action |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for item in records:
         suite_text = item["suite_status"]
         if item["suite_summary"]:
             suite_text = f"{suite_text} `{item['suite_summary']}`"
+        safe_text = "-"
+        if item["remaining_gate_status"]:
+            safe_text = item["remaining_gate_status"]
+            if item["remaining_gate_scope"]:
+                safe_text = f"{safe_text} `{item['remaining_gate_scope']}`"
+            if item["remaining_gate_summary"]:
+                safe_text = f"{safe_text} `{item['remaining_gate_summary']}`"
         lines.append(
-            "| {id} | {priority} | {status} | {audio_mode} | {suite} | {completion} | {next_action} |".format(
+            "| {id} | {priority} | {status} | {audio_mode} | {suite} | {safe} | {completion} | {next_action} |".format(
                 id=item["id"],
                 priority=item["priority"],
                 status=item["status"],
                 audio_mode=item["audio_mode"],
                 suite=suite_text,
+                safe=safe_text,
                 completion=item["completion"],
                 next_action=item["next_action"],
             )
@@ -167,11 +206,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Audit the full board goal at requirement level.")
     parser.add_argument("--matrix", default=str(MATRIX_PATH))
     parser.add_argument("--suite-root", default=str(SUITE_ROOT))
+    parser.add_argument("--remaining-gates-root", default=str(REMAINING_GATES_ROOT))
     parser.add_argument("--markdown", action="store_true")
     parser.add_argument("--strict", action="store_true", help="Return non-zero when any feature is incomplete.")
     args = parser.parse_args()
 
-    records = audit_rows(load_matrix(pathlib.Path(args.matrix)), load_suite_results(pathlib.Path(args.suite_root)))
+    records = audit_rows(
+        load_matrix(pathlib.Path(args.matrix)),
+        load_suite_results(pathlib.Path(args.suite_root)),
+        load_remaining_gate_results(pathlib.Path(args.remaining_gates_root)),
+    )
     if args.markdown:
         print(render_markdown(records), end="")
         return 0
@@ -183,7 +227,8 @@ def main() -> int:
         print(
             "goal_completion "
             f"id={item['id']} status={item['status']} audio={item['audio_mode']} "
-            f"suite={item['suite_status']} completion={item['completion']}"
+            f"suite={item['suite_status']} safe_preflight={item['remaining_gate_status'] or 'none'} "
+            f"completion={item['completion']}"
         )
     return 1 if args.strict and incomplete else 0
 
