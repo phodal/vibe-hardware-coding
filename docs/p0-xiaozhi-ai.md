@@ -141,8 +141,8 @@ Flashing XiaoZhi replaces the Arduino demo currently on the board. To return to 
 - Standalone `esptool.py` is not installed, but Arduino ESP32 core provides `~/Library/Arduino15/packages/esp32/tools/esptool_py/5.1.0/esptool`.
 - `make xiaozhi-source-clone` cloned official source to `.vendor/xiaozhi/source` at `v2.2.6-37-g3f9e5fc`.
 - `make xiaozhi-source-check` confirmed the source tree contains `CONFIG_BOARD_TYPE_WAVESHARE_ESP32_S3_TOUCH_AMOLED_1_75C`.
-- `make xiaozhi-idf-env` on 2026-06-14 activated ESP-IDF `v5.5.4` from `.vendor/esp-idf-v5.5.4` with Python env `~/.espressif/python_env/idf5.5_py3.14_env`.
-- `make xiaozhi-idf-build` on 2026-06-14 compiled the official XiaoZhi source without flashing firmware or using audio hardware.
+- `make xiaozhi-idf-env` on 2026-06-16 activated ESP-IDF `v5.5.4` from `.vendor/esp-idf-v5.5.4` with Python env `~/.espressif/python_env/idf5.5_py3.14_env`.
+- `make xiaozhi-idf-build` on 2026-06-16 compiled the official XiaoZhi source without flashing firmware or using audio hardware.
 - Latest `xiaozhi_idf_build_summary`: `idf=ESP-IDF_v5.5.4 app_bin=/Users/phodal/hardware/arduino/.vendor/xiaozhi/source/build/xiaozhi.bin app_size=2944176 bootloader_size=16256 partition_size=3072 assets_size=2851677 destructive=0 audio=0`.
 - Earlier ESP-IDF `v5.4.4` was rejected by the XiaoZhi component solver because `main/idf_component.yml` requires `idf >=5.5.2`.
 - `skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh xiaozhi /Users/phodal/hardware/arduino idf-build`: passed through the repo Skill helper.
