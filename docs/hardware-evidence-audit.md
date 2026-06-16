@@ -6,7 +6,7 @@ This report audits evidence surfaces only. It does not prove completion by itsel
 
 | ID | Priority | Matrix status | Audio mode | Doc evidence | Latest suite | Posture | Next gap |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| official-demos | P0 | verified | conditional | 25 item(s) | passed `.logs/hardware-smoke-suite/20260614-084339/summary.json` | suite-passed | No immediate evidence gap. |
+| official-demos | P0 | verified | conditional | 27 item(s) | passed `.logs/hardware-smoke-suite/20260614-084339/summary.json` | suite-passed | No immediate evidence gap. |
 | xiaozhi-ai | P0 | required_external | audio | 27 item(s) | passed `.logs/hardware-smoke-suite/20260614-071849/summary.json` | external-gated | Needs external firmware/source environment evidence. |
 | cloud-ai-terminal | P0 | verified | non_audio_control | 12 item(s) | passed `.logs/hardware-smoke-suite/20260614-060731/summary.json` | suite-passed | No immediate evidence gap. |
 | web-ai-button | P1 | required_external | none | 5 item(s) | passed `.logs/hardware-smoke-suite/20260615-081705/summary.json` | external-gated | Needs external firmware/source environment evidence. |
@@ -50,7 +50,9 @@ This report audits evidence surfaces only. It does not prove completion by itsel
   - Latest suite target log: `.logs/hardware-smoke-suite/20260614-084339/official-demos.log`.
   - Latest suite serial log: `.logs/hardware-smoke-suite/20260614-084339/official-demos/official-01-helloworld-20260614-084516.log`.
   - Latest suite build size: sketch `411067` bytes, globals `22896` bytes.
-  - `SKIP_BUILD=1 OFFICIAL_VISUAL_SMOKE=1 OFFICIAL_OCR_EXPECTED="Hello World" SMOKE_SECONDS=8 CAMERA_CAPTURE_TIMEOUT=8 make official-smoke DEMO=01-helloworld`: uploaded the existing `01-helloworld` build, matched serial `loop`, and saved `.logs/camera-ocr-20260616-074026.jpg` plus `.logs/camera-ocr-20260616-074026.txt`, but OCR exited non-zero because Vision read no text from the vendor demo's small randomized multi-color `Hello World!` output. Treat this as camera-captured OCR partial evidence, not a visual pass.
+  - `SKIP_BUILD=1 OFFICIAL_VISUAL_SMOKE=1 OFFICIAL_OCR_EXPECTED="Hello World" SMOKE_SECONDS=8 CAMERA_CAPTURE_TIMEOUT=8 make official-smoke DEMO=01-helloworld`: uploaded the existing `01-helloworld` build, matched serial `loop`, and saved `.logs/camera-ocr-20260616-074026.jpg` plus `.logs/camera-ocr-20260616-074026.txt`; Vision read no stable text from the vendor demo's small randomized multi-color `Hello World!` output, so this older capture is debugging evidence only.
+  - `OFFICIAL_VISUAL_STABLE_MARKER=1 OFFICIAL_VISUAL_SMOKE=1 SMOKE_SECONDS=8 CAMERA_CAPTURE_TIMEOUT=8 make official-smoke DEMO=01-helloworld`: staged the official HelloWorld demo with an automation-only large `OK` marker, uploaded to `/dev/cu.usbmodem83101`, matched serial `Arduino_GFX Hello World example` and `loop`, captured `.logs/camera-ocr-20260616-225109.jpg`, and passed OCR with text including `OK`.
+  - Latest staged visual smoke log: `.logs/official-01-helloworld-20260616-225101.log`.
 
 ## xiaozhi-ai
 

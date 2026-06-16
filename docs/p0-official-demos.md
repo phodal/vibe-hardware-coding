@@ -14,6 +14,7 @@ make official-demos
 make official-build DEMO=01-helloworld
 make official-smoke DEMO=01-helloworld
 OFFICIAL_VISUAL_SMOKE=1 OFFICIAL_OCR_EXPECTED="Hello World" make official-smoke DEMO=01-helloworld
+OFFICIAL_VISUAL_STABLE_MARKER=1 OFFICIAL_VISUAL_SMOKE=1 make official-smoke DEMO=01-helloworld
 make official-build-all
 make official-audio-preflight
 make official-audio-physical-plan
@@ -50,6 +51,7 @@ scripts/official-demo.sh path 01-helloworld
 - `make official-coverage` is read-only. It reports build artifacts, source presence, audio quiet-marker readiness, and existing physical smoke logs for every official demo without uploading or using audio devices.
 - `make official-smoke DEMO=<id>` uploads to the connected board and captures serial output under `.logs/`.
 - `OFFICIAL_VISUAL_SMOKE=1 make official-smoke DEMO=<id>` runs the same serial gate first, then captures the AMOLED with `camera-ocr.sh`. Use `OFFICIAL_OCR_EXPECTED=...` when the demo has a stable visible marker.
+- `OFFICIAL_VISUAL_STABLE_MARKER=1 OFFICIAL_VISUAL_SMOKE=1 make official-smoke DEMO=01-helloworld` applies a staged-only `OK` marker to the official HelloWorld copy, lowers brightness, and defaults `OCR_ROTATE=180` for the current camera mount. Vendor source directories are not modified.
 - Official smoke capture uses `scripts/serial-capture.py` by default so the log is open before pulsing RTS reset; this is required for demos that print expected serial text only during `setup()`.
 - Vendor example folders are staged into `.arduino-build/official-sketches/<id>` before compilation because several official `.ino` filenames do not match their parent folder names, which `arduino-cli` requires.
 - Visual proof for display-oriented demos can be layered with `make camera-aligner` and `make visual-smoke`. Vendor source directories are not modified; automation-only changes are applied only to staged copies under `.arduino-build/official-sketches/<id>`.
@@ -82,4 +84,6 @@ scripts/official-demo.sh path 01-helloworld
 - Latest suite target log: `.logs/hardware-smoke-suite/20260614-084339/official-demos.log`.
 - Latest suite serial log: `.logs/hardware-smoke-suite/20260614-084339/official-demos/official-01-helloworld-20260614-084516.log`.
 - Latest suite build size: sketch `411067` bytes, globals `22896` bytes.
-- `SKIP_BUILD=1 OFFICIAL_VISUAL_SMOKE=1 OFFICIAL_OCR_EXPECTED="Hello World" SMOKE_SECONDS=8 CAMERA_CAPTURE_TIMEOUT=8 make official-smoke DEMO=01-helloworld`: uploaded the existing `01-helloworld` build, matched serial `loop`, and saved `.logs/camera-ocr-20260616-074026.jpg` plus `.logs/camera-ocr-20260616-074026.txt`, but OCR exited non-zero because Vision read no text from the vendor demo's small randomized multi-color `Hello World!` output. Treat this as camera-captured OCR partial evidence, not a visual pass.
+- `SKIP_BUILD=1 OFFICIAL_VISUAL_SMOKE=1 OFFICIAL_OCR_EXPECTED="Hello World" SMOKE_SECONDS=8 CAMERA_CAPTURE_TIMEOUT=8 make official-smoke DEMO=01-helloworld`: uploaded the existing `01-helloworld` build, matched serial `loop`, and saved `.logs/camera-ocr-20260616-074026.jpg` plus `.logs/camera-ocr-20260616-074026.txt`; Vision read no stable text from the vendor demo's small randomized multi-color `Hello World!` output, so this older capture is debugging evidence only.
+- `OFFICIAL_VISUAL_STABLE_MARKER=1 OFFICIAL_VISUAL_SMOKE=1 SMOKE_SECONDS=8 CAMERA_CAPTURE_TIMEOUT=8 make official-smoke DEMO=01-helloworld`: staged the official HelloWorld demo with an automation-only large `OK` marker, uploaded to `/dev/cu.usbmodem83101`, matched serial `Arduino_GFX Hello World example` and `loop`, captured `.logs/camera-ocr-20260616-225109.jpg`, and passed OCR with text including `OK`.
+- Latest staged visual smoke log: `.logs/official-01-helloworld-20260616-225101.log`.

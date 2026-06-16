@@ -120,7 +120,7 @@ Latest saved run: `docs/evidence/ok-qoder-20260614-120532/summary.md`. It proves
 `make hardware-smoke-list` shows which feature smokes are selected by the default non-audio suite. `make hardware-smoke-suite` runs those selected smokes serially and writes logs under `.logs/hardware-smoke-suite/`; pass `HARDWARE_SMOKE_ARGS="--target iot-panel --skip-build"` for a narrow lane. When `--with-visual` is set, the suite runs `make camera-ready` first and aborts before any upload if the host camera cannot save a frame. Details are in `docs/hardware-smoke-suite.md`.
 
 `make official-demos` lists the Waveshare official Arduino examples tracked in `config/official-demos.tsv`.
-Use `make official-build DEMO=<id>` for compile-only validation, and `make official-smoke DEMO=<id>` to upload a vendor demo and verify its expected serial output. Set `OFFICIAL_VISUAL_SMOKE=1 OFFICIAL_OCR_EXPECTED="Hello World"` when you also want a camera/OCR layer after the serial gate; the current `01-helloworld` vendor text is visually captured but not exact-OCR stable in this camera mount. Start with `DEMO=01-helloworld`, then move through PMU, IMU, LVGL, and audio demos.
+Use `make official-build DEMO=<id>` for compile-only validation, and `make official-smoke DEMO=<id>` to upload a vendor demo and verify its expected serial output. Set `OFFICIAL_VISUAL_STABLE_MARKER=1 OFFICIAL_VISUAL_SMOKE=1 make official-smoke DEMO=01-helloworld` when you also want camera/OCR proof for the display baseline; this applies a staged-only large `OK` marker and leaves the vendor source untouched. Start with `DEMO=01-helloworld`, then move through PMU, IMU, LVGL, and audio demos.
 See `docs/p0-official-demos.md` for the current P0 bring-up matrix and local verification notes.
 
 ## XiaoZhi AI Commands

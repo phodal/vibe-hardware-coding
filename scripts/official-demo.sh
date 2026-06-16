@@ -27,9 +27,57 @@ EOF
 
 official_visual_smoke() {
   local expected
-  expected="${OFFICIAL_OCR_EXPECTED:-Hello World}"
+  if [[ "${OFFICIAL_VISUAL_STABLE_MARKER:-0}" == "1" ]]; then
+    expected="${OFFICIAL_OCR_EXPECTED:-OK}"
+    export OCR_PREPROCESS_MODE="${OCR_PREPROCESS_MODE:-color}"
+    export OCR_SCALE_WIDTH="${OCR_SCALE_WIDTH:-2400}"
+    export CAMERA_EXPOSURE_POINT="${CAMERA_EXPOSURE_POINT:-0.48,0.52}"
+    export CAMERA_FOCUS_POINT="${CAMERA_FOCUS_POINT:-0.48,0.52}"
+    export OCR_ROTATE="${OCR_ROTATE:-180}"
+  else
+    expected="${OFFICIAL_OCR_EXPECTED:-Hello World}"
+  fi
   echo "==> Official visual OCR: id=$OFFICIAL_DEMO_ID expected='$expected'"
   OCR_EXPECTED="$expected" "$ROOT_DIR/scripts/camera-ocr.sh"
+}
+
+patch_helloworld_visual_marker() {
+  local ino_file="$1"
+
+  python3 - "$ino_file" <<'PY'
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+text = path.read_text()
+text = text.replace("  gfx->setBrightness(128);\n", "  gfx->setBrightness(96);\n")
+old = """void loop() {
+  gfx->setCursor(random(gfx->width()), random(gfx->height()));
+  gfx->setTextColor(random(0xffff), random(0xffff));
+  gfx->setTextSize(random(6) /* x scale */, random(6) /* y scale */, random(2) /* pixel_margin */);
+  gfx->println(\"Hello World!\");
+  Serial.println(\"loop\");
+  delay(200);
+}
+"""
+new = """void loop() {
+  gfx->fillScreen(RGB565_BLACK);
+  gfx->setTextColor(RGB565_WHITE, RGB565_BLACK);
+  gfx->setTextSize(9);
+  gfx->setCursor(150, 142);
+  gfx->println(\"OK\");
+  gfx->setTextColor(RGB565_GREEN, RGB565_BLACK);
+  gfx->setTextSize(3);
+  gfx->setCursor(92, 286);
+  gfx->println(\"Hello World\");
+  Serial.println(\"loop\");
+  delay(1000);
+}
+"""
+if old not in text:
+    raise SystemExit(f"Expected HelloWorld loop block not found in {path}")
+path.write_text(text.replace(old, new))
+PY
 }
 
 patch_power_wifi_timeout() {
@@ -138,6 +186,9 @@ configure_demo() {
 
   if [[ "$id" == "03-power-axp2101" ]]; then
     patch_power_wifi_timeout "$main_ino"
+  fi
+  if [[ "$id" == "01-helloworld" && "${OFFICIAL_VISUAL_STABLE_MARKER:-0}" == "1" ]]; then
+    patch_helloworld_visual_marker "$main_ino"
   fi
 }
 

@@ -58,6 +58,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Run `make official-coverage` for a read-only audit of build artifacts, source presence, quiet audio marker readiness, and existing physical smoke logs across every official demo.
    - Run `SMOKE_SECONDS=8 make official-smoke DEMO=01-helloworld` to upload the official display baseline and verify runtime serial output.
    - Run `OFFICIAL_VISUAL_SMOKE=1 OFFICIAL_OCR_EXPECTED="Hello World" SMOKE_SECONDS=8 make official-smoke DEMO=01-helloworld` when camera OCR should run after the serial gate; treat saved frames with failed OCR as partial visual evidence.
+   - Run `OFFICIAL_VISUAL_STABLE_MARKER=1 OFFICIAL_VISUAL_SMOKE=1 SMOKE_SECONDS=8 make official-smoke DEMO=01-helloworld` for a staged-only stable `OK` OCR marker on the official HelloWorld baseline; it leaves vendor source directories untouched and defaults `OCR_ROTATE=180` for the current camera mount.
    - Official smoke uses `scripts/serial-capture.py` to open capture before RTS reset; keep this path for one-shot setup logs.
    - `03-power-axp2101` uses a staged-only `OFFICIAL_POWER_WIFI_TIMEOUT_MS` patch in automation so invalid vendor Station credentials do not block AP, PMU, and LVGL initialization; treat the resulting `Setup done` as PMU/LVGL evidence, not Station Wi-Fi proof.
    - The project runner stages vendor examples under `.arduino-build/official-sketches/<id>` because several official `.ino` filenames do not match their parent folder names, which `arduino-cli` requires.
@@ -290,6 +291,7 @@ make official-audio-preflight
 make official-coverage
 SMOKE_SECONDS=8 make official-smoke DEMO=01-helloworld
 OFFICIAL_VISUAL_SMOKE=1 OFFICIAL_OCR_EXPECTED="Hello World" SMOKE_SECONDS=8 make official-smoke DEMO=01-helloworld
+OFFICIAL_VISUAL_STABLE_MARKER=1 OFFICIAL_VISUAL_SMOKE=1 SMOKE_SECONDS=8 make official-smoke DEMO=01-helloworld
 make xiaozhi-latest
 make xiaozhi-inspect
 make xiaozhi-preflight
