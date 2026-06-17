@@ -210,8 +210,15 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
    - Treat this as a deterministic compatibility harness, not the official ESP-Claw firmware image. It exists so automation can prove the agent loop before IM credentials, Wi-Fi, and full ESP-Claw source builds are introduced.
    - This path is safe for late-night validation because it does not play audio or use the host microphone.
 
-26. For Skill automation wiring:
-   - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `web_ai_button`, `audio_vad_probe`, `speaker_output_probe`, `sensor_status_probe`, `power_lifecycle_probe`, `wifi_connectivity_probe`, `touch_status_probe`, `interaction_dashboard`, `imu_interaction_probe`, `lvgl_visual_agent`, `desk_widget`, `iot_control_panel`, `offline_voice_control`, `tinyml_imu_classifier`, and `esp_claw_agent`.
+26. For NES Contra emulator validation:
+   - Run `make nes-contra-preflight` to inspect the local Contra disassembly checkout, cc65 tools, and user-supplied ROM state without modifying tracked files.
+   - Run `make nes-contra-build` to compile the diagnostic emulator lane scaffold.
+   - Run `make nes-contra-smoke` to upload the scaffold and validate `NES_CONTRA_READY`, `CAPS?`, `ROM?`, serial input injection, and frame progress.
+   - Use `NES_CONTRA_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 make nes-contra-smoke` when camera OCR should verify the large `OK` marker before real game pixels are used as evidence.
+   - Treat this lane as partial until a reviewed emulator core boots a Mapper 2 ROM; do not commit Contra ROM bytes or generated ROM headers.
+
+27. For Skill automation wiring:
+   - Run `scripts/waveshare-arduino-cli.sh verify <project-dir>` from this skill to prove the agent-facing entrypoint can inspect the toolchain, see the USB board, list official demos, and clean-compile `cloud_ai_terminal`, `web_ai_button`, `audio_vad_probe`, `speaker_output_probe`, `sensor_status_probe`, `power_lifecycle_probe`, `wifi_connectivity_probe`, `touch_status_probe`, `interaction_dashboard`, `imu_interaction_probe`, `lvgl_visual_agent`, `desk_widget`, `iot_control_panel`, `offline_voice_control`, `tinyml_imu_classifier`, `esp_claw_agent`, and `nes_contra_emulator`.
    - Run `scripts/waveshare-arduino-cli.sh feature-matrix <project-dir> check` to validate coverage metadata before claiming all tracked directions are wired.
    - Run `scripts/waveshare-arduino-cli.sh visual-evidence <project-dir> audit` to check camera/OCR evidence coverage through the Skill helper.
    - Run `scripts/waveshare-arduino-cli.sh evidence-index <project-dir>` to print the consolidated evidence map, or pass `doc`/`markdown` to regenerate or render it.
@@ -241,6 +248,7 @@ Use this skill to bring up Waveshare ESP32-S3 Touch AMOLED Arduino projects thro
      `scripts/waveshare-arduino-cli.sh iot-panel <project-dir> relay`
      `OFFLINE_VOICE_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh offline-voice <project-dir> smoke`
      `TINYML_IMU_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh tinyml-imu <project-dir> smoke`
+     `NES_CONTRA_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 scripts/waveshare-arduino-cli.sh nes-contra <project-dir> smoke`
      and
      `ESP_CLAW_AGENT_VISUAL_SMOKE=1 DISPLAY_ROTATION=2 DISPLAY_BRIGHTNESS=96 scripts/waveshare-arduino-cli.sh esp-claw-agent <project-dir> smoke`.
 
@@ -353,6 +361,9 @@ make tinyml-imu-build
 make tinyml-imu-smoke
 make esp-claw-agent-build
 make esp-claw-agent-smoke
+make nes-contra-preflight
+make nes-contra-build
+make nes-contra-smoke
 /Users/phodal/.codex/skills/waveshare-esp32s3-amoled/scripts/waveshare-arduino-cli.sh verify /path/to/project
 ```
 

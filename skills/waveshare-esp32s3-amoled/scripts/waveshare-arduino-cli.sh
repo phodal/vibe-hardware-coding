@@ -35,6 +35,7 @@ case "$ACTION" in
       make offline-voice-build
       make tinyml-imu-build
       make esp-claw-agent-build
+      make nes-contra-build
       exit 0
     fi
     ;;
@@ -521,6 +522,30 @@ case "$ACTION" in
           ;;
         check)
           exec python3 "$PROJECT_DIR/scripts/esp-claw-agent-check.py" "${EXTRA_ARGS[@]:1}"
+          ;;
+      esac
+    fi
+    ;;
+  nes-contra)
+    if [[ -x "$PROJECT_DIR/scripts/nes-contra-smoke.sh" ]]; then
+      if [[ "${#EXTRA_ARGS[@]}" -eq 0 ]]; then
+        cd "$PROJECT_DIR"
+        exec make nes-contra-preflight
+      fi
+      case "${EXTRA_ARGS[0]}" in
+        preflight)
+          cd "$PROJECT_DIR"
+          exec make nes-contra-preflight
+          ;;
+        build)
+          cd "$PROJECT_DIR"
+          exec make nes-contra-build
+          ;;
+        smoke)
+          exec "$PROJECT_DIR/scripts/nes-contra-smoke.sh"
+          ;;
+        check)
+          exec python3 "$PROJECT_DIR/scripts/nes-contra-check.py" "${EXTRA_ARGS[@]:1}"
           ;;
       esac
     fi
